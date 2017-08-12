@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DMS.Application;
-using VoxelEditor.ControllerParts;
+﻿using DMS.Application;
+using VoxelEditor.Controller;
 
 namespace VoxelEditor
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		private static void Main(string[] args)
 		{
 			ExampleApplication app = new ExampleApplication();
-			Controller controller = new Controller();
+			MainController controller = new MainController();
 			app.Update += controller.Update;
 			app.Render += controller.Render;
 			app.Run();
