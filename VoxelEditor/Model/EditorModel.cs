@@ -9,7 +9,7 @@ namespace VoxelEditor.Model
 
 		public event EventHandler ModelEvent;
 
-		public void Update(float absoluteTime, ModelCommands commands)
+		public void Update(float absoluteTime, ModelInput input)
 		{
 			//TODO implement
 		}

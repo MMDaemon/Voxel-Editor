@@ -7,7 +7,7 @@ namespace VoxelEditor.Model
 	{
 		ViewModel ViewModel { get; }
 
-		void Update(float absoluteTime, ModelCommands commands);
+		void Update(float absoluteTime, ModelInput input);
 
 		event EventHandler ModelEvent;
 	}

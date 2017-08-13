@@ -1,4 +1,5 @@
 ﻿using DMS.Application;
+using OpenTK;
 using VoxelEditor.Controller;
 
 namespace VoxelEditor
@@ -7,11 +8,7 @@ namespace VoxelEditor
 	{
 		private static void Main(string[] args)
 		{
-			ExampleApplication app = new ExampleApplication();
 			MainController controller = new MainController();
-			app.Update += controller.Update;
-			app.Render += controller.Render;
-			app.Run();
 		}
 	}
 }
