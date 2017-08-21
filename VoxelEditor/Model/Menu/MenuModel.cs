@@ -1,28 +1,22 @@
 ﻿using System;
-using VoxelEditor.Controller;
+using VoxelEditor.Common.Transfer;
 
-namespace VoxelEditor.Model
+namespace VoxelEditor.Model.Menu
 {
-	internal class EditorModel : IModel
+	internal class MenuModel: IModel
 	{
 		public ViewModel ViewModel => CreateViewModel();
-
-		public event EventHandler ModelEvent;
-
 		public void Update(float absoluteTime, ModelInput input)
 		{
 			//TODO implement
 		}
-
 		private ViewModel CreateViewModel()
 		{
 			return new ViewModel();
 			//TODO implement
 		}
 
-		private void OnModelEvent(ModelEventArgs e)
-		{
-			ModelEvent?.Invoke(this, e);
-		}
+		public event EventHandler ModelEvent;
+		public event EventHandler StateChanged;
 	}
 }

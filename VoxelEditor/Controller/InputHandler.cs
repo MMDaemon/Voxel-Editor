@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenTK;
-using OpenTK.Input;
+using VoxelEditor.Common.Transfer;
 
 namespace VoxelEditor.Controller
 {
 	class InputHandler
 	{
-		private GameWindow _gameWindow;
+		private readonly GameWindow _gameWindow;
 
 		public InputHandler(GameWindow gameWindow)
 		{

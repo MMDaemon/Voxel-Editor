@@ -1,5 +1,5 @@
 ﻿using System;
-using VoxelEditor.Controller;
+using VoxelEditor.Common.Transfer;
 
 namespace VoxelEditor.Model
 {
@@ -10,5 +10,6 @@ namespace VoxelEditor.Model
 		void Update(float absoluteTime, ModelInput input);
 
 		event EventHandler ModelEvent;
+		event EventHandler StateChanged;
 	}
 }

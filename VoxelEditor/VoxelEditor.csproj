@@ -51,19 +51,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Enums\Enums.cs" />
     <Compile Include="Controller\InputHandler.cs" />
     <Compile Include="Controller\MainController.cs" />
-    <Compile Include="Controller\ModelInput.cs" />
-    <Compile Include="Controller\ModelEventArgs.cs" />
-    <Compile Include="Controller\ViewModel.cs" />
-    <Compile Include="Model\EditorModel.cs" />
+    <Compile Include="Common\Transfer\ModelInput.cs" />
+    <Compile Include="Common\EventArguments\ModelEventArgs.cs" />
+    <Compile Include="Common\EventArguments\StateChangedEventArgs.cs" />
+    <Compile Include="Common\Transfer\ViewModel.cs" />
+    <Compile Include="Controller\StateHandler.cs" />
+    <Compile Include="Controller\StateInformation.cs" />
+    <Compile Include="Model\Editor\EditorModel.cs" />
     <Compile Include="Model\IModel.cs" />
+    <Compile Include="Model\Menu\MenuModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\Editor\EditorSound.cs" />
     <Compile Include="View\Editor\EditorView.cs" />
     <Compile Include="View\IView.cs" />
     <Compile Include="View\Editor\EditorVisual.cs" />
+    <Compile Include="View\Menu\MenuView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

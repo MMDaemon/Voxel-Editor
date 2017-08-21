@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VoxelEditor.Controller
+namespace VoxelEditor.Common.EventArguments
 {
 	internal class ModelEventArgs : EventArgs
 	{

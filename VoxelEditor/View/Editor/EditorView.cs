@@ -1,4 +1,5 @@
-﻿using VoxelEditor.Controller;
+﻿using VoxelEditor.Common.EventArguments;
+using VoxelEditor.Common.Transfer;
 
 namespace VoxelEditor.View.Editor
 {
