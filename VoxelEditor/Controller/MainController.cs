@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using DMS.Application;
 using OpenTK;
 using VoxelEditor.Common.Enums;
@@ -21,9 +20,9 @@ namespace VoxelEditor.Controller
 		private readonly ExampleApplication _app;
 		private readonly InputHandler _inputHandler;
 		private readonly StateHandler _stateHandler;
+		private readonly List<IModel> _inactiveModels;
 		private IModel _model;
 		private IView _view;
-		private readonly List<IModel> _inactiveModels;
 		private readonly Stopwatch _timeSource;
 
 		public MainController()
@@ -32,8 +31,9 @@ namespace VoxelEditor.Controller
 			_inputHandler = new InputHandler((GameWindow)_app.GameWindow);
 			_stateHandler = new StateHandler();
 			InitializeStateHandler();
-			SetModelViewInstances(State.Start);
 			_inactiveModels = new List<IModel>();
+			SetModelViewInstances(State.Start);
+			
 			_timeSource = new Stopwatch();
 
 			_app.Update += Update;
@@ -78,7 +78,7 @@ namespace VoxelEditor.Controller
 			StateInformation stateInformation = _stateHandler.GetStateInformation(state);
 			IModel existingModel = (from inactiveModel in _inactiveModels
 									where inactiveModel.GetType() == stateInformation.ModelType
-									select inactiveModel).First();
+									select inactiveModel).FirstOrDefault();
 			if (existingModel != null)
 			{
 				_model = existingModel;
