@@ -87,6 +87,8 @@ namespace VoxelEditor.Controller
 			else
 			{
 				_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+				_model.ModelEvent += (sender, args) => _view.ProcessModelEvent((ModelEventArgs)args);
+				_model.StateChanged += StateChanged;
 			}
 			_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
 		}
