@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Net.Sockets;
 using DMS.Application;
 using OpenTK;
 using VoxelEditor.Common.Enums;
@@ -20,15 +23,17 @@ namespace VoxelEditor.Controller
 		private readonly StateHandler _stateHandler;
 		private IModel _model;
 		private IView _view;
+		private readonly List<IModel> _inactiveModels;
 		private readonly Stopwatch _timeSource;
-		
+
 		public MainController()
 		{
-			 _app = new ExampleApplication();
+			_app = new ExampleApplication();
 			_inputHandler = new InputHandler((GameWindow)_app.GameWindow);
 			_stateHandler = new StateHandler();
 			InitializeStateHandler();
 			SetModelViewInstances(State.Start);
+			_inactiveModels = new List<IModel>();
 			_timeSource = new Stopwatch();
 
 			_app.Update += Update;
@@ -40,7 +45,7 @@ namespace VoxelEditor.Controller
 			_app.Run();
 		}
 
-		
+
 
 		public void Update(float updatePeriod)
 		{
@@ -61,13 +66,28 @@ namespace VoxelEditor.Controller
 
 		private void StateChanged(object sender, System.EventArgs e)
 		{
+			if (((StateChangedEventArgs)e).Temporary)
+			{
+				_inactiveModels.Add(_model);
+			}
 			SetModelViewInstances(((StateChangedEventArgs)e).State);
 		}
 
 		private void SetModelViewInstances(State state)
 		{
 			StateInformation stateInformation = _stateHandler.GetStateInformation(state);
-			_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+			IModel existingModel = (from inactiveModel in _inactiveModels
+									where inactiveModel.GetType() == stateInformation.ModelType
+									select inactiveModel).First();
+			if (existingModel != null)
+			{
+				_model = existingModel;
+				_inactiveModels.Remove(existingModel);
+			}
+			else
+			{
+				_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+			}
 			_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
 		}
 	}
