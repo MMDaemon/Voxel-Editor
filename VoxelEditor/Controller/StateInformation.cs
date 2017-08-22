@@ -8,7 +8,7 @@ using VoxelEditor.View;
 
 namespace VoxelEditor.Controller
 {
-	internal struct StateInformation
+	internal class StateInformation
 	{
 		public Type ModelType { get; private set; }
 		public Type ViewType { get; private set; }
