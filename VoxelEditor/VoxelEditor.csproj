@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,17 +56,23 @@
     <Compile Include="Common\Enums\Enums.cs" />
     <Compile Include="Common\Shared\Chunk.cs" />
     <Compile Include="Common\Shared\Voxel.cs" />
+    <Compile Include="Controller\Initialisation\InitializationHandler.cs" />
+    <Compile Include="Controller\Initialisation\MaterialBehavior.cs" />
+    <Compile Include="Controller\Initialisation\RenderProperties.cs" />
     <Compile Include="Controller\InputHandler.cs" />
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="Common\Transfer\ModelInput.cs" />
     <Compile Include="Common\EventArguments\ModelEventArgs.cs" />
     <Compile Include="Common\EventArguments\StateChangedEventArgs.cs" />
     <Compile Include="Common\Transfer\ViewModel.cs" />
+    <Compile Include="Controller\Initialisation\MaterialInfo.cs" />
     <Compile Include="Controller\StateHandler.cs" />
     <Compile Include="Controller\StateInformation.cs" />
     <Compile Include="Model\Editor\EditorModel.cs" />
     <Compile Include="Model\IModel.cs" />
     <Compile Include="Model\Menu\MenuModel.cs" />
+    <Compile Include="Model\Registry\MaterialInfo.cs" />
+    <Compile Include="Model\Registry\ModelRegistry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="View\Editor\EditorSound.cs" />
@@ -73,6 +80,8 @@
     <Compile Include="View\IView.cs" />
     <Compile Include="View\Editor\EditorVisual.cs" />
     <Compile Include="View\Menu\MenuView.cs" />
+    <Compile Include="View\Registry\MaterialInfo.cs" />
+    <Compile Include="View\Registry\ViewRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

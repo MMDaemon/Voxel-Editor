@@ -2,5 +2,6 @@
 {
 	internal class EditorSound
 	{
+		//TODO implement
 	}
 }

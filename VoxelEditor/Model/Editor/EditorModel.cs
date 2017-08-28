@@ -1,6 +1,7 @@
 ﻿using System;
 using VoxelEditor.Common.EventArguments;
 using VoxelEditor.Common.Transfer;
+using VoxelEditor.Model.Registry;
 
 namespace VoxelEditor.Model.Editor
 {
@@ -10,6 +11,13 @@ namespace VoxelEditor.Model.Editor
 
 		public event EventHandler ModelEvent;
 		public event EventHandler StateChanged;
+
+		private ModelRegistry _registry;
+
+		public EditorModel(ModelRegistry registry)
+		{
+			_registry = registry;
+		}
 
 		public void Update(float absoluteTime, ModelInput input)
 		{

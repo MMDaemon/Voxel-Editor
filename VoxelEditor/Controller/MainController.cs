@@ -7,11 +7,10 @@ using OpenTK;
 using VoxelEditor.Common.Enums;
 using VoxelEditor.Model;
 using VoxelEditor.View;
-using VoxelEditor.View.Editor;
 using VoxelEditor.Common.EventArguments;
-using VoxelEditor.Model.Editor;
-using VoxelEditor.Model.Menu;
-using VoxelEditor.View.Menu;
+using VoxelEditor.Controller.Initialisation;
+using VoxelEditor.Model.Registry;
+using VoxelEditor.View.Registry;
 
 namespace VoxelEditor.Controller
 {
@@ -20,6 +19,8 @@ namespace VoxelEditor.Controller
 		private readonly ExampleApplication _app;
 		private readonly InputHandler _inputHandler;
 		private readonly StateHandler _stateHandler;
+		private readonly ModelRegistry _modelRegistry;
+		private readonly ViewRegistry _viewRegistry;
 		private readonly List<IModel> _inactiveModels;
 		private IModel _model;
 		private IView _view;
@@ -28,12 +29,14 @@ namespace VoxelEditor.Controller
 		public MainController()
 		{
 			_app = new ExampleApplication();
+			InitializationHandler initializationHandler = new InitializationHandler();
 			_inputHandler = new InputHandler((GameWindow)_app.GameWindow);
-			_stateHandler = new StateHandler();
-			InitializeStateHandler();
+			_stateHandler = initializationHandler.InitializeStateHandler();
+			_modelRegistry = initializationHandler.InitalizeModelRegistry();
+			_viewRegistry = initializationHandler.InitializeViewRegistry();
 			_inactiveModels = new List<IModel>();
 			SetModelViewInstances(State.Start);
-			
+
 			_timeSource = new Stopwatch();
 
 			_app.Update += Update;
@@ -55,13 +58,6 @@ namespace VoxelEditor.Controller
 		public void Render()
 		{
 			_view.Render(_model.ViewModel);
-		}
-
-		private void InitializeStateHandler()
-		{
-			_stateHandler.AddStateInformation(State.Start, typeof(EditorModel), typeof(EditorView));
-			_stateHandler.AddStateInformation(State.Menu, typeof(MenuModel), typeof(MenuView));
-			_stateHandler.AddStateInformation(State.Editor, typeof(EditorModel), typeof(EditorView));
 		}
 
 		private void StateChanged(object sender, System.EventArgs e)
@@ -86,11 +82,26 @@ namespace VoxelEditor.Controller
 			}
 			else
 			{
-				_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+				if (stateInformation.ModelType.GetConstructor(new Type[] {typeof(ModelRegistry)}) != null)
+				{
+					_model = (IModel) Activator.CreateInstance(stateInformation.ModelType, _modelRegistry);
+				}
+				else
+				{
+					_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+				}
 				_model.ModelEvent += (sender, args) => _view.ProcessModelEvent((ModelEventArgs)args);
 				_model.StateChanged += StateChanged;
 			}
-			_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
+			object[] viewRegistry = { _viewRegistry };
+			if (stateInformation.ViewType.GetConstructor(new Type[] { typeof(ViewRegistry) }) != null)
+			{
+				_view = (IView)Activator.CreateInstance(stateInformation.ViewType, _viewRegistry);
+			}
+			else
+			{
+				_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
+			}
 		}
 	}
 }

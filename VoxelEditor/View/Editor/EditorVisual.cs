@@ -2,5 +2,6 @@
 {
 	internal class EditorVisual
 	{
+		//TODO implement
 	}
 }
