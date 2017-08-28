@@ -1,6 +1,4 @@
-﻿using DMS.Application;
-using OpenTK;
-using VoxelEditor.Controller;
+﻿using VoxelEditor.Core.Controller;
 
 namespace VoxelEditor
 {

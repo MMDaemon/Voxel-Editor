@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VoxelEditor.Common.Shared
+﻿namespace VoxelEditor.Common.Shared
 {
 	internal class Voxel
 	{
