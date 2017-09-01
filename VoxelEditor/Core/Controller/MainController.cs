@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using DMS.Application;
+using DMS.Base;
 using OpenTK;
 using VoxelEditor.Common.Enums;
 using VoxelEditor.Common.EventArguments;
@@ -17,6 +19,7 @@ namespace VoxelEditor.Core.Controller
 {
 	class MainController
 	{
+		private ExampleApplication _app;
 		private readonly InputHandler _inputHandler;
 		private readonly StateHandler _stateHandler;
 		private readonly ModelRegistry _modelRegistry;
@@ -28,9 +31,9 @@ namespace VoxelEditor.Core.Controller
 
 		public MainController()
 		{
-			ExampleApplication app = new ExampleApplication();
+			_app = new ExampleApplication();
 			InitializationHandler initializationHandler = new InitializationHandler();
-			_inputHandler = new InputHandler((GameWindow)app.GameWindow);
+			_inputHandler = new InputHandler((GameWindow)_app.GameWindow);
 			_stateHandler = initializationHandler.InitializeStateHandler();
 			_modelRegistry = initializationHandler.InitalizeModelRegistry();
 			_viewRegistry = initializationHandler.InitializeViewRegistry();
@@ -39,13 +42,13 @@ namespace VoxelEditor.Core.Controller
 
 			_timeSource = new Stopwatch();
 
-			app.Update += Update;
-			app.Render += Render;
+			_app.Update += Update;
+			_app.Render += Render;
 			_model.ModelEvent += (sender, args) => _view.ProcessModelEvent((ModelEventArgs)args);
 			_model.StateChanged += StateChanged;
 
 			_timeSource.Start();
-			app.Run();
+			_app.Run();
 		}
 
 
@@ -101,6 +104,8 @@ namespace VoxelEditor.Core.Controller
 			{
 				_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
 			}
+			_app.ResourceManager.ShaderChanged += _view.ShaderChanged;
+			_view.LoadResources(_app.ResourceManager);
 		}
 	}
 }

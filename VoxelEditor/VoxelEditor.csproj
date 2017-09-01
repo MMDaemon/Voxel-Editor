@@ -56,6 +56,11 @@
     <Compile Include="Common\Enums\Enums.cs" />
     <Compile Include="Common\Shared\Chunk.cs" />
     <Compile Include="Common\Shared\Voxel.cs" />
+    <Compile Include="Editor\View\Resourcen.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resourcen.resx</DependentUpon>
+    </Compile>
     <Compile Include="Initialisation\InitializationHandler.cs" />
     <Compile Include="Initialisation\Material\MaterialBehavior.cs" />
     <Compile Include="Initialisation\Material\RenderProperties.cs" />
@@ -71,6 +76,11 @@
     <Compile Include="Editor\Model\EditorModel.cs" />
     <Compile Include="Core\Model\IModel.cs" />
     <Compile Include="Menu\Model\MenuModel.cs" />
+    <Compile Include="Menu\View\Resourcen.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resourcen.resx</DependentUpon>
+    </Compile>
     <Compile Include="Registry\Model\ModelMaterialInfo.cs" />
     <Compile Include="Registry\Model\ModelRegistry.cs" />
     <Compile Include="Program.cs" />
@@ -85,6 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Editor\View\Resources\fragment.glsl" />
+    <None Include="Editor\View\Resources\vertex.glsl" />
+    <None Include="Menu\View\Resources\fragment.glsl" />
+    <None Include="Menu\View\Resources\vertex.glsl" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -122,7 +136,16 @@
       <Name>DMS.TimeTools</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Editor\View\Resourcen.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Menu\View\Resourcen.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
