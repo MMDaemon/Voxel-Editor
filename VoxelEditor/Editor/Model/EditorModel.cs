@@ -1,5 +1,4 @@
-﻿using System;
-using VoxelEditor.Common.EventArguments;
+﻿using VoxelEditor.Common.Enums;
 using VoxelEditor.Common.Transfer;
 using VoxelEditor.Core.Model;
 using VoxelEditor.Registry.Model;
@@ -10,8 +9,8 @@ namespace VoxelEditor.Editor.Model
 	{
 		public ViewModel ViewModel => CreateViewModel();
 
-		public event EventHandler ModelEvent;
-		public event EventHandler StateChanged;
+		public event ModelEventHandler ModelEvent;
+		public event StateChangedHandler StateChanged;
 
 		private ModelRegistry _registry;
 
@@ -31,14 +30,14 @@ namespace VoxelEditor.Editor.Model
 			//TODO implement
 		}
 
-		private void OnModelEvent(ModelEventArgs e)
+		private void OnModelEvent()
 		{
-			ModelEvent?.Invoke(this, e);
+			ModelEvent?.Invoke();
 		}
 
-		private void OnStateChanged(StateChangedEventArgs e)
+		private void OnStateChanged(State state, bool temporary)
 		{
-			StateChanged?.Invoke(this, e);
+			StateChanged?.Invoke(state, temporary);
 		}
 	}
 }

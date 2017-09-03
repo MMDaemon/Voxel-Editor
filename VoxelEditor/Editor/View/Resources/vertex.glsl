@@ -1,21 +1,13 @@
-﻿#version 430 core				
+﻿#version 430 core
 
-uniform float time;
 uniform mat4 camera;
 
 in vec3 position;
 in vec3 normal;
-in vec3 instancePosition;
-in vec3 instanceSpeed;
 
-out vec3 n;
+out vec3 var_color;
 
-void main() 
-{
-	n = normal;
-
-	vec3 pos = position;
-	pos += instancePosition + time * instanceSpeed;
-
-	gl_Position = camera * vec4(pos, 1.0);
+void main() {
+	var_color = abs(normal);
+	gl_Position = camera * vec4(position, 1.0);
 }

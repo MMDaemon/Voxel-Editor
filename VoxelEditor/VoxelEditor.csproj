@@ -44,6 +44,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -56,6 +57,7 @@
     <Compile Include="Common\Enums\Enums.cs" />
     <Compile Include="Common\Shared\Chunk.cs" />
     <Compile Include="Common\Shared\Voxel.cs" />
+    <Compile Include="Common\Visual\CameraPerspective.cs" />
     <Compile Include="Editor\View\Resourcen.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -67,8 +69,6 @@
     <Compile Include="Core\Input\InputHandler.cs" />
     <Compile Include="Core\Controller\MainController.cs" />
     <Compile Include="Common\Transfer\ModelInput.cs" />
-    <Compile Include="Common\EventArguments\ModelEventArgs.cs" />
-    <Compile Include="Common\EventArguments\StateChangedEventArgs.cs" />
     <Compile Include="Common\Transfer\ViewModel.cs" />
     <Compile Include="Initialisation\Material\MaterialInfo.cs" />
     <Compile Include="Core\Controller\StateHandler.cs" />
@@ -140,11 +140,15 @@
     <EmbeddedResource Include="Editor\View\Resourcen.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Menu\View\Resourcen.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\EventArguments\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

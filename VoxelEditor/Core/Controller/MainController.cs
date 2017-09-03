@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using DMS.Application;
-using DMS.Base;
 using OpenTK;
 using VoxelEditor.Common.Enums;
-using VoxelEditor.Common.EventArguments;
 using VoxelEditor.Core.Input;
 using VoxelEditor.Core.Model;
 using VoxelEditor.Core.View;
@@ -17,9 +14,9 @@ using VoxelEditor.Registry.View;
 
 namespace VoxelEditor.Core.Controller
 {
-	class MainController
+	internal class MainController
 	{
-		private ExampleApplication _app;
+		private readonly ExampleApplication _app;
 		private readonly InputHandler _inputHandler;
 		private readonly StateHandler _stateHandler;
 		private readonly ModelRegistry _modelRegistry;
@@ -44,7 +41,7 @@ namespace VoxelEditor.Core.Controller
 
 			_app.Update += Update;
 			_app.Render += Render;
-			_model.ModelEvent += (sender, args) => _view.ProcessModelEvent((ModelEventArgs)args);
+			_model.ModelEvent += _view.ProcessModelEvent;
 			_model.StateChanged += StateChanged;
 
 			_timeSource.Start();
@@ -63,18 +60,28 @@ namespace VoxelEditor.Core.Controller
 			_view.Render(_model.ViewModel);
 		}
 
-		private void StateChanged(object sender, EventArgs e)
+		private void StateChanged(State state, bool temporary)
 		{
-			if (((StateChangedEventArgs)e).Temporary)
+			if (temporary)
 			{
 				_inactiveModels.Add(_model);
 			}
-			SetModelViewInstances(((StateChangedEventArgs)e).State);
+			SetModelViewInstances(state);
 		}
 
 		private void SetModelViewInstances(State state)
 		{
 			StateInformation stateInformation = _stateHandler.GetStateInformation(state);
+
+			if (stateInformation.ViewType.GetConstructor(new[] { typeof(ViewRegistry) }) != null)
+			{
+				_view = (IView)Activator.CreateInstance(stateInformation.ViewType, _viewRegistry);
+			}
+			else
+			{
+				_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
+			}
+
 			IModel existingModel = (from inactiveModel in _inactiveModels
 									where inactiveModel.GetType() == stateInformation.ModelType
 									select inactiveModel).FirstOrDefault();
@@ -93,16 +100,8 @@ namespace VoxelEditor.Core.Controller
 				{
 					_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
 				}
-				_model.ModelEvent += (sender, args) => _view.ProcessModelEvent((ModelEventArgs)args);
+				_model.ModelEvent += _view.ProcessModelEvent;
 				_model.StateChanged += StateChanged;
-			}
-			if (stateInformation.ViewType.GetConstructor(new[] { typeof(ViewRegistry) }) != null)
-			{
-				_view = (IView)Activator.CreateInstance(stateInformation.ViewType, _viewRegistry);
-			}
-			else
-			{
-				_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
 			}
 			_app.ResourceManager.ShaderChanged += _view.ShaderChanged;
 			_view.LoadResources(_app.ResourceManager);

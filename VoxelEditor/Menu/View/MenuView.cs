@@ -2,7 +2,6 @@
 using DMS.Application;
 using DMS.Base;
 using DMS.OpenGL;
-using VoxelEditor.Common.EventArguments;
 using VoxelEditor.Common.Transfer;
 using VoxelEditor.Core.View;
 
@@ -35,7 +34,7 @@ namespace VoxelEditor.Menu.View
 			//TODO implement
 		}
 
-		public void ProcessModelEvent(ModelEventArgs modelEventArgs)
+		public void ProcessModelEvent()
 		{
 			//TODO implement
 		}

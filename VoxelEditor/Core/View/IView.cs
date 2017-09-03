@@ -1,6 +1,5 @@
 ﻿using DMS.Application;
 using DMS.OpenGL;
-using VoxelEditor.Common.EventArguments;
 using VoxelEditor.Common.Transfer;
 
 namespace VoxelEditor.Core.View
@@ -13,6 +12,6 @@ namespace VoxelEditor.Core.View
 
 		void Render(ViewModel viewModel);
 
-		void ProcessModelEvent(ModelEventArgs modelEventArgs);
+		void ProcessModelEvent();
 	}
 }
