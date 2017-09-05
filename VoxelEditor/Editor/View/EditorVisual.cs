@@ -25,6 +25,7 @@ namespace VoxelEditor.Editor.View
 			};
 
 			GL.Enable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.CullFace);
 		}
 
 		public void ShaderChanged(string name, Shader shader)
@@ -37,6 +38,8 @@ namespace VoxelEditor.Editor.View
 
 		public void Render(ViewModel viewModel)
 		{
+			_camera.Position = viewModel.PlayerPosition;
+
 			if (ReferenceEquals(_editorShader, null)) return;
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			_editorShader.Activate();

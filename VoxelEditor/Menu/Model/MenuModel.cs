@@ -1,4 +1,5 @@
-﻿using VoxelEditor.Common.Enums;
+﻿using System.Numerics;
+using VoxelEditor.Common.Enums;
 using VoxelEditor.Common.Transfer;
 using VoxelEditor.Core.Model;
 
@@ -17,7 +18,7 @@ namespace VoxelEditor.Menu.Model
 		}
 		private ViewModel CreateViewModel()
 		{
-			return new ViewModel();
+			return new ViewModel(Vector3.Zero);
 			//TODO implement
 		}
 

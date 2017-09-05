@@ -30,7 +30,7 @@ namespace VoxelEditor.Core.Controller
 		{
 			_app = new ExampleApplication();
 			InitializationHandler initializationHandler = new InitializationHandler();
-			_inputHandler = new InputHandler((GameWindow)_app.GameWindow);
+			_inputHandler = initializationHandler.InitializeInputHandler((GameWindow)_app.GameWindow);
 			_stateHandler = initializationHandler.InitializeStateHandler();
 			_modelRegistry = initializationHandler.InitalizeModelRegistry();
 			_viewRegistry = initializationHandler.InitializeViewRegistry();
@@ -96,9 +96,9 @@ namespace VoxelEditor.Core.Controller
 			}
 			else
 			{
-				if (stateInformation.ModelType.GetConstructor(new[] {typeof(ModelRegistry)}) != null)
+				if (stateInformation.ModelType.GetConstructor(new[] { typeof(ModelRegistry) }) != null)
 				{
-					_model = (IModel) Activator.CreateInstance(stateInformation.ModelType, _modelRegistry);
+					_model = (IModel)Activator.CreateInstance(stateInformation.ModelType, _modelRegistry);
 				}
 				else
 				{

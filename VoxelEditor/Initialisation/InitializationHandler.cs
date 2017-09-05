@@ -1,5 +1,8 @@
-﻿using VoxelEditor.Common.Enums;
+﻿using OpenTK;
+using OpenTK.Input;
+using VoxelEditor.Common.Enums;
 using VoxelEditor.Core.Controller;
+using VoxelEditor.Core.Input;
 using VoxelEditor.Editor.Model;
 using VoxelEditor.Editor.View;
 using VoxelEditor.Initialisation.Material;
@@ -14,6 +17,22 @@ namespace VoxelEditor.Initialisation
 	{
 		private ModelRegistry _modelRegistry;
 		private ViewRegistry _viewRegistry;
+
+		public InputHandler InitializeInputHandler(GameWindow gameWindow)
+		{
+			InputHandler inputHandler = new InputHandler(gameWindow);
+			inputHandler.AddHoldKeyAction(Key.W, KeyAction.MoveForwards);
+			inputHandler.AddHoldKeyAction(Key.Up, KeyAction.MoveForwards);
+			inputHandler.AddHoldKeyAction(Key.S, KeyAction.MoveBackwards);
+			inputHandler.AddHoldKeyAction(Key.Down, KeyAction.MoveBackwards);
+			inputHandler.AddHoldKeyAction(Key.A, KeyAction.MoveLeft);
+			inputHandler.AddHoldKeyAction(Key.Left, KeyAction.MoveLeft);
+			inputHandler.AddHoldKeyAction(Key.D, KeyAction.MoveRight);
+			inputHandler.AddHoldKeyAction(Key.Right,KeyAction.MoveRight);
+			inputHandler.AddHoldKeyAction(Key.Space, KeyAction.MoveUp);
+			inputHandler.AddHoldKeyAction(Key.ShiftLeft, KeyAction.MoveDown);
+			return inputHandler;
+		}
 
 		public StateHandler InitializeStateHandler()
 		{

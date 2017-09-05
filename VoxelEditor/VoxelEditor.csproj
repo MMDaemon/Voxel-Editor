@@ -58,6 +58,7 @@
     <Compile Include="Common\Shared\Chunk.cs" />
     <Compile Include="Common\Shared\Voxel.cs" />
     <Compile Include="Common\Visual\CameraPerspective.cs" />
+    <Compile Include="Editor\Model\Player.cs" />
     <Compile Include="Editor\View\Resourcen.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
