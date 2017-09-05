@@ -54,7 +54,6 @@ namespace VoxelEditor.Editor.Model
 			{
 				_player.Move(-Vector3.UnitX, timeDelta);
 			}
-			Console.WriteLine($"PlayerPos:{_player.Position}");
 		}
 
 		private ViewModel CreateViewModel()

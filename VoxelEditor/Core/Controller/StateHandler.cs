@@ -6,16 +6,16 @@ namespace VoxelEditor.Core.Controller
 {
 	internal class StateHandler
 	{
-		private readonly Dictionary<State, Tuple<Type, Type>> _stateInformation;
+        		private readonly Dictionary<State, (Type ModelType, Type ValueType)> _stateInformation;
 
 		public StateHandler()
 		{
-			_stateInformation = new Dictionary<State, Tuple<Type, Type>>();
+			_stateInformation = new Dictionary<State, (Type ModelType, Type ValueType)>();
 		}
 
 		public void AddStateInformation(State state, Type modelType, Type viewType)
 		{
-			_stateInformation.Add(state, new Tuple<Type, Type>(modelType, viewType));
+			_stateInformation.Add(state, (modelType, viewType));
 		}
 
 		/// <summary>
@@ -23,7 +23,7 @@ namespace VoxelEditor.Core.Controller
 		/// </summary>
 		/// <param name="state"></param>
 		/// <returns>A tuple containing ModelType and ViewType</returns>
-		public Tuple<Type, Type> GetStateInformation(State state)
+		public (Type ModelType, Type ValueType) GetStateInformation(State state)
 		{
 			return _stateInformation[state];
 		}
