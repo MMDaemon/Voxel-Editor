@@ -12,6 +12,8 @@ namespace VoxelEditor.Core.View
 
 		void Render(ViewModel viewModel);
 
+		void Resize(int width, int height);
+
 		void ProcessModelEvent();
 	}
 }

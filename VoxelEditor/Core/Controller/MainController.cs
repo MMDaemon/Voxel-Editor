@@ -41,6 +41,7 @@ namespace VoxelEditor.Core.Controller
 
 			_app.Update += Update;
 			_app.Render += Render;
+			_app.Resize += Resize;
 			_model.ModelEvent += _view.ProcessModelEvent;
 			_model.StateChanged += StateChanged;
 
@@ -48,16 +49,19 @@ namespace VoxelEditor.Core.Controller
 			_app.Run();
 		}
 
-
-
-		public void Update(float updatePeriod)
+		private void Update(float updatePeriod)
 		{
 			_model.Update((float)_timeSource.Elapsed.TotalSeconds, _inputHandler.ModelInput);
 		}
 
-		public void Render()
+		private void Render()
 		{
 			_view.Render(_model.ViewModel);
+		}
+
+		private void Resize(int width, int height)
+		{
+			_view.Resize(width, height);
 		}
 
 		private void StateChanged(State state, bool temporary)

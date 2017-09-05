@@ -34,6 +34,11 @@ namespace VoxelEditor.Menu.View
 			//TODO implement
 		}
 
+		public void Resize(int width, int height)
+		{
+			//TODO implement
+		}
+
 		public void ProcessModelEvent()
 		{
 			//TODO implement
