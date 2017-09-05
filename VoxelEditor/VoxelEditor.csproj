@@ -73,7 +73,6 @@
     <Compile Include="Common\Transfer\ViewModel.cs" />
     <Compile Include="Initialisation\Material\MaterialInfo.cs" />
     <Compile Include="Core\Controller\StateHandler.cs" />
-    <Compile Include="Core\Controller\StateInformation.cs" />
     <Compile Include="Editor\Model\EditorModel.cs" />
     <Compile Include="Core\Model\IModel.cs" />
     <Compile Include="Menu\Model\MenuModel.cs" />

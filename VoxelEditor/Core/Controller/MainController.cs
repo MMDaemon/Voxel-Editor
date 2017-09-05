@@ -75,19 +75,19 @@ namespace VoxelEditor.Core.Controller
 
 		private void SetModelViewInstances(State state)
 		{
-			StateInformation stateInformation = _stateHandler.GetStateInformation(state);
+			Tuple<Type, Type> stateInformation = _stateHandler.GetStateInformation(state);
 
-			if (stateInformation.ViewType.GetConstructor(new[] { typeof(ViewRegistry) }) != null)
+			if (stateInformation.Item2.GetConstructor(new[] { typeof(ViewRegistry) }) != null)
 			{
-				_view = (IView)Activator.CreateInstance(stateInformation.ViewType, _viewRegistry);
+				_view = (IView)Activator.CreateInstance(stateInformation.Item2, _viewRegistry);
 			}
 			else
 			{
-				_view = (IView)Activator.CreateInstance(stateInformation.ViewType);
+				_view = (IView)Activator.CreateInstance(stateInformation.Item2);
 			}
 
 			IModel existingModel = (from inactiveModel in _inactiveModels
-									where inactiveModel.GetType() == stateInformation.ModelType
+									where inactiveModel.GetType() == stateInformation.Item1
 									select inactiveModel).FirstOrDefault();
 			if (existingModel != null)
 			{
@@ -96,13 +96,13 @@ namespace VoxelEditor.Core.Controller
 			}
 			else
 			{
-				if (stateInformation.ModelType.GetConstructor(new[] { typeof(ModelRegistry) }) != null)
+				if (stateInformation.Item1.GetConstructor(new[] { typeof(ModelRegistry) }) != null)
 				{
-					_model = (IModel)Activator.CreateInstance(stateInformation.ModelType, _modelRegistry);
+					_model = (IModel)Activator.CreateInstance(stateInformation.Item1, _modelRegistry);
 				}
 				else
 				{
-					_model = (IModel)Activator.CreateInstance(stateInformation.ModelType);
+					_model = (IModel)Activator.CreateInstance(stateInformation.Item1);
 				}
 				_model.ModelEvent += _view.ProcessModelEvent;
 				_model.StateChanged += StateChanged;
