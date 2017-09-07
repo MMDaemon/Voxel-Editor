@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VoxelEditor.Editor.View {
+namespace VoxelEditor.View {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace VoxelEditor.Editor.View {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("VoxelEditor.Editor.View.Resourcen", typeof(Resourcen).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("VoxelEditor.View.Resourcen", typeof(Resourcen).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

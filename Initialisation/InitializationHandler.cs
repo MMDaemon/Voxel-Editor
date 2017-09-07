@@ -3,12 +3,12 @@ using MVCCore.Handlers;
 using MVCCore.Interfaces;
 using OpenTK;
 using OpenTK.Input;
-using VoxelEditor.Editor.Model;
-using VoxelEditor.Editor.View;
+using VoxelEditor.Model;
+using VoxelEditor.View;
 using VoxelMenu.Model;
 using VoxelMenu.View;
-using VoxelUtils.Common.Enums;
-using VoxelUtils.Common.Initialization;
+using VoxelUtils.Enums;
+using VoxelUtils.Initialization;
 using VoxelUtils.Registry.Model;
 using VoxelUtils.Registry.View;
 

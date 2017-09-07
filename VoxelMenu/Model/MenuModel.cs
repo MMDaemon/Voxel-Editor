@@ -1,7 +1,7 @@
 ﻿using System;
 using MVCCore.Interfaces;
 using VoxelMenu.Modelview;
-using VoxelUtils.Common.Enums;
+using VoxelUtils.Enums;
 
 namespace VoxelMenu.Model
 {

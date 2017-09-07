@@ -5,11 +5,11 @@ namespace MVCCore.Handlers
 {
 	public class StateHandler
 	{
-        		private readonly Dictionary<int, (Type ModelType, Type ValueType)> _stateInformation;
+        		private readonly Dictionary<int, (Type ModelType, Type ViewType)> _stateInformation;
 
 		public StateHandler()
 		{
-			_stateInformation = new Dictionary<int, (Type ModelType, Type ValueType)>();
+			_stateInformation = new Dictionary<int, (Type ModelType, Type ViewType)>();
 		}
 
 		public void AddStateInformation(int state, Type modelType, Type viewType)
@@ -22,7 +22,7 @@ namespace MVCCore.Handlers
 		/// </summary>
 		/// <param name="state"></param>
 		/// <returns>A tuple containing ModelType and ViewType</returns>
-		public (Type ModelType, Type ValueType) GetStateInformation(int state)
+		public (Type ModelType, Type ViewType) GetStateInformation(int state)
 		{
 			return _stateInformation[state];
 		}

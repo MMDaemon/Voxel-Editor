@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using DMS.Geometry;
 
-namespace VoxelEditor.Editor.Model
+namespace VoxelEditor.Model
 {
 	internal class Player
 	{

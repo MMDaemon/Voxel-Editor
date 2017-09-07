@@ -1,4 +1,4 @@
-﻿namespace VoxelEditor.Editor.View
+﻿namespace VoxelEditor.View
 {
 	internal class EditorSound
 	{

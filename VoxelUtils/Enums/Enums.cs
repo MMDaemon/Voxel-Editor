@@ -1,4 +1,4 @@
-﻿namespace VoxelUtils.Common.Enums
+﻿namespace VoxelUtils.Enums
 {
 	public enum State
 	{

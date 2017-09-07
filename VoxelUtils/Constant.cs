@@ -1,4 +1,4 @@
-﻿namespace VoxelUtils.Common
+﻿namespace VoxelUtils
 {
 	public static class Constant
 	{

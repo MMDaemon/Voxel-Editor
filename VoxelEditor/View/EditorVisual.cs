@@ -2,9 +2,10 @@
 using DMS.Geometry;
 using DMS.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using VoxelUtils.Common.Visual;
+using VoxelEditor.ViewModel;
+using VoxelUtils.Visual;
 
-namespace VoxelEditor.Editor.View
+namespace VoxelEditor.View
 {
 	internal class EditorVisual
 	{
@@ -35,7 +36,7 @@ namespace VoxelEditor.Editor.View
 			UpdateMesh();
 		}
 
-		public void Render(ViewModel.EditorViewModel viewModel)
+		public void Render(EditorViewModel viewModel)
 		{
 			_camera.Position = viewModel.PlayerPosition;
 		    _camera.Pitch = viewModel.PlayerRotation.X;

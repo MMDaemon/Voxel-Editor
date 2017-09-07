@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using MVCCore.Interfaces;
-using VoxelEditor.Editor.ViewModel;
-using VoxelUtils.Common.Enums;
+using VoxelEditor.ViewModel;
+using VoxelUtils.Enums;
 using VoxelUtils.Registry.Model;
 
-namespace VoxelEditor.Editor.Model
+namespace VoxelEditor.Model
 {
     public class EditorModel : ModelRegistryContainer, IModel
     {

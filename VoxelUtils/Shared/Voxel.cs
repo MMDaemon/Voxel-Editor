@@ -1,4 +1,4 @@
-﻿namespace VoxelUtils.Common.Shared
+﻿namespace VoxelUtils.Shared
 {
 	public class Voxel
 	{

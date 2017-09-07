@@ -1,4 +1,4 @@
-﻿namespace VoxelUtils.Common.Initialization
+﻿namespace VoxelUtils.Initialization
 {
 	public class RenderProperties
 	{

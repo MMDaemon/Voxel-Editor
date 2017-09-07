@@ -4,10 +4,10 @@ using DMS.Application;
 using DMS.Base;
 using DMS.OpenGL;
 using MVCCore.Interfaces;
-using VoxelEditor.Editor.ViewModel;
+using VoxelEditor.ViewModel;
 using VoxelUtils.Registry.View;
 
-namespace VoxelEditor.Editor.View
+namespace VoxelEditor.View
 {
     public class EditorView : ViewRegistryContainer, IView
     {

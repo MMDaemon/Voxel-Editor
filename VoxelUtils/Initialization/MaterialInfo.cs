@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace VoxelUtils.Common.Initialization
+namespace VoxelUtils.Initialization
 {
 	public class MaterialInfo
 	{

@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using MVCCore.Interfaces;
 
-namespace VoxelEditor.Editor.ViewModel
+namespace VoxelEditor.ViewModel
 {
     internal class EditorViewModel : IViewModel
     {

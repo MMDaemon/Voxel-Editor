@@ -2,7 +2,7 @@
 using System.Numerics;
 using DMS.Geometry;
 
-namespace VoxelUtils.Common.Visual
+namespace VoxelUtils.Visual
 {
 	public class CameraPerspective
 	{

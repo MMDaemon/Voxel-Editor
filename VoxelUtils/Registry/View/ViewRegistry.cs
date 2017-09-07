@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using MVCCore.Interfaces;
-using VoxelUtils.Common.Initialization;
+using VoxelUtils.Initialization;
 
 namespace VoxelUtils.Registry.View
 {

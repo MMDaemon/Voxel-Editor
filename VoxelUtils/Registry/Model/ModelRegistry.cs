@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using MVCCore.Interfaces;
-using VoxelUtils.Common.Initialization;
+using VoxelUtils.Initialization;
 
 namespace VoxelUtils.Registry.Model
 {
