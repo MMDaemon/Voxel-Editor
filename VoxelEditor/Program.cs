@@ -1,4 +1,4 @@
-﻿using VoxelEditor.Core.Controller;
+﻿using VoxelEditor.Initialization;
 
 namespace VoxelEditor
 {
@@ -6,7 +6,7 @@ namespace VoxelEditor
 	{
 		private static void Main(string[] args)
 		{
-			MainController controller = new MainController();
+			InitializationHandler initializationHandler = new InitializationHandler();
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace VoxelEditor.Initialisation.Material
+namespace VoxelEditor.Common.Initialization
 {
 	internal class MaterialInfo
 	{

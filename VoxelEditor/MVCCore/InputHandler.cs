@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Input;
-using VoxelEditor.Common.Enums;
-using VoxelEditor.Common.Transfer;
+using VoxelEditor.MVCInterfaces;
 using Vector2 = System.Numerics.Vector2;
 
-namespace VoxelEditor.Core.Input
+namespace VoxelEditor.MVCCore
 {
-    class InputHandler
+    public class InputHandler
     {
         private readonly GameWindow _gameWindow;
 
-        private readonly List<(Key Key, KeyAction KeyAction)> _pressKeyActions;
-        private readonly List<(Key Key, KeyAction KeyAction)> _holdKeyActions;
-        private readonly List<(MouseButton MouseButton, KeyAction KeyAction)> _pressMouseButtonActions;
-        private readonly List<(MouseButton MouseButton, KeyAction KeyAction)> _holdMouseButtonActions;
+        private readonly List<(Key Key, int KeyAction)> _pressKeyActions;
+        private readonly List<(Key Key, int KeyAction)> _holdKeyActions;
+        private readonly List<(MouseButton MouseButton, int KeyAction)> _pressMouseButtonActions;
+        private readonly List<(MouseButton MouseButton, int KeyAction)> _holdMouseButtonActions;
 
         private readonly Dictionary<Key, bool> _keyStatesBefore;
         private readonly Dictionary<Key, bool> _keyStates;
@@ -27,10 +26,10 @@ namespace VoxelEditor.Core.Input
         {
             _gameWindow = gameWindow;
 
-            _pressKeyActions = new List<(Key Key, KeyAction KeyAction)>();
-            _holdKeyActions = new List<(Key Key, KeyAction KeyAction)>();
-            _pressMouseButtonActions = new List<(MouseButton MouseButton, KeyAction KeyAction)>();
-            _holdMouseButtonActions = new List<(MouseButton MouseButton, KeyAction KeyAction)>();
+            _pressKeyActions = new List<(Key Key, int KeyAction)>();
+            _holdKeyActions = new List<(Key Key, int KeyAction)>();
+            _pressMouseButtonActions = new List<(MouseButton MouseButton, int KeyAction)>();
+            _holdMouseButtonActions = new List<(MouseButton MouseButton, int KeyAction)>();
 
             _keyStatesBefore = new Dictionary<Key, bool>();
             _keyStates = new Dictionary<Key, bool>();
@@ -43,27 +42,27 @@ namespace VoxelEditor.Core.Input
             _gameWindow.MouseUp += (sender, args) => MouseUp(args.Button);
         }
 
-        public void AddPressKeyAction(Key key, KeyAction keyAction)
+        public void AddPressKeyAction(Key key, int keyAction)
         {
             _pressKeyActions.Add((key, keyAction));
             if (!_keyStatesBefore.ContainsKey(key)) _keyStatesBefore.Add(key, false);
             if (!_keyStates.ContainsKey(key)) _keyStates.Add(key, false);
         }
 
-        public void AddPressKeyAction(MouseButton mouseButton, KeyAction keyAction)
+        public void AddPressKeyAction(MouseButton mouseButton, int keyAction)
         {
             _pressMouseButtonActions.Add((mouseButton, keyAction));
             if (!_mouseButtonStatesBefore.ContainsKey(mouseButton)) _mouseButtonStatesBefore.Add(mouseButton, false);
             if (!_mouseButtonStates.ContainsKey(mouseButton)) _mouseButtonStates.Add(mouseButton, false);
         }
 
-        public void AddHoldKeyAction(Key key, KeyAction keyAction)
+        public void AddHoldKeyAction(Key key, int keyAction)
         {
             _holdKeyActions.Add((key, keyAction));
             if (!_keyStates.ContainsKey(key)) _keyStates.Add(key, false);
         }
 
-        public void AddHoldKeyAction(MouseButton mouseButton, KeyAction keyAction)
+        public void AddHoldKeyAction(MouseButton mouseButton, int keyAction)
         {
             _holdMouseButtonActions.Add((mouseButton, keyAction));
             if (!_mouseButtonStates.ContainsKey(mouseButton)) _mouseButtonStates.Add(mouseButton, false);
@@ -113,9 +112,9 @@ namespace VoxelEditor.Core.Input
             return new Vector2((float)(_gameWindow.Mouse.X - _gameWindow.Width / 2) / _gameWindow.Height * 2, (float)-(_gameWindow.Mouse.Y - _gameWindow.Height / 2) / _gameWindow.Height * 2);
         }
 
-        private IEnumerable<KeyAction> GetKeyActions()
+        private IEnumerable<int> GetKeyActions()
         {
-            List<KeyAction> keyActionList = new List<KeyAction>();
+            List<int> keyActionList = new List<int>();
 
             //get keyActions
 

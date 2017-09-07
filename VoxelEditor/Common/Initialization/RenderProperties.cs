@@ -1,4 +1,4 @@
-﻿namespace VoxelEditor.Initialisation.Material
+﻿namespace VoxelEditor.Common.Initialization
 {
 	public class RenderProperties
 	{

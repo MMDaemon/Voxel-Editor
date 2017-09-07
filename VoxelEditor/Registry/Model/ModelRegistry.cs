@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using VoxelEditor.Initialisation.Material;
+using VoxelEditor.Common.Initialization;
+using VoxelEditor.MVCInterfaces;
 
 namespace VoxelEditor.Registry.Model
 {
-	internal class ModelRegistry
+	internal class ModelRegistry : IModelRegistry
 	{
 		private readonly Dictionary<int, ModelMaterialInfo> _materials;
 

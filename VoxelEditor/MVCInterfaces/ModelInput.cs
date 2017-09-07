@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using VoxelEditor.Common.Enums;
 
-namespace VoxelEditor.Common.Transfer
+namespace VoxelEditor.MVCInterfaces
 {
-	internal class ModelInput
+	public class ModelInput
 	{
 		public Vector2 MousePosition { get; private set; }
 
-		public List<KeyAction> KeyActions { get; private set; }
+		public List<int> KeyActions { get; private set; }
 
 		public ModelInput(Vector2 mousePosition)
 		{
 			MousePosition = mousePosition;
-			KeyActions = new List<KeyAction>();
+			KeyActions = new List<int>();
 		}
 	}
 }
