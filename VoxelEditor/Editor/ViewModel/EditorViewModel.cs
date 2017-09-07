@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using VoxelEditor.MVCInterfaces;
+using MVCCore.Interfaces;
 
 namespace VoxelEditor.Editor.ViewModel
 {

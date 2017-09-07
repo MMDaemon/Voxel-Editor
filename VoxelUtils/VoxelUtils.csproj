@@ -1,21 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9A4EA616-7049-47F4-B595-FA429B81230A}</ProjectGuid>
+    <ProjectGuid>{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VoxelEditor</RootNamespace>
-    <AssemblyName>VoxelEditor</AssemblyName>
+    <RootNamespace>VoxelUtils</RootNamespace>
+    <AssemblyName>VoxelUtils</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,14 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -53,25 +43,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\Model\Player.cs" />
-    <Compile Include="Editor\View\Resourcen.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resourcen.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Editor\ViewModel\EditorViewModel.cs" />
-    <Compile Include="Editor\Model\EditorModel.cs" />
+    <Compile Include="Common\Constant.cs" />
+    <Compile Include="Common\Enums\Enums.cs" />
+    <Compile Include="Common\Initialization\MaterialBehavior.cs" />
+    <Compile Include="Common\Initialization\MaterialInfo.cs" />
+    <Compile Include="Common\Initialization\RenderProperties.cs" />
+    <Compile Include="Common\Shared\Chunk.cs" />
+    <Compile Include="Common\Shared\Voxel.cs" />
+    <Compile Include="Common\Visual\CameraPerspective.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Editor\View\EditorSound.cs" />
-    <Compile Include="Editor\View\EditorView.cs" />
-    <Compile Include="Editor\View\EditorVisual.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Editor\View\Resources\fragment.glsl" />
-    <None Include="Editor\View\Resources\vertex.glsl" />
-    <None Include="OpenTK.dll.config" />
-    <None Include="packages.config" />
+    <Compile Include="Registry\Model\ModelMaterialInfo.cs" />
+    <Compile Include="Registry\Model\ModelRegistry.cs" />
+    <Compile Include="Registry\View\ViewMaterialInfo.cs" />
+    <Compile Include="Registry\View\ViewRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\DMS.Application\DMS.Application.csproj">
@@ -110,25 +94,6 @@
       <Project>{d5faf52f-e7ba-481b-861d-7be312a8a28f}</Project>
       <Name>MVCCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VoxelUtils\VoxelUtils.csproj">
-      <Project>{775a2ced-1ec1-4b10-9af1-5c784749d3c5}</Project>
-      <Name>VoxelUtils</Name>
-    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Editor\View\Resourcen.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

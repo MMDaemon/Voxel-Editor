@@ -2,7 +2,7 @@
 using DMS.Geometry;
 using DMS.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using VoxelEditor.Common.Visual;
+using VoxelUtils.Common.Visual;
 
 namespace VoxelEditor.Editor.View
 {

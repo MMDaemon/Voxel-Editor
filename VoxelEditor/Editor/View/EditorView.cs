@@ -3,13 +3,13 @@ using System.IO;
 using DMS.Application;
 using DMS.Base;
 using DMS.OpenGL;
+using MVCCore.Interfaces;
 using VoxelEditor.Editor.ViewModel;
-using VoxelEditor.MVCInterfaces;
-using VoxelEditor.Registry.View;
+using VoxelUtils.Registry.View;
 
 namespace VoxelEditor.Editor.View
 {
-    internal class EditorView : ViewRegistryContainer, IView
+    public class EditorView : ViewRegistryContainer, IView
     {
         private readonly ViewRegistry _registry;
         private readonly EditorVisual _visual;

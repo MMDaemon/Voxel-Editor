@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using VoxelEditor.Common.Enums;
+using MVCCore.Interfaces;
 using VoxelEditor.Editor.ViewModel;
-using VoxelEditor.MVCInterfaces;
-using VoxelEditor.Registry.Model;
+using VoxelUtils.Common.Enums;
+using VoxelUtils.Registry.Model;
 
 namespace VoxelEditor.Editor.Model
 {
-    internal class EditorModel : ModelRegistryContainer, IModel
+    public class EditorModel : ModelRegistryContainer, IModel
     {
         private float _lastUpdateTime;
         private float _deltaTime;

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelEditor", "VoxelEditor\VoxelEditor.csproj", "{9A4EA616-7049-47F4-B595-FA429B81230A}"
 EndProject
@@ -20,6 +20,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMS.Sound", "Framework\DMS.Sound\DMS.Sound.csproj", "{78A88806-AD96-4821-B9AD-8FC060F6FEB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMS.TimeTools", "Framework\DMS.TimeTools\DMS.TimeTools.csproj", "{54156018-0F41-4EEF-AEB4-F1C99CF7A2AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelUtils", "VoxelUtils\VoxelUtils.csproj", "{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCCore", "MVCCore\MVCCore.csproj", "{D5FAF52F-E7BA-481B-861D-7BE312A8A28F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelMenu", "VoxelMenu\VoxelMenu.csproj", "{39C813FE-891D-475A-A4B3-1376875188A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Initialisation", "Initialisation\Initialisation.csproj", "{688D0AEE-E31F-4865-8C09-379A68AC3D42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,8 +71,27 @@ Global
 		{54156018-0F41-4EEF-AEB4-F1C99CF7A2AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54156018-0F41-4EEF-AEB4-F1C99CF7A2AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54156018-0F41-4EEF-AEB4-F1C99CF7A2AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{775A2CED-1EC1-4B10-9AF1-5C784749D3C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5FAF52F-E7BA-481B-861D-7BE312A8A28F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5FAF52F-E7BA-481B-861D-7BE312A8A28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5FAF52F-E7BA-481B-861D-7BE312A8A28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5FAF52F-E7BA-481B-861D-7BE312A8A28F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39C813FE-891D-475A-A4B3-1376875188A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39C813FE-891D-475A-A4B3-1376875188A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39C813FE-891D-475A-A4B3-1376875188A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39C813FE-891D-475A-A4B3-1376875188A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{688D0AEE-E31F-4865-8C09-379A68AC3D42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{688D0AEE-E31F-4865-8C09-379A68AC3D42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{688D0AEE-E31F-4865-8C09-379A68AC3D42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{688D0AEE-E31F-4865-8C09-379A68AC3D42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5516DD37-5C99-444C-AF11-1A844AA6F20A}
 	EndGlobalSection
 EndGlobal
