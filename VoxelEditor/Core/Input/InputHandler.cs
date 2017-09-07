@@ -110,7 +110,7 @@ namespace VoxelEditor.Core.Input
 
         private Vector2 GetMousePos()
         {
-            return new Vector2((float)(_gameWindow.Mouse.X - _gameWindow.Width / 2) / _gameWindow.Height * 2, (float)(_gameWindow.Mouse.Y - _gameWindow.Height / 2) / _gameWindow.Height * 2);
+            return new Vector2((float)(_gameWindow.Mouse.X - _gameWindow.Width / 2) / _gameWindow.Height * 2, (float)-(_gameWindow.Mouse.Y - _gameWindow.Height / 2) / _gameWindow.Height * 2);
         }
 
         private IEnumerable<KeyAction> GetKeyActions()

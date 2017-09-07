@@ -19,9 +19,9 @@ namespace VoxelEditor.Editor.View
 		{
 			_camera = new CameraPerspective
 			{
-				Position = new Vector3(0.5f, 0.5f, -0.5f),
-				Jaw = 210,
-				Pitch = 30
+				Position = new Vector3(0.0f, 0.0f, 0.0f),
+				Jaw = 0.0f,
+				Pitch = 0.0f
 			};
 
 			GL.Enable(EnableCap.DepthTest);
@@ -39,7 +39,8 @@ namespace VoxelEditor.Editor.View
 		public void Render(ViewModel viewModel)
 		{
 			_camera.Position = viewModel.PlayerPosition;
-
+		    _camera.Pitch = viewModel.PlayerRotation.X;
+		    _camera.Jaw = viewModel.PlayerRotation.Y;
 			if (ReferenceEquals(_editorShader, null)) return;
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			_editorShader.Activate();

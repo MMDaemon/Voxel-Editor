@@ -7,6 +7,6 @@
 
 	internal enum KeyAction
 	{
-		MoveForwards, MoveLeft, MoveBackwards, MoveRight, MoveUp, MoveDown
+		MoveForwards, MoveLeft, MoveBackwards, MoveRight, MoveUp, MoveDown, EnableCameraRotation
 	}
 }

@@ -18,7 +18,7 @@ namespace VoxelEditor.Menu.Model
 		}
 		private ViewModel CreateViewModel()
 		{
-			return new ViewModel(Vector3.Zero);
+			return new ViewModel(Vector3.Zero, Vector2.Zero);
 			//TODO implement
 		}
 

@@ -31,6 +31,7 @@ namespace VoxelEditor.Initialisation
 			inputHandler.AddHoldKeyAction(Key.Right,KeyAction.MoveRight);
 			inputHandler.AddHoldKeyAction(Key.Space, KeyAction.MoveUp);
 			inputHandler.AddHoldKeyAction(Key.ShiftLeft, KeyAction.MoveDown);
+            inputHandler.AddHoldKeyAction(MouseButton.Right, KeyAction.EnableCameraRotation);
 			return inputHandler;
 		}
 

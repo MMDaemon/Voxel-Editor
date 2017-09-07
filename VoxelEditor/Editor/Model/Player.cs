@@ -1,19 +1,36 @@
 ﻿using System.Numerics;
+using DMS.Geometry;
 
 namespace VoxelEditor.Editor.Model
 {
 	internal class Player
 	{
 		public Vector3 Position { get; private set; }
+        public Vector2 Rotation { get; private set; }
 
 		public Player()
 		{
 			Position = Vector3.Zero;
+            Rotation = Vector2.Zero;
 		}
 
 		public void Move(Vector3 velocity, float timeDelta)
 		{
-			Position += velocity* timeDelta;
+		    velocity = GetVectorAfterRotation(velocity);
+            Position += velocity* timeDelta;
 		}
+
+	    public void Rotate(Vector2 rotation)
+	    {
+	        Rotation += rotation;
+	    }
+
+        public Vector3 GetVectorAfterRotation(Vector3 vector)
+	    {
+	        Matrix4x4 rotX = Matrix4x4.Transpose(Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)));
+	        Matrix4x4 rotY = Matrix4x4.Transpose(Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)));
+	        Matrix4x4 rotation = rotX * rotY;
+	        return Vector3.Transform(vector, rotation);
+        }
 	}
 }
