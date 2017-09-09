@@ -5,12 +5,12 @@ namespace VoxelEditor.ViewModel
 {
     internal class EditorViewModel : IViewModel
     {
-        public Vector3 PlayerPosition { get; private set; }
-        public Vector2 PlayerRotation { get; private set; }
-        public EditorViewModel(Vector3 playerPosition, Vector2 playerRotation)
+        public Matrix4x4 CameraMatrix { get; private set; }
+        public Vector3 TestPosition { get; private set; }
+        public EditorViewModel(Matrix4x4 cameraMatrix, Vector3 testPosition)
         {
-            PlayerPosition = playerPosition;
-            PlayerRotation = playerRotation;
+            CameraMatrix = cameraMatrix;
+            TestPosition = testPosition;
         }
     }
 }

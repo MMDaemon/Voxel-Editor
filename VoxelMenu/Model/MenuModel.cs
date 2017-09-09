@@ -16,13 +16,17 @@ namespace VoxelMenu.Model
         {
             //TODO implement
         }
+
+        public void Resize(int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
         private MenuViewModel CreateViewModel()
         {
             return new MenuViewModel();
             //TODO implement
         }
-
-
 
         private void OnModelEvent()
         {

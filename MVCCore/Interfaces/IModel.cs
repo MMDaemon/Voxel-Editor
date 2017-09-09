@@ -9,8 +9,9 @@ namespace MVCCore.Interfaces
 		IViewModel ViewModel { get; }
 
 		void Update(float absoluteTime, ModelInput input);
+	    void Resize(int width, int height);
 
-		event EventHandler ModelEvent;
+        event EventHandler ModelEvent;
 		event StateChangedHandler StateChanged;
 	}
 }

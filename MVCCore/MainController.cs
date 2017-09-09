@@ -56,6 +56,7 @@ namespace MVCCore
         private void Resize(int width, int height)
         {
             _view.Resize(width, height);
+            _model.Resize(width, height);
         }
 
         private void StateChanged(int state, bool temporary)

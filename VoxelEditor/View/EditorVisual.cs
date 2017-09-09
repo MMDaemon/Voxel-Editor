@@ -3,29 +3,24 @@ using DMS.Geometry;
 using DMS.OpenGL;
 using OpenTK.Graphics.OpenGL;
 using VoxelEditor.ViewModel;
-using VoxelUtils.Visual;
 
 namespace VoxelEditor.View
 {
 	internal class EditorVisual
 	{
 		private Shader _editorShader;
-		private readonly CameraPerspective _camera;
 		private VAO _geometry;
+
+	    private Vector3 _testPos;
 
 		public string ShaderName => nameof(_editorShader);
 
 		public EditorVisual()
 		{
-			_camera = new CameraPerspective
-			{
-				Position = new Vector3(0.0f, 0.0f, 0.0f),
-				Jaw = 0.0f,
-				Pitch = 0.0f
-			};
-
 			GL.Enable(EnableCap.DepthTest);
 			GL.Enable(EnableCap.CullFace);
+
+            _testPos = Vector3.Zero;
 		}
 
 		public void ShaderChanged(string name, Shader shader)
@@ -38,13 +33,13 @@ namespace VoxelEditor.View
 
 		public void Render(EditorViewModel viewModel)
 		{
-			_camera.Position = viewModel.PlayerPosition;
-		    _camera.Pitch = viewModel.PlayerRotation.X;
-		    _camera.Jaw = viewModel.PlayerRotation.Y;
+			_testPos = viewModel.TestPosition;
+            UpdateMesh();
+
 			if (ReferenceEquals(_editorShader, null)) return;
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			_editorShader.Activate();
-			float[] cam = _camera.CalcMatrix().ToArray();
+			float[] cam = viewModel.CameraMatrix.ToArray();
 			GL.UniformMatrix4(_editorShader.GetUniformLocation("camera"), 1, false, cam);
 			_geometry.Draw();
 			_editorShader.Deactivate();
@@ -52,12 +47,13 @@ namespace VoxelEditor.View
 
 		public void Resize(int width, int height)
 		{
-			_camera.Aspect = (float)width/height;
+			//do nothing because camera is defined in model
 		}
 
 		private void UpdateMesh()
 		{
 			Mesh mesh = Meshes.CreateCubeWithNormals(0.2f);
+            mesh.Add(Meshes.CreateSphere(0.01f).Transform(Matrix4x4.CreateTranslation(_testPos)));
 			_geometry = VAOLoader.FromMesh(mesh, _editorShader);
 		}
 	}
