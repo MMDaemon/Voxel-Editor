@@ -45,7 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Handlers\IInitializationHandler.cs" />
+    <Compile Include="Interfaces\IInitializationHandler.cs" />
     <Compile Include="Handlers\InputHandler.cs" />
     <Compile Include="MainController.cs" />
     <Compile Include="Handlers\StateHandler.cs" />

@@ -5,6 +5,7 @@ using System.Numerics;
 using DMS.Geometry;
 using MVCCore.Interfaces;
 using VoxelEditor.ViewModel;
+using VoxelUtils;
 using VoxelUtils.Enums;
 using VoxelUtils.Registry.Model;
 using VoxelUtils.Visual;
@@ -13,14 +14,18 @@ namespace VoxelEditor.Model
 {
     public class EditorModel : ModelRegistryContainer, IModel
     {
+        private ModelRegistry _registry;
+        private Random _random;
+
         private float _lastUpdateTime;
         private float _deltaTime;
         private Vector2 _lastMousePosition;
         private Vector2 _deltaMousePosition;
+
         private readonly CameraPerspective _camera;
 
         private readonly Player _player;
-        private ModelRegistry _registry;
+        private readonly World _world;
 
         private Vector3 _testPosition;
 
@@ -32,23 +37,27 @@ namespace VoxelEditor.Model
         public EditorModel(IModelRegistry registry) : base(registry)
         {
             _registry = (ModelRegistry)registry;
+            _random = new Random();
+
             _lastUpdateTime = 0.0f;
             _lastMousePosition = Vector2.Zero;
-            _player = new Player();
+
             _camera = new CameraPerspective();
+
+            _player = new Player();
+            _world = new World();
+            TestInitVoxels();
         }
 
         public void Update(float absoluteTime, ModelInput input)
         {
             _deltaTime = absoluteTime - _lastUpdateTime;
             _lastUpdateTime = absoluteTime;
+            
             _deltaMousePosition = input.MousePosition - _lastMousePosition;
             _lastMousePosition = input.MousePosition;
+
             HandleKeyActions(input.KeyActions.Cast<KeyAction>().ToList());
-            _camera.Position = _player.Position;
-            _camera.Pitch = _player.Rotation.X;
-            _camera.Jaw = _player.Rotation.Y;
-            _testPosition = _player.Position + CalculateRaytraceDirection(input.MousePosition);
         }
 
         public void Resize(int width, int height)
@@ -57,6 +66,12 @@ namespace VoxelEditor.Model
         }
 
         private void HandleKeyActions(ICollection<KeyAction> keyActions)
+        {
+            HandleMovement(keyActions);
+            HandleRaytraceSelection();
+        }
+
+        private void HandleMovement(ICollection<KeyAction> keyActions)
         {
             if (keyActions.Contains(KeyAction.MoveUp))
             {
@@ -86,6 +101,15 @@ namespace VoxelEditor.Model
             {
                 CalculatePlayerRotation();
             }
+
+            _camera.Position = _player.Position;
+            _camera.Pitch = _player.Rotation.X;
+            _camera.Jaw = _player.Rotation.Y;
+        }
+
+        private void HandleRaytraceSelection()
+        {
+            _testPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
         }
 
         private void CalculatePlayerRotation()
@@ -107,9 +131,21 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _testPosition);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.Chunks, _world.VoxelSize, _testPosition);
 
             return viewModel;
+        }
+
+        private void TestInitVoxels()
+        {
+            for (int x = -2 * Constant.ChunkSizeX; x < 2 * Constant.ChunkSizeX; x++)
+            {
+                for (int z = -2 * Constant.ChunkSizeZ; z < 2 * Constant.ChunkSizeZ; z++)
+                {
+                    int y = (int)(_random.NextDouble() * Constant.ChunkSizeY);
+                    _world.AddMaterial(1, 1, new Vector3I(x, y, z));
+                }
+            }
         }
 
         private void OnModelEvent()

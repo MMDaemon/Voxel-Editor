@@ -1,7 +1,7 @@
-﻿using MVCCore.Interfaces;
+﻿using MVCCore.Handlers;
 using OpenTK;
 
-namespace MVCCore.Handlers
+namespace MVCCore.Interfaces
 {
     public interface IInitializationHandler
     {

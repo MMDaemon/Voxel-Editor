@@ -29,11 +29,13 @@ namespace VoxelEditor.View
 
         public void LoadResources(ResourceManager resourceManager)
         {
-            if (ReferenceEquals(null, resourceManager.GetShader(_visual.ShaderName)))
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.VoxelShaderName)))
             {
                 var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
-                resourceManager.AddShader(_visual.ShaderName, dir + "vertex.glsl", dir + "fragment.glsl"
-                    , Resourcen.vertex, Resourcen.fragment);
+                resourceManager.AddShader(_visual.VoxelShaderName, dir + "voxelVertex.glsl", dir + "voxelFragment.glsl"
+                    , Resourcen.voxelVertex, Resourcen.voxelFragment);
+                resourceManager.AddShader(_visual.RaytraceShaderName, dir + "raytraceVertex.glsl", dir + "raytraceFragment.glsl"
+                    , Resourcen.raytraceVertex, Resourcen.raytraceFragment);
             }
         }
 
