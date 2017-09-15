@@ -12,14 +12,15 @@ namespace VoxelEditor.ViewModel
         public List<Chunk> Chunks { get; private set; }
         public float VoxelSize { get; private set; }
 
-        public Vector3 TestPosition { get; private set; }
-        public EditorViewModel(Matrix4x4 cameraMatrix, List<Chunk> chunks, float voxelSize, Vector3 testPosition)
+        public bool RaytraceCollided { get; private set; }
+        public Vector3 RayTraceCollisionPosition { get; private set; }
+        public EditorViewModel(Matrix4x4 cameraMatrix, List<Chunk> chunks, float voxelSize, Vector3 rayTraceCollisionPosition, bool raytraceCollided)
         {
             CameraMatrix = cameraMatrix;
             Chunks = chunks;
             VoxelSize = voxelSize;
-            TestPosition = testPosition;
-            
+            RayTraceCollisionPosition = rayTraceCollisionPosition;
+            RaytraceCollided = raytraceCollided;
         }
     }
 }

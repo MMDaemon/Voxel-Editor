@@ -27,6 +27,7 @@ namespace VoxelEditor.View
 
         private Shader _voxelShader;
         private Shader _raytraceShader;
+        private Shader _addShader;
 
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
@@ -37,7 +38,8 @@ namespace VoxelEditor.View
         private float _voxelSize;
         private List<Vector3> _instancePositions;
 
-        private Vector3 _testPos;
+        private bool _raytraceCollided;
+        private Vector3 _raytraceCollisionPosition;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
@@ -48,7 +50,10 @@ namespace VoxelEditor.View
             GL.Enable(EnableCap.CullFace);
 
             _instancePositions = new List<Vector3>();
-            _testPos = Vector3.Zero;
+            _raytraceCollided = false;
+            _raytraceCollisionPosition = Vector3.Zero;
+            _addShader = ShaderLoader.FromStrings(TextureToFrameBuffer.VertexShaderScreenQuad,
+                FragmentShaderAdd);
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -75,7 +80,8 @@ namespace VoxelEditor.View
         public void Render(EditorViewModel viewModel)
         {
             float[] cam = viewModel.CameraMatrix.ToArray();
-            _testPos = viewModel.TestPosition;
+            _raytraceCollided = viewModel.RaytraceCollided;
+            _raytraceCollisionPosition = viewModel.RayTraceCollisionPosition;
 
             Texture raytraceTexture = RenderRaytraceOnTexture(cam);
 
@@ -84,27 +90,24 @@ namespace VoxelEditor.View
 
             Texture voxelTexture = RenderVoxelTexture(cam);
 
-            Shader shader = ShaderLoader.FromStrings(TextureToFrameBuffer.VertexShaderScreenQuad,
-                FragmentShaderAdd);
-
             TextureToFrameBuffer ttfb = new TextureToFrameBuffer();
 
             GL.Disable(EnableCap.DepthTest);
 
-            shader.Activate();
+            _addShader.Activate();
             GL.ActiveTexture(TextureUnit.Texture0);
             voxelTexture.Activate();
-            GL.Uniform1(shader.GetUniformLocation("image1"),TextureUnit.Texture0 -TextureUnit.Texture0);
+            GL.Uniform1(_addShader.GetUniformLocation("image1"), TextureUnit.Texture0 - TextureUnit.Texture0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
             raytraceTexture.Activate();
-            GL.Uniform1(shader.GetUniformLocation("image2"), TextureUnit.Texture1 - TextureUnit.Texture0);
+            GL.Uniform1(_addShader.GetUniformLocation("image2"), TextureUnit.Texture1 - TextureUnit.Texture0);
 
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
 
             raytraceTexture.Deactivate();
             voxelTexture.Deactivate();
-            shader.Deactivate();
+            _addShader.Deactivate();
 
             GL.Enable(EnableCap.DepthTest);
         }
@@ -139,11 +142,14 @@ namespace VoxelEditor.View
             FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight));
             renderToTexture.Activate();
 
-            GL.Color4(Color4.Transparent);
-            _raytraceShader.Activate();
-            GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
-            _raytraceGeometry.Draw();
-            _raytraceShader.Deactivate();
+            if (_raytraceCollided)
+            {
+                GL.Color4(Color4.Transparent);
+                _raytraceShader.Activate();
+                GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
+                _raytraceGeometry.Draw();
+                _raytraceShader.Deactivate();
+            }
 
             renderToTexture.Deactivate();
             return renderToTexture.Texture;
@@ -159,7 +165,7 @@ namespace VoxelEditor.View
 
         private void UpdateRaytraceMesh()
         {
-            Mesh mesh = Meshes.CreateSphere(0.01f).Transform(Matrix4x4.CreateTranslation(_testPos));
+            Mesh mesh = Meshes.CreateSphere(0.01f).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 

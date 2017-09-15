@@ -79,6 +79,56 @@ namespace VoxelUtils
             return new Vector3(vec.X, vec.Y, vec.Z);
         }
 
+        public static Vector3 operator -(Vector3 left, Vector3I right)
+        {
+            return new Vector3(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
+        }
+
+        public static bool operator <(Vector3 left, Vector3I right)
+        {
+            return (left.X < right.X || left.Y < right.Y || left.Z < right.Z);
+        }
+
+        public static bool operator <(Vector3I left, Vector3 right)
+        {
+            return (left.X < right.X || left.Y < right.Y || left.Z < right.Z);
+        }
+
+        public static bool operator <=(Vector3 left, Vector3I right)
+        {
+            return (left.X <= right.X || left.Y <= right.Y || left.Z <= right.Z);
+        }
+
+        public static bool operator <=(Vector3I left, Vector3 right)
+        {
+            return (left.X <= right.X || left.Y <= right.Y || left.Z <= right.Z);
+        }
+
+        public static bool operator >(Vector3 left, Vector3I right)
+        {
+            return (left.X > right.X || left.Y > right.Y || left.Z > right.Z);
+        }
+
+        public static bool operator >(Vector3I left, Vector3 right)
+        {
+            return (left.X > right.X || left.Y > right.Y || left.Z > right.Z);
+        }
+
+        public static bool operator >=(Vector3 left, Vector3I right)
+        {
+            return (left.X >= right.X || left.Y >= right.Y || left.Z >= right.Z);
+        }
+
+        public static bool operator >=(Vector3I left, Vector3 right)
+        {
+            return (left.X >= right.X || left.Y >= right.Y || left.Z >= right.Z);
+        }
+
+        public static explicit operator Vector3I(Vector3 vec)
+        {
+            return new Vector3I((int)vec.X, (int)vec.Y, (int)vec.Z);
+        }
+
         public override string ToString()
         {
             return $"({X},{Y},{Z})";

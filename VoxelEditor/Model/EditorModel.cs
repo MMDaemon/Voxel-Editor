@@ -27,7 +27,8 @@ namespace VoxelEditor.Model
         private readonly Player _player;
         private readonly World _world;
 
-        private Vector3 _testPosition;
+        private bool _raytraceCollided;
+        private Vector3 _raytraceCollisionPosition;
 
         public IViewModel ViewModel => CreateViewModel();
 
@@ -45,7 +46,7 @@ namespace VoxelEditor.Model
             _camera = new CameraPerspective();
 
             _player = new Player();
-            _world = new World();
+            _world = new World(new Vector3I(4, 4, 4));
             TestInitVoxels();
         }
 
@@ -53,7 +54,7 @@ namespace VoxelEditor.Model
         {
             _deltaTime = absoluteTime - _lastUpdateTime;
             _lastUpdateTime = absoluteTime;
-            
+
             _deltaMousePosition = input.MousePosition - _lastMousePosition;
             _lastMousePosition = input.MousePosition;
 
@@ -109,7 +110,8 @@ namespace VoxelEditor.Model
 
         private void HandleRaytraceSelection()
         {
-            _testPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
+            _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out _raytraceCollisionPosition);
+            _raytraceCollisionPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
         }
 
         private void CalculatePlayerRotation()
@@ -131,7 +133,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.Chunks, _world.VoxelSize, _testPosition);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.Chunks, _world.VoxelSize, _raytraceCollisionPosition, _raytraceCollided);
 
             return viewModel;
         }
@@ -142,7 +144,7 @@ namespace VoxelEditor.Model
             {
                 for (int z = -2 * Constant.ChunkSizeZ; z < 2 * Constant.ChunkSizeZ; z++)
                 {
-                    int y = (int)(_random.NextDouble() * Constant.ChunkSizeY);
+                    int y = (int)(_random.NextDouble() * 4 * Constant.ChunkSizeY);
                     _world.AddMaterial(1, 1, new Vector3I(x, y, z));
                 }
             }
