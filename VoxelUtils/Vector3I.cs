@@ -8,6 +8,13 @@ namespace VoxelUtils
         public int Y;
         public int Z;
 
+        public Vector3I(int value = 0)
+        {
+            X = value;
+            Y = value;
+            Z = value;
+        }
+
         public Vector3I(int x, int y, int z)
         {
             X = x;

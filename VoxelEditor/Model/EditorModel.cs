@@ -43,7 +43,7 @@ namespace VoxelEditor.Model
             _lastUpdateTime = 0.0f;
             _lastMousePosition = Vector2.Zero;
 
-            _camera = new CameraPerspective();
+            _camera = new CameraPerspective {FarClip = 100};
 
             _player = new Player();
             _world = new World(new Vector3I(4, 4, 4));
@@ -110,8 +110,9 @@ namespace VoxelEditor.Model
 
         private void HandleRaytraceSelection()
         {
-            _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out _raytraceCollisionPosition);
-            _raytraceCollisionPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
+            _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out Vector3I collisionPossition);
+            //_raytraceCollisionPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
+            _raytraceCollisionPosition = (Vector3)collisionPossition*_world.VoxelSize;
         }
 
         private void CalculatePlayerRotation()

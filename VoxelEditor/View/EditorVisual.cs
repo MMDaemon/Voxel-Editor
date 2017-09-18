@@ -37,6 +37,7 @@ namespace VoxelEditor.View
 
         private float _voxelSize;
         private List<Vector3> _instancePositions;
+        private bool _voxelsUpdated;
 
         private bool _raytraceCollided;
         private Vector3 _raytraceCollisionPosition;
@@ -54,6 +55,8 @@ namespace VoxelEditor.View
             _raytraceCollisionPosition = Vector3.Zero;
             _addShader = ShaderLoader.FromStrings(TextureToFrameBuffer.VertexShaderScreenQuad,
                 FragmentShaderAdd);
+
+            _voxelsUpdated = false;
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -90,9 +93,7 @@ namespace VoxelEditor.View
 
             Texture voxelTexture = RenderVoxelTexture(cam);
 
-            TextureToFrameBuffer ttfb = new TextureToFrameBuffer();
-
-            GL.Disable(EnableCap.DepthTest);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             _addShader.Activate();
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -108,8 +109,6 @@ namespace VoxelEditor.View
             raytraceTexture.Deactivate();
             voxelTexture.Deactivate();
             _addShader.Deactivate();
-
-            GL.Enable(EnableCap.DepthTest);
         }
 
         public void Resize(int width, int height)
@@ -121,10 +120,12 @@ namespace VoxelEditor.View
         private Texture RenderVoxelTexture(float[] cam)
         {
             UpdateVoxelMesh();
+            _voxelsUpdated = true;
 
             FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight));
             renderToTexture.Activate();
 
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Color4(Color4.Transparent);
             _voxelShader.Activate();
             GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
@@ -142,6 +143,7 @@ namespace VoxelEditor.View
             FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight));
             renderToTexture.Activate();
 
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_raytraceCollided)
             {
                 GL.Color4(Color4.Transparent);
@@ -157,15 +159,18 @@ namespace VoxelEditor.View
 
         private void UpdateVoxelMesh()
         {
-            Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
-            _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
+            if (!_voxelsUpdated)
+            {
+                Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
+                _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
 
-            _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
+                _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
+            }
         }
 
         private void UpdateRaytraceMesh()
         {
-            Mesh mesh = Meshes.CreateSphere(0.01f).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
+            Mesh mesh = Meshes.CreateSphere(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 

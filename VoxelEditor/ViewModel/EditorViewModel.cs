@@ -14,6 +14,7 @@ namespace VoxelEditor.ViewModel
 
         public bool RaytraceCollided { get; private set; }
         public Vector3 RayTraceCollisionPosition { get; private set; }
+
         public EditorViewModel(Matrix4x4 cameraMatrix, List<Chunk> chunks, float voxelSize, Vector3 rayTraceCollisionPosition, bool raytraceCollided)
         {
             CameraMatrix = cameraMatrix;

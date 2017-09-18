@@ -52,19 +52,139 @@ namespace VoxelEditor.Model
             }
         }
 
-        public bool RaytraceFilledVoxel(Vector3 rayStartPosition, Vector3 rayDirection, out Vector3 voxelPosition)
+        public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
         {
-            bool success = CalculateRayStartPosition(ref rayStartPosition, rayDirection);
-            voxelPosition = new Vector3(-1,-1,-1);
+            bool success = CalculateRayStartPosition(ref rayPosition, rayDirection);
+            voxelPosition = new Vector3I(-1);
 
             if (success)
             {
-                Console.WriteLine(rayStartPosition);
-                Vector3I rayPosition = (Vector3I)rayStartPosition;
-                Vector3 rayOffset = rayStartPosition - rayPosition;
+                success = false;
+                Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
+                Console.Write(globalPosition);
+                while (!success && IsInsideWorld(globalPosition))
+                {
+                    if (GetVoxel(globalPosition) != null)
+                    {
+                        voxelPosition = globalPosition;
+                        success = true;
+                    }
+                    else
+                    {
+                        rayPosition = RayStep(rayPosition, rayDirection);
+                    }
+                    globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
+                }
+                Console.WriteLine(success +" "+voxelPosition);
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Get Positive offset between including 0.0 and excluding 1.0
+        /// </summary>
+        /// <param name="rayPosition"></param>
+        /// <returns></returns>
+        private Vector3 CalculateRayOffset(Vector3 rayPosition)
+        {
+            Vector3 rayOffset = rayPosition - (Vector3I)rayPosition;
+            if (rayOffset.X < 0)
+            {
+                rayOffset.X += 1;
+                if (rayOffset.X >= 1.0f)
+                {
+                    rayOffset.X = 0.0f;
+                }
+            }
+            if (rayOffset.Y < 0)
+            {
+                rayOffset.Y += 1;
+                if (rayOffset.Y >= 1.0f)
+                {
+                    rayOffset.Y = 0.0f;
+                }
+            }
+            if (rayOffset.Z < 0)
+            {
+                rayOffset.Z += 1;
+                if (rayOffset.Z >= 1.0f)
+                {
+                    rayOffset.Z = 0.0f;
+                }
+            }
+            return rayOffset;
+        }
+
+        private Vector3 RayStep(Vector3 rayPosition, Vector3 rayDirection)
+        {
+            Vector3 rayOffset = CalculateRayOffset(rayPosition);
+
+            Vector3 stepFactors = new Vector3(1.0f);
+
+            if (rayDirection.X < 0)
+            {
+                stepFactors.X = (rayOffset.X > 0.0f ? rayOffset.X : 1.0f) / Math.Abs(rayDirection.X);
+            }
+            if (rayDirection.X > 0)
+            {
+                stepFactors.X = (1 - rayOffset.X) / Math.Abs(rayDirection.X);
             }
 
-            return success;
+            if (rayDirection.Y < 0)
+            {
+                stepFactors.Y = (rayOffset.Y > 0.0f ? rayOffset.Y : 1.0f) / Math.Abs(rayDirection.Y);
+            }
+            if (rayDirection.Y > 0)
+            {
+                stepFactors.Y = (1 - rayOffset.Y) / Math.Abs(rayDirection.Y);
+            }
+
+            if (rayDirection.Z < 0)
+            {
+                stepFactors.Z = (rayOffset.Z > 0.0f ? rayOffset.Z : 1.0f) / Math.Abs(rayDirection.Z);
+            }
+            if (rayDirection.Z > 0)
+            {
+                stepFactors.Z = (1 - rayOffset.Z) / Math.Abs(rayDirection.Z);
+            }
+
+            float stepFactor = stepFactors.X < stepFactors.Y ? stepFactors.X : stepFactors.Y;
+            stepFactor = stepFactor < stepFactors.Z ? stepFactor : stepFactors.Z;
+
+            return rayPosition + rayDirection * stepFactor;
+        }
+
+        private Vector3I CalculateCurrentVoxelPosition(Vector3 rayPosition, Vector3 rayDirection)
+        {
+            Vector3I position = new Vector3I();
+            if (rayDirection.X >= 0)
+            {
+                position.X = (int)rayPosition.X;
+            }
+            else
+            {
+                position.X = (int)Math.Ceiling((float)rayPosition.X) - 1;
+            }
+
+            if (rayDirection.Y >= 0)
+            {
+                position.Y = (int)rayPosition.Y;
+            }
+            else
+            {
+                position.Y = (int)Math.Ceiling((float)rayPosition.Y) - 1;
+            }
+
+            if (rayDirection.Z >= 0)
+            {
+                position.Z = (int)rayPosition.Z;
+            }
+            else
+            {
+                position.Z = (int)Math.Ceiling((float)rayPosition.Z) - 1;
+            }
+
+            return position;
         }
 
         private bool CalculateRayStartPosition(ref Vector3 rayStartPosition, Vector3 rayDirection)
@@ -194,6 +314,15 @@ namespace VoxelEditor.Model
             return !(position < negativeWorldSize) && !(position > positiveWorldSize);
         }
 
+        private bool IsInsideWorld(Vector3I position)
+        {
+            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            negativeWorldSize.Y = 0;
+            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            return !(position < negativeWorldSize) && !(position >= positiveWorldSize);
+        }
+
 
         private void InitializeChunks()
         {
@@ -216,6 +345,14 @@ namespace VoxelEditor.Model
                 position.Y = initialPosition.Y;
                 position.X++;
             }
+        }
+
+        private Voxel GetVoxel(Vector3I globalPosition)
+        {
+            Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
+            Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
+
+            return _chunks[chunkPosition][voxelPosition];
         }
 
         private Vector3I CalculateChunkPosition(Vector3I globalPosition)
