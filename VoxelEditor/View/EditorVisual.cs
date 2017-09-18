@@ -122,7 +122,7 @@ namespace VoxelEditor.View
             UpdateVoxelMesh();
             _voxelsUpdated = true;
 
-            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight));
+            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             renderToTexture.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -140,7 +140,7 @@ namespace VoxelEditor.View
         {
             UpdateRaytraceMesh();
 
-            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight));
+            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             renderToTexture.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
