@@ -11,45 +11,80 @@ namespace VoxelEditor.Model
     {
         private readonly Vector3I _worldSize;
         private readonly Dictionary<Vector3I, Chunk> _chunks;
+        private readonly List<Vector3I> _updatedChunkCoordinates;
 
-        public List<Chunk> Chunks => _chunks.Values.ToList();
+        public IEnumerable<Chunk> Chunks => _chunks.Values.ToList();
+
+        public IEnumerable<Chunk> UpdatedChunks
+        {
+            get
+            {
+                List<Chunk> updatedChunks = new List<Chunk>();
+                foreach (Vector3I coordinate in _updatedChunkCoordinates)
+                {
+                    updatedChunks.Add(_chunks[coordinate]);
+                }
+                return updatedChunks;
+            }
+        }
+
         public float VoxelSize => 0.5f / Constant.ChunkSizeY;
 
         public World(Vector3I worldSize)
         {
             _worldSize = worldSize;
             _chunks = new Dictionary<Vector3I, Chunk>();
+            _updatedChunkCoordinates = new List<Vector3I>();
             InitializeChunks();
 
         }
 
-        public void AddMaterial(int materialId, int amount, Vector3I globalPosition)
+        public bool AddMaterial(int materialId, int amount, Vector3I globalPosition)
         {
+            bool success = false;
+
             Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
             Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
 
-            if (_chunks[chunkPosition][voxelPosition] != null)
+            if (amount <= Constant.MaxMaterialAmount)
             {
-                if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId)
+                if (_chunks[chunkPosition][voxelPosition] == null)
                 {
-                    _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
+                    _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
+                    _updatedChunkCoordinates.Add(chunkPosition);
+                    success = true;
+                }
+                else if (_chunks[chunkPosition][voxelPosition].Amount+amount<=Constant.MaxMaterialAmount)
+                {
+                    if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId)
+                    {
+                        _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
+                        _updatedChunkCoordinates.Add(chunkPosition);
+                        success = true;
+                    }
                 }
             }
-            else
-            {
-                _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
-            }
+            return success;
         }
 
-        public void TakeMaterial(int materialId, int amount, Vector3I globalPosition)
+        public bool TakeMaterial(int materialId, int amount, Vector3I globalPosition)
         {
+            bool success = false;
+
             Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
             Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
 
-            if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId)
+            if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount>=amount)
             {
                 _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
+                if (_chunks[chunkPosition][voxelPosition].Amount == 0)
+                {
+                    _chunks[chunkPosition][voxelPosition] = null;
+                }
+                _updatedChunkCoordinates.Add(chunkPosition);
+                success = true;
             }
+            return success;
         }
 
         public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
@@ -75,9 +110,41 @@ namespace VoxelEditor.Model
                     }
                     globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
                 }
-                Console.WriteLine(success +" "+voxelPosition);
+                Console.WriteLine(success + " " + voxelPosition);
             }
             return success;
+        }
+
+        public bool RaytraceEmptyOnFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
+        {
+            bool success = CalculateRayStartPosition(ref rayPosition, rayDirection);
+            voxelPosition = new Vector3I(-1);
+
+            if (success)
+            {
+                success = false;
+                Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
+                Console.Write(globalPosition);
+                while (!success && IsInsideWorld(globalPosition))
+                {
+                    rayPosition = RayStep(rayPosition, rayDirection);
+                    Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
+
+                    if (GetVoxel(globalPosition) == null && IsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null)
+                    {
+                        voxelPosition = globalPosition;
+                        success = true;
+                    }
+                    globalPosition = newGlobalPosition;
+                }
+                Console.WriteLine(success + " " + voxelPosition);
+            }
+            return success;
+        }
+
+        public void ResetUpdateList()
+        {
+            _updatedChunkCoordinates.Clear();
         }
 
         /// <summary>

@@ -37,7 +37,6 @@ namespace VoxelEditor.View
 
         private float _voxelSize;
         private List<Vector3> _instancePositions;
-        private bool _voxelsUpdated;
 
         private bool _raytraceCollided;
         private Vector3 _raytraceCollisionPosition;
@@ -55,8 +54,6 @@ namespace VoxelEditor.View
             _raytraceCollisionPosition = Vector3.Zero;
             _addShader = ShaderLoader.FromStrings(TextureToFrameBuffer.VertexShaderScreenQuad,
                 FragmentShaderAdd);
-
-            _voxelsUpdated = false;
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -120,7 +117,6 @@ namespace VoxelEditor.View
         private Texture RenderVoxelTexture(float[] cam)
         {
             UpdateVoxelMesh();
-            _voxelsUpdated = true;
 
             FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             renderToTexture.Activate();
@@ -159,13 +155,10 @@ namespace VoxelEditor.View
 
         private void UpdateVoxelMesh()
         {
-            if (!_voxelsUpdated)
-            {
                 Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
                 _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
 
                 _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
-            }
         }
 
         private void UpdateRaytraceMesh()

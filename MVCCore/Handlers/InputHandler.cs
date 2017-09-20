@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MVCCore.Interfaces;
 using OpenTK;
 using OpenTK.Input;
@@ -157,7 +158,8 @@ namespace MVCCore.Handlers
                 _keyStatesBefore[key] = _keyStates[key];
             }
 
-            foreach (var mouseButton in _mouseButtonStatesBefore.Keys)
+            IEnumerable<MouseButton> mouseButtonsBefore = _mouseButtonStatesBefore.Keys.ToList();
+            foreach (var mouseButton in mouseButtonsBefore)
             {
                 _mouseButtonStatesBefore[mouseButton] = _mouseButtonStates[mouseButton];
             }
