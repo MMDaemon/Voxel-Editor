@@ -32,6 +32,9 @@ namespace VoxelEditor.View
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
 
+        private FBO _renderToTexture;
+        private FBO _renderToTextureWithDepth;
+
         private int _screenWidth;
         private int _screenHeight;
 
@@ -112,14 +115,15 @@ namespace VoxelEditor.View
         {
             _screenWidth = width;
             _screenHeight = height;
+            _renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
         }
 
         private Texture RenderVoxelTexture(float[] cam)
         {
             UpdateVoxelMesh();
 
-            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
-            renderToTexture.Activate();
+            _renderToTextureWithDepth.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Color4(Color4.Transparent);
@@ -128,16 +132,15 @@ namespace VoxelEditor.View
             _voxelGeometry.Draw(_instancePositions.Count);
             _voxelShader.Deactivate();
 
-            renderToTexture.Deactivate();
-            return renderToTexture.Texture;
+            _renderToTextureWithDepth.Deactivate();
+            return _renderToTextureWithDepth.Texture;
         }
 
         private Texture RenderRaytraceOnTexture(float[] cam)
         {
             UpdateRaytraceMesh();
 
-            FBO renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
-            renderToTexture.Activate();
+            _renderToTexture.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (_raytraceCollided)
@@ -149,8 +152,8 @@ namespace VoxelEditor.View
                 _raytraceShader.Deactivate();
             }
 
-            renderToTexture.Deactivate();
-            return renderToTexture.Texture;
+            _renderToTexture.Deactivate();
+            return _renderToTexture.Texture;
         }
 
         private void UpdateVoxelMesh()
