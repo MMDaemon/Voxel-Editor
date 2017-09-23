@@ -52,16 +52,23 @@ namespace VoxelEditor.Model
                 {
                     _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
                     _updatedChunkCoordinates.Add(chunkPosition);
+                    if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
+                    {
+                        _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
+                        _updatedChunkCoordinates.Add(chunkPosition);
+                    }
                     success = true;
                 }
-                else if (_chunks[chunkPosition][voxelPosition].Amount+amount<=Constant.MaxMaterialAmount)
+                else if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount + amount <= Constant.MaxMaterialAmount)
                 {
-                    if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId)
+                    _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
+                    _updatedChunkCoordinates.Add(chunkPosition);
+                    if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
                     {
                         _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
                         _updatedChunkCoordinates.Add(chunkPosition);
-                        success = true;
                     }
+                    success = true;
                 }
             }
             return success;
@@ -74,7 +81,7 @@ namespace VoxelEditor.Model
             Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
             Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
 
-            if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount>=amount)
+            if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount >= amount)
             {
                 _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
                 if (_chunks[chunkPosition][voxelPosition].Amount == 0)
@@ -82,6 +89,15 @@ namespace VoxelEditor.Model
                     _chunks[chunkPosition][voxelPosition] = null;
                 }
                 _updatedChunkCoordinates.Add(chunkPosition);
+                if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
+                {
+                    _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
+                    if (_chunks[chunkPosition][voxelPosition].Amount == 0)
+                    {
+                        _chunks[chunkPosition][voxelPosition] = null;
+                    }
+                    _updatedChunkCoordinates.Add(chunkPosition);
+                }
                 success = true;
             }
             return success;
@@ -97,7 +113,7 @@ namespace VoxelEditor.Model
                 success = false;
                 Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
                 Console.Write(globalPosition);
-                while (!success && IsInsideWorld(globalPosition))
+                while (!success && PositionIsInsideWorld(globalPosition))
                 {
                     if (GetVoxel(globalPosition) != null)
                     {
@@ -125,12 +141,12 @@ namespace VoxelEditor.Model
                 success = false;
                 Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
                 Console.Write(globalPosition);
-                while (!success && IsInsideWorld(globalPosition))
+                while (!success && PositionIsInsideWorld(globalPosition))
                 {
                     rayPosition = RayStep(rayPosition, rayDirection);
                     Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
 
-                    if (GetVoxel(globalPosition) == null && IsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null)
+                    if (GetVoxel(globalPosition) == null && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null)
                     {
                         voxelPosition = globalPosition;
                         success = true;
@@ -145,6 +161,30 @@ namespace VoxelEditor.Model
         public void ResetUpdateList()
         {
             _updatedChunkCoordinates.Clear();
+        }
+
+        private bool CalculateDuplicatePosition(ref Vector3I chunkPosition, ref Vector3I voxelPosition)
+        {
+            bool exists = false;
+            if (voxelPosition.X == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(1, 0, 0))))
+            {
+                chunkPosition.X -= 1;
+                voxelPosition.X = Constant.ChunkSizeX;
+                exists = true;
+            }
+            if (voxelPosition.Y == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(0, 1, 0))))
+            {
+                chunkPosition.Y -= 1;
+                voxelPosition.Y = Constant.ChunkSizeY;
+                exists = true;
+            }
+            if (voxelPosition.Z == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(0, 0, 1))))
+            {
+                chunkPosition.Z -= 1;
+                voxelPosition.Z = Constant.ChunkSizeZ;
+                exists = true;
+            }
+            return exists;
         }
 
         /// <summary>
@@ -263,7 +303,7 @@ namespace VoxelEditor.Model
             Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
 
-            if (IsInsideWorld(rayStartPosition))
+            if (PositionIsInsideWorld(rayStartPosition))
             {
                 return true;
             }
@@ -277,7 +317,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -294,7 +334,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -311,7 +351,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -328,7 +368,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -345,7 +385,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -362,7 +402,7 @@ namespace VoxelEditor.Model
                 {
                     float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
                     Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (IsInsideWorld(collision))
+                    if (PositionIsInsideWorld(collision))
                     {
                         rayStartPosition = collision;
                         return true;
@@ -372,7 +412,7 @@ namespace VoxelEditor.Model
             return false;
         }
 
-        private bool IsInsideWorld(Vector3 position)
+        private bool PositionIsInsideWorld(Vector3 position)
         {
             Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
@@ -381,12 +421,19 @@ namespace VoxelEditor.Model
             return !(position < negativeWorldSize) && !(position > positiveWorldSize);
         }
 
-        private bool IsInsideWorld(Vector3I position)
+        private bool PositionIsInsideWorld(Vector3I position)
         {
             Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
             Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            return !(position < negativeWorldSize) && !(position >= positiveWorldSize);
+        }
+        private bool ChunkIsInsideWorld(Vector3I position)
+        {
+            Vector3I negativeWorldSize = -(_worldSize / 2);
+            negativeWorldSize.Y = 0; /*minimum height = 0*/
+            Vector3I positiveWorldSize = _worldSize + position;
             return !(position < negativeWorldSize) && !(position >= positiveWorldSize);
         }
 

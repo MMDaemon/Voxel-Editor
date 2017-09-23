@@ -43,7 +43,7 @@ namespace VoxelEditor.Model
             _lastUpdateTime = 0.0f;
             _lastMousePosition = Vector2.Zero;
 
-            _camera = new CameraPerspective {FarClip = 100};
+            _camera = new CameraPerspective { FarClip = 100 };
 
             _player = new Player();
             _world = new World(new Vector3I(4, 4, 4));
@@ -128,11 +128,11 @@ namespace VoxelEditor.Model
 
         private void HandleUpdateWorld(ICollection<KeyAction> keyActions)
         {
-            if (keyActions.Contains(KeyAction.PlaceMaterial))
+            if (keyActions.Contains(KeyAction.PlaceMaterial) && _raytraceCollided)
             {
                 _world.AddMaterial(1, Constant.MaxMaterialAmount, _raytraceCollisionPosition);
             }
-            if (keyActions.Contains(KeyAction.TakeMaterial))
+            if (keyActions.Contains(KeyAction.TakeMaterial) && _raytraceCollided)
             {
                 _world.TakeMaterial(1, Constant.MaxMaterialAmount, _raytraceCollisionPosition);
             }
