@@ -20,20 +20,8 @@ namespace VoxelUtils.Shared
 
         public Voxel this[Vector3I position]
         {
-            get => _voxels[position.X, position.Y, position.Z];
-            set
-            {
-                if (value != null && _voxels[position.X, position.Y, position.Z] == null)
-                {
-                    _usedVoxelAmount++;
-                }
-                else if (value == null && _voxels[position.X, position.Y, position.Z] != null)
-                {
-                    _usedVoxelAmount--;
-                }
-
-                _voxels[position.X, position.Y, position.Z] = value;
-            }
+            get => this[position.X, position.Y, position.Z];
+            set => this[position.X, position.Y, position.Z] = value;
         }
 
         public Voxel this[int x, int y, int z]
@@ -43,11 +31,11 @@ namespace VoxelUtils.Shared
             {
                 if (x < Constant.ChunkSizeX && y < Constant.ChunkSizeY && z < Constant.ChunkSizeZ)
                 {
-                    if (value != null && _voxels[x, y, z] == null)
+                    if (value != null && value.Amount != 0 && (_voxels[x, y, z] == null || _voxels[x, y, z].Amount == 0))
                     {
                         _usedVoxelAmount++;
                     }
-                    else if (value == null && _voxels[x, y, z] != null)
+                    else if ((value == null || value.Amount == 0) && _voxels[x, y, z] != null)
                     {
                         _usedVoxelAmount--;
                     }

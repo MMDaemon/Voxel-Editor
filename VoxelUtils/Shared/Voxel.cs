@@ -1,24 +1,29 @@
 ﻿namespace VoxelUtils.Shared
 {
-	public class Voxel
-	{
-		public int MaterialId { get; private set; }
-		public int Amount { get; private set; }
+    public class Voxel
+    {
+        public int MaterialId { get; set; }
+        public int Amount { get; private set; }
+        public int EmptyNeighborCount { get; set; }
+        public float FillingQuantity => (float)Amount / Constant.MaxMaterialAmount;
 
-		public Voxel(int materialId, int amount)
-		{
-			MaterialId = materialId;
-			Amount = amount;
-		}
+        public bool Exists => FillingQuantity > 1.0f / (2 * EmptyNeighborCount);
 
-		public void AddMaterial(int amount)
-		{
-			Amount += amount;
-		}
+        public Voxel(int materialId, int amount, int emptyNeighborCount = 6)
+        {
+            MaterialId = materialId;
+            Amount = amount;
+            EmptyNeighborCount = emptyNeighborCount;
+        }
 
-		public void TakeMaterial(int amount)
-		{
-			Amount -= amount;
-		}
-	}
+        public void AddMaterial(int amount)
+        {
+            Amount += amount;
+        }
+
+        public void TakeMaterial(int amount)
+        {
+            Amount -= amount;
+        }
+    }
 }

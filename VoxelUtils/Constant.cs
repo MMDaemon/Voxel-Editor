@@ -7,6 +7,7 @@
         public const int ChunkSizeY = 32;
         public const int ChunkSizeZ = 32;
         public const int MaxVoxelsPerChunk = ChunkSizeX * ChunkSizeY * ChunkSizeZ;
+        public const int MaterialAir = 0;
 
         public static readonly Vector3I ChunkSize = new Vector3I(ChunkSizeX, ChunkSizeY, ChunkSizeZ);
     }

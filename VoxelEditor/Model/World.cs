@@ -84,18 +84,10 @@ namespace VoxelEditor.Model
             if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount >= amount)
             {
                 _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
-                if (_chunks[chunkPosition][voxelPosition].Amount == 0)
-                {
-                    _chunks[chunkPosition][voxelPosition] = null;
-                }
                 _updatedChunkCoordinates.Add(chunkPosition);
                 if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
                 {
                     _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
-                    if (_chunks[chunkPosition][voxelPosition].Amount == 0)
-                    {
-                        _chunks[chunkPosition][voxelPosition] = null;
-                    }
                     _updatedChunkCoordinates.Add(chunkPosition);
                 }
                 success = true;
@@ -115,7 +107,7 @@ namespace VoxelEditor.Model
                 Console.Write(globalPosition);
                 while (!success && PositionIsInsideWorld(globalPosition))
                 {
-                    if (GetVoxel(globalPosition) != null)
+                    if (GetVoxel(globalPosition) != null && GetVoxel(globalPosition).Exists)
                     {
                         voxelPosition = globalPosition;
                         success = true;
@@ -146,7 +138,7 @@ namespace VoxelEditor.Model
                     rayPosition = RayStep(rayPosition, rayDirection);
                     Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
 
-                    if (GetVoxel(globalPosition) == null && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null)
+                    if ((GetVoxel(globalPosition) == null || !GetVoxel(globalPosition).Exists) && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null && GetVoxel(newGlobalPosition).Exists)
                     {
                         voxelPosition = globalPosition;
                         success = true;
@@ -166,24 +158,28 @@ namespace VoxelEditor.Model
         private bool CalculateDuplicatePosition(ref Vector3I chunkPosition, ref Vector3I voxelPosition)
         {
             bool exists = false;
+            Vector3I afterChunkPosition = chunkPosition;
+            Vector3I afterVoxelPosition = voxelPosition;
             if (voxelPosition.X == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(1, 0, 0))))
             {
-                chunkPosition.X -= 1;
-                voxelPosition.X = Constant.ChunkSizeX;
+                afterChunkPosition.X -= 1;
+                afterVoxelPosition.X = Constant.ChunkSizeX;
                 exists = true;
             }
             if (voxelPosition.Y == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(0, 1, 0))))
             {
-                chunkPosition.Y -= 1;
-                voxelPosition.Y = Constant.ChunkSizeY;
+                afterChunkPosition.Y -= 1;
+                afterVoxelPosition.Y = Constant.ChunkSizeY;
                 exists = true;
             }
             if (voxelPosition.Z == 0 && ChunkIsInsideWorld((chunkPosition - new Vector3I(0, 0, 1))))
             {
-                chunkPosition.Z -= 1;
-                voxelPosition.Z = Constant.ChunkSizeZ;
+                afterChunkPosition.Z -= 1;
+                afterVoxelPosition.Z = Constant.ChunkSizeZ;
                 exists = true;
             }
+            chunkPosition = afterChunkPosition;
+            voxelPosition = afterVoxelPosition;
             return exists;
         }
 
@@ -433,7 +429,7 @@ namespace VoxelEditor.Model
         {
             Vector3I negativeWorldSize = -(_worldSize / 2);
             negativeWorldSize.Y = 0; /*minimum height = 0*/
-            Vector3I positiveWorldSize = _worldSize + position;
+            Vector3I positiveWorldSize = _worldSize + negativeWorldSize;
             return !(position < negativeWorldSize) && !(position >= positiveWorldSize);
         }
 

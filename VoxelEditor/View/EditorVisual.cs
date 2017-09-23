@@ -156,7 +156,7 @@ namespace VoxelEditor.View
 
         private void UpdateRaytraceMesh()
         {
-            Mesh mesh = Meshes.CreateSphere(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
+            Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 
@@ -171,7 +171,7 @@ namespace VoxelEditor.View
                     {
                         for (int z = 0; z < Constant.ChunkSizeZ; z++)
                         {
-                            if (chunk[x, y, z] != null)
+                            if (chunk[x, y, z] != null && chunk[x, y, z].Exists)
                             {
                                 voxelPositions.Add(_voxelSize * (Vector3)(chunk.Position * Constant.ChunkSize + new Vector3I(x, y, z)));
                             }
