@@ -68,7 +68,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="View\Resources\addFragment.glsl" />
     <None Include="View\Resources\raytraceFragment.glsl" />
+    <None Include="View\Resources\screenQuadVertex.glsl" />
     <None Include="View\Resources\voxelFragment.glsl" />
     <None Include="View\Resources\raytraceVertex.glsl" />
     <None Include="View\Resources\voxelVertex.glsl" />
@@ -121,9 +123,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resourcen.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Warframe0000.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -63,6 +63,16 @@ namespace VoxelEditor.View {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] addFragment {
+            get {
+                object obj = ResourceManager.GetObject("addFragment", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] raytraceFragment {
             get {
                 object obj = ResourceManager.GetObject("raytraceFragment", resourceCulture);
@@ -76,6 +86,16 @@ namespace VoxelEditor.View {
         internal static byte[] raytraceVertex {
             get {
                 object obj = ResourceManager.GetObject("raytraceVertex", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] screenQuadVertex {
+            get {
+                object obj = ResourceManager.GetObject("screenQuadVertex", resourceCulture);
                 return ((byte[])(obj));
             }
         }

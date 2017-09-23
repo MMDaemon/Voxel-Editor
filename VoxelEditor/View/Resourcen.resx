@@ -118,11 +118,17 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="addFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\addfragment.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="raytraceFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\raytracefragment.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="raytraceVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\raytracevertex.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="screenQuadVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\screenquadvertex.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="voxelFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\voxelfragment.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

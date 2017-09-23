@@ -34,8 +34,18 @@ namespace VoxelEditor.View
                 var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.VoxelShaderName, dir + "voxelVertex.glsl", dir + "voxelFragment.glsl"
                     , Resourcen.voxelVertex, Resourcen.voxelFragment);
+            }
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.RaytraceShaderName)))
+            {
+                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.RaytraceShaderName, dir + "raytraceVertex.glsl", dir + "raytraceFragment.glsl"
                     , Resourcen.raytraceVertex, Resourcen.raytraceFragment);
+            }
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.AddShaderName)))
+            {
+                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
+                resourceManager.AddShader(_visual.AddShaderName, dir + "screenQuadVertex.glsl", dir + "addFragment.glsl"
+                    , Resourcen.screenQuadVertex, Resourcen.addFragment);
             }
         }
 

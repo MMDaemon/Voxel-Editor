@@ -13,18 +13,6 @@ namespace VoxelEditor.View
 {
     internal class EditorVisual
     {
-        private const string FragmentShaderAdd = @"
-			#version 430 core
-			uniform sampler2D image1;
-            uniform sampler2D image2;
-			in vec2 uv;
-			void main() {
-                vec4 texture1 = texture(image1, uv);
-                vec4 texture2 = texture(image2, uv);
-                float ratio = texture2.a / (texture1.a+texture2.a);
-				gl_FragColor = mix(texture1, texture2, ratio);
-			}";
-
         private Shader _voxelShader;
         private Shader _raytraceShader;
         private Shader _addShader;
@@ -46,6 +34,7 @@ namespace VoxelEditor.View
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
+        public string AddShaderName => nameof(_addShader);
 
         public EditorVisual()
         {
@@ -55,8 +44,6 @@ namespace VoxelEditor.View
             _instancePositions = new List<Vector3>();
             _raytraceCollided = false;
             _raytraceCollisionPosition = Vector3.Zero;
-            _addShader = ShaderLoader.FromStrings(TextureToFrameBuffer.VertexShaderScreenQuad,
-                FragmentShaderAdd);
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -76,6 +63,9 @@ namespace VoxelEditor.View
                     {
                         UpdateRaytraceMesh();
                     }
+                    break;
+                case nameof(_addShader):
+                    _addShader = shader;
                     break;
             }
         }
@@ -158,10 +148,10 @@ namespace VoxelEditor.View
 
         private void UpdateVoxelMesh()
         {
-                Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
-                _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
+            Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
+            _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
 
-                _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
+            _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
         }
 
         private void UpdateRaytraceMesh()
