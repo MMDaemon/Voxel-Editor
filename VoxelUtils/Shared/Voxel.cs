@@ -2,7 +2,21 @@
 {
     public class Voxel
     {
-        public int MaterialId { get; set; }
+        private int _materialId;
+
+        public int MaterialId
+        {
+            get => _materialId;
+            set
+            {
+                if (value == Constant.MaterialAir)
+                {
+                    Amount = 0;
+                }
+                _materialId = value;
+            }
+        }
+
         public int Amount { get; private set; }
         public int EmptyNeighborCount { get; set; }
         public float FillingQuantity => (float)Amount / Constant.MaxMaterialAmount;
@@ -11,7 +25,7 @@
 
         public Voxel(int materialId, int amount, int emptyNeighborCount = 6)
         {
-            MaterialId = materialId;
+            _materialId = materialId;
             Amount = amount;
             EmptyNeighborCount = emptyNeighborCount;
         }
@@ -24,6 +38,10 @@
         public void TakeMaterial(int amount)
         {
             Amount -= amount;
+            if (Amount == 0)
+            {
+                MaterialId = Constant.MaterialAir;
+            }
         }
     }
 }
