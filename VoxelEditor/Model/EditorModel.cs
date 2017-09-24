@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using DMS.Geometry;
 using MVCCore.Interfaces;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
@@ -47,7 +46,7 @@ namespace VoxelEditor.Model
 
             _player = new Player();
             _world = new World(new Vector3I(4, 4, 4));
-            TestInitVoxels();
+            //TestInitVoxels();
         }
 
         public void Update(float absoluteTime, ModelInput input)

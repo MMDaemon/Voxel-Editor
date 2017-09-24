@@ -16,6 +16,8 @@ namespace VoxelUtils.Shared
             Position = position;
             _voxels = new Voxel[Constant.ChunkSizeX + 1, Constant.ChunkSizeY + 1, Constant.ChunkSizeZ + 1];
             _usedVoxelAmount = 0;
+
+            InitializeVoxels();
         }
 
         public Voxel this[Vector3I position]
@@ -42,6 +44,20 @@ namespace VoxelUtils.Shared
                 }
 
                 _voxels[x, y, z] = value;
+            }
+        }
+
+        private void InitializeVoxels()
+        {
+            for (int x = 0; x <= Constant.ChunkSizeX; x++)
+            {
+                for (int y = 0; y <= Constant.ChunkSizeY; y++)
+                {
+                    for (int z = 0; z <= Constant.ChunkSizeZ; z++)
+                    {
+                        _voxels[x, y, z] = new Voxel(Constant.MaterialAir, 0);
+                    }
+                }
             }
         }
     }

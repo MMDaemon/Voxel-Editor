@@ -52,37 +52,21 @@ namespace VoxelEditor.Model
 
                 if (amount <= Constant.MaxMaterialAmount)
                 {
-                    if (_chunks[chunkPosition][voxelPosition] == null)
+                    if (_chunks[chunkPosition][voxelPosition].MaterialId == Constant.MaterialAir)
                     {
                         emptyBefore = true;
-                        _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
+                        _chunks[chunkPosition][voxelPosition].MaterialId = materialId;
+                    }
+                    if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount + amount <= Constant.MaxMaterialAmount)
+                    {
+                        _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
                         _updatedChunkCoordinates.Add(chunkPosition);
                         if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
                         {
-                            _chunks[chunkPosition][voxelPosition] = new Voxel(materialId, amount);
-                            UpdateEmptyNeighborCount(globalPosition);
+                            _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
                             _updatedChunkCoordinates.Add(chunkPosition);
                         }
                         success = true;
-                    }
-                    else
-                    {
-                        if (_chunks[chunkPosition][voxelPosition].MaterialId == Constant.MaterialAir)
-                        {
-                            emptyBefore = true;
-                            _chunks[chunkPosition][voxelPosition].MaterialId = materialId;
-                        }
-                        if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount + amount <= Constant.MaxMaterialAmount)
-                        {
-                            _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
-                            _updatedChunkCoordinates.Add(chunkPosition);
-                            if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
-                            {
-                                _chunks[chunkPosition][voxelPosition].AddMaterial(amount);
-                                _updatedChunkCoordinates.Add(chunkPosition);
-                            }
-                            success = true;
-                        }
                     }
                 }
 
@@ -105,7 +89,7 @@ namespace VoxelEditor.Model
                 Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
                 Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
 
-                if (_chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount >= amount)
+                if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount >= amount)
                 {
                     _chunks[chunkPosition][voxelPosition].TakeMaterial(amount);
                     _updatedChunkCoordinates.Add(chunkPosition);
@@ -136,10 +120,10 @@ namespace VoxelEditor.Model
             {
                 success = false;
                 Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
-                Console.Write(globalPosition);
+                //Console.Write(globalPosition);
                 while (!success && PositionIsInsideWorld(globalPosition))
                 {
-                    if (GetVoxel(globalPosition) != null && GetVoxel(globalPosition).Exists)
+                    if (GetVoxel(globalPosition).Exists)
                     {
                         voxelPosition = globalPosition;
                         success = true;
@@ -150,7 +134,7 @@ namespace VoxelEditor.Model
                     }
                     globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
                 }
-                Console.WriteLine(success + " " + voxelPosition);
+                //Console.WriteLine(success + " " + voxelPosition);
             }
             return success;
         }
@@ -164,20 +148,20 @@ namespace VoxelEditor.Model
             {
                 success = false;
                 Vector3I globalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
-                Console.Write(globalPosition);
+                //Console.Write(globalPosition);
                 while (!success && PositionIsInsideWorld(globalPosition))
                 {
                     rayPosition = RayStep(rayPosition, rayDirection);
                     Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
 
-                    if ((GetVoxel(globalPosition) == null || !GetVoxel(globalPosition).Exists) && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition) != null && GetVoxel(newGlobalPosition).Exists)
+                    if ((!GetVoxel(globalPosition).Exists && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition).Exists)|| PositionIsUnderWorld(newGlobalPosition))
                     {
                         voxelPosition = globalPosition;
                         success = true;
                     }
                     globalPosition = newGlobalPosition;
                 }
-                Console.WriteLine(success + " " + voxelPosition);
+                //Console.WriteLine(success + " " + voxelPosition);
             }
             return success;
         }
@@ -209,9 +193,13 @@ namespace VoxelEditor.Model
                 Vector3I chunkPosition = CalculateChunkPosition(neighborPosition);
                 Vector3I voxelPosition = CalculateVoxelPositionInChunk(neighborPosition, chunkPosition);
 
-                if (PositionIsInsideWorld(neighborPosition) && _chunks[chunkPosition][voxelPosition] != null)
+                if (PositionIsInsideWorld(neighborPosition))
                 {
                     _chunks[chunkPosition][voxelPosition].EmptyNeighborCount++;
+                    if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
+                    {
+                        _chunks[chunkPosition][voxelPosition].EmptyNeighborCount++;
+                    }
                 }
             }
         }
@@ -225,40 +213,14 @@ namespace VoxelEditor.Model
                 Vector3I chunkPosition = CalculateChunkPosition(neighborPosition);
                 Vector3I voxelPosition = CalculateVoxelPositionInChunk(neighborPosition, chunkPosition);
 
-                if (PositionIsInsideWorld(neighborPosition) && _chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].Amount > 0)
+                if (PositionIsInsideWorld(neighborPosition))
                 {
                     _chunks[chunkPosition][voxelPosition].EmptyNeighborCount--;
+                    if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
+                    {
+                        _chunks[chunkPosition][voxelPosition].EmptyNeighborCount--;
+                    }
                 }
-            }
-        }
-
-        private void UpdateEmptyNeighborCount(Vector3I globalPosition)
-        {
-            int emptyNeighborCount = 6;
-
-            Vector3I chunkPosition;
-            Vector3I voxelPosition;
-
-            IEnumerable<Vector3I> neighborPoitions = GetNeighbors(globalPosition);
-
-            foreach (Vector3I neighborPosition in neighborPoitions)
-            {
-                chunkPosition = CalculateChunkPosition(neighborPosition);
-                voxelPosition = CalculateVoxelPositionInChunk(neighborPosition, chunkPosition);
-
-                if (PositionIsInsideWorld(neighborPosition) && _chunks[chunkPosition][voxelPosition] != null && _chunks[chunkPosition][voxelPosition].Amount > 0)
-                {
-                    emptyNeighborCount--;
-                }
-            }
-
-            chunkPosition = CalculateChunkPosition(globalPosition);
-            voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
-
-            _chunks[chunkPosition][voxelPosition].EmptyNeighborCount = emptyNeighborCount;
-            if (CalculateDuplicatePosition(ref chunkPosition, ref voxelPosition))
-            {
-                _chunks[chunkPosition][voxelPosition].EmptyNeighborCount = emptyNeighborCount;
             }
         }
 
@@ -532,6 +494,18 @@ namespace VoxelEditor.Model
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
             return !(globalPosition < negativeWorldSize) && !(globalPosition >= positiveWorldSize);
         }
+
+        private bool PositionIsUnderWorld(Vector3I globalPosition)
+        {
+            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            negativeWorldSize.Y = 0;
+            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+
+            return !(globalPosition.X < negativeWorldSize.X || globalPosition.X > positiveWorldSize.X ||
+                globalPosition.Z < negativeWorldSize.Z || globalPosition.Z > positiveWorldSize.Z ||
+                globalPosition.Y >= negativeWorldSize.Y);
+        }
         private bool ChunkIsInsideWorld(Vector3I position)
         {
             Vector3I negativeWorldSize = -(_worldSize / 2);
@@ -564,7 +538,7 @@ namespace VoxelEditor.Model
             }
         }
 
-        private Voxel GetVoxel(Vector3I globalPosition)
+        public Voxel GetVoxel(Vector3I globalPosition)
         {
             Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
             Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
