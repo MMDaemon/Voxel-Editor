@@ -44,9 +44,9 @@ namespace VoxelEditor.Model
 
             _camera = new CameraPerspective { FarClip = 100 };
 
-            _player = new Player();
+            _player = new Player(0.3f);
             _world = new World(new Vector3I(4, 4, 4));
-            //TestInitVoxels();
+            TestInitVoxels();
         }
 
         public void Update(float absoluteTime, ModelInput input)
@@ -121,7 +121,6 @@ namespace VoxelEditor.Model
             {
                 _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out collisionPossition);
             }
-            //_raytraceCollisionPosition = _player.Position + CalculateRaytraceDirection(_lastMousePosition);
             _raytraceCollisionPosition = collisionPossition;
         }
 
@@ -156,7 +155,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, _world.VoxelSize, _raytraceCollisionPosition, _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, _world.VoxelSize, _world.WorldSize, _raytraceCollisionPosition, _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }

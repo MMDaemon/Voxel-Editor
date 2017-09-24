@@ -9,10 +9,10 @@ namespace VoxelEditor.Model
 {
     internal class World
     {
-        private readonly Vector3I _worldSize;
         private readonly Dictionary<Vector3I, Chunk> _chunks;
         private readonly List<Vector3I> _updatedChunkCoordinates;
 
+        public Vector3I WorldSize { get; private set; }
         public IEnumerable<Chunk> Chunks => _chunks.Values.ToList();
 
         public IEnumerable<Chunk> UpdatedChunks
@@ -32,7 +32,7 @@ namespace VoxelEditor.Model
 
         public World(Vector3I worldSize)
         {
-            _worldSize = worldSize;
+            WorldSize = worldSize;
             _chunks = new Dictionary<Vector3I, Chunk>();
             _updatedChunkCoordinates = new List<Vector3I>();
             InitializeChunks();
@@ -375,10 +375,10 @@ namespace VoxelEditor.Model
         {
             rayStartPosition /= VoxelSize;
 
-            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
 
             if (PositionIsInsideWorld(rayStartPosition))
             {
@@ -491,28 +491,28 @@ namespace VoxelEditor.Model
 
         private bool PositionIsInsideWorld(Vector3 position)
         {
-            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
             return !(position < negativeWorldSize) && !(position > positiveWorldSize);
         }
 
         private bool PositionIsInsideWorld(Vector3I globalPosition)
         {
-            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
             return !(globalPosition < negativeWorldSize) && !(globalPosition >= positiveWorldSize);
         }
 
         private bool PositionIsUnderWorld(Vector3I globalPosition)
         {
-            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
             negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
 
             return !(globalPosition.X < negativeWorldSize.X || globalPosition.X > positiveWorldSize.X ||
                 globalPosition.Z < negativeWorldSize.Z || globalPosition.Z > positiveWorldSize.Z ||
@@ -520,19 +520,19 @@ namespace VoxelEditor.Model
         }
         private bool ChunkIsInsideWorld(Vector3I position)
         {
-            Vector3I negativeWorldSize = -(_worldSize / 2);
+            Vector3I negativeWorldSize = -(WorldSize / 2);
             negativeWorldSize.Y = 0; /*minimum height = 0*/
-            Vector3I positiveWorldSize = _worldSize + negativeWorldSize;
+            Vector3I positiveWorldSize = WorldSize + negativeWorldSize;
             return !(position < negativeWorldSize) && !(position >= positiveWorldSize);
         }
 
 
         private void InitializeChunks()
         {
-            Vector3I position = -(_worldSize / 2);
+            Vector3I position = -(WorldSize / 2);
             position.Y = 0; /*minimum height = 0*/
             Vector3I initialPosition = position;
-            Vector3I worldSize = _worldSize + position;
+            Vector3I worldSize = WorldSize + position;
             while (position.X < worldSize.X)
             {
                 while (position.Y < worldSize.Y)

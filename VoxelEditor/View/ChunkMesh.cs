@@ -275,18 +275,9 @@ namespace VoxelEditor.View
                 {
                     for (int z = 0; z < Constant.ChunkSizeZ; z++)
                     {
-                        //AddVoxelMeshTest(chunk, new Vector3I(x,y,z));
                         AddVoxelMesh(chunk, new Vector3I(x, y, z));
                     }
                 }
-            }
-        }
-
-        private void AddVoxelMeshTest(Chunk chunk, Vector3I pos)
-        {
-            if (chunk[pos].Exists)
-            {
-                this.Add(Meshes.CreateCubeWithNormals().Transform(Matrix4x4.CreateTranslation((Vector3)pos)));
             }
         }
 

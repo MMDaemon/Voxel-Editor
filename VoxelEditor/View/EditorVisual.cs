@@ -23,10 +23,9 @@ namespace VoxelEditor.View
         private FBO _renderToTextureWithDepth;
 
         private float _voxelSize;
-        private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
-
-        private bool _raytraceCollided;
+        private Vector3I _worldSize;
         private Vector3 _raytraceCollisionPosition;
+        private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
@@ -38,7 +37,6 @@ namespace VoxelEditor.View
             //GL.Enable(EnableCap.CullFace);
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
-            _raytraceCollided = false;
             _raytraceCollisionPosition = Vector3.Zero;
         }
 
@@ -69,12 +67,13 @@ namespace VoxelEditor.View
         public void Render(EditorViewModel viewModel)
         {
             float[] cam = viewModel.CameraMatrix.ToArray();
-            _raytraceCollided = viewModel.RaytraceCollided;
-            _raytraceCollisionPosition = viewModel.RayTraceCollisionPosition;
-
-            Texture raytraceTexture = RenderRaytraceOnTexture(cam);
 
             _voxelSize = viewModel.VoxelSize;
+            _worldSize = viewModel.WorldSize;
+            _raytraceCollisionPosition = viewModel.RayTraceCollisionPosition;
+
+            Texture raytraceTexture = RenderRaytraceOnTexture(cam, viewModel.RaytraceCollided);
+
             CalculateChunkMeshes(viewModel.Chunks);
 
             Texture voxelTexture = RenderVoxelTexture(cam);
@@ -123,14 +122,14 @@ namespace VoxelEditor.View
             return _renderToTextureWithDepth.Texture;
         }
 
-        private Texture RenderRaytraceOnTexture(float[] cam)
+        private Texture RenderRaytraceOnTexture(float[] cam, bool raytraceCollided)
         {
             UpdateRaytraceMesh();
 
             _renderToTexture.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            if (_raytraceCollided)
+            if (raytraceCollided)
             {
                 GL.Color4(Color4.Transparent);
                 _raytraceShader.Activate();
@@ -145,7 +144,7 @@ namespace VoxelEditor.View
 
         private void UpdateVoxelMesh()
         {
-            Mesh mesh = new Mesh();
+            Mesh mesh = CreateWorldGround();
 
             foreach (KeyValuePair<Vector3I, Mesh> chunkMesh in _chunkMeshes)
             {
@@ -159,6 +158,35 @@ namespace VoxelEditor.View
         {
             Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
+        }
+
+        private Mesh CreateWorldGround()
+        {
+            Mesh mesh = new Mesh();
+
+            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            negativeWorldSize.Y = 0;
+            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X, 0, negativeWorldSize.Z)); //0
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X, 0, positiveWorldSize.Z)); //1
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X, 0, positiveWorldSize.Z)); //2
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X, 0, negativeWorldSize.Z)); //3
+
+            mesh.normal.List.Add(Vector3.UnitY);
+            mesh.normal.List.Add(Vector3.UnitY);
+            mesh.normal.List.Add(Vector3.UnitY);
+            mesh.normal.List.Add(Vector3.UnitY);
+
+            mesh.IDs.Add(0);
+            mesh.IDs.Add(2);
+            mesh.IDs.Add(1);
+            mesh.IDs.Add(0);
+            mesh.IDs.Add(3);
+            mesh.IDs.Add(2);
+
+            return mesh.Transform(Matrix4x4.CreateScale(_voxelSize));
         }
 
         private void CalculateChunkMeshes(IEnumerable<Chunk> viewModelChunks)
