@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 using DMS.Geometry;
 using DMS.OpenGL;
@@ -23,11 +22,8 @@ namespace VoxelEditor.View
         private FBO _renderToTexture;
         private FBO _renderToTextureWithDepth;
 
-        private int _screenWidth;
-        private int _screenHeight;
-
         private float _voxelSize;
-        private List<Vector3> _instancePositions;
+        private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
 
         private bool _raytraceCollided;
         private Vector3 _raytraceCollisionPosition;
@@ -39,9 +35,9 @@ namespace VoxelEditor.View
         public EditorVisual()
         {
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.CullFace);
 
-            _instancePositions = new List<Vector3>();
+            _chunkMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceCollided = false;
             _raytraceCollisionPosition = Vector3.Zero;
         }
@@ -79,7 +75,7 @@ namespace VoxelEditor.View
             Texture raytraceTexture = RenderRaytraceOnTexture(cam);
 
             _voxelSize = viewModel.VoxelSize;
-            _instancePositions = CalculateVoxelPositions(viewModel.Chunks);
+            CalculateChunkMeshes(viewModel.Chunks);
 
             Texture voxelTexture = RenderVoxelTexture(cam);
 
@@ -103,10 +99,8 @@ namespace VoxelEditor.View
 
         public void Resize(int width, int height)
         {
-            _screenWidth = width;
-            _screenHeight = height;
-            _renderToTexture = new FBO(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
-            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(_screenWidth, _screenHeight, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTexture = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
         }
 
         private Texture RenderVoxelTexture(float[] cam)
@@ -119,7 +113,10 @@ namespace VoxelEditor.View
             GL.Color4(Color4.Transparent);
             _voxelShader.Activate();
             GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
-            _voxelGeometry.Draw(_instancePositions.Count);
+            if (_voxelGeometry.IDLength > 0)
+            {
+                _voxelGeometry.Draw();
+            }
             _voxelShader.Deactivate();
 
             _renderToTextureWithDepth.Deactivate();
@@ -148,16 +145,35 @@ namespace VoxelEditor.View
 
         private void UpdateVoxelMesh()
         {
-            Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize);
-            _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
+            Mesh mesh = new Mesh();
 
-            _voxelGeometry.SetAttribute(_voxelShader.GetAttributeLocation("instancePosition"), _instancePositions.ToArray(), VertexAttribPointerType.Float, 3, true);
+            foreach (KeyValuePair<Vector3I, Mesh> chunkMesh in _chunkMeshes)
+            {
+                mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key*Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
+            }
+
+            _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
         }
 
         private void UpdateRaytraceMesh()
         {
             Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
+        }
+
+        private void CalculateChunkMeshes(IEnumerable<Chunk> viewModelChunks)
+        {
+            foreach (Chunk chunk in viewModelChunks)
+            {
+                if (_chunkMeshes.ContainsKey(chunk.Position))
+                {
+                    _chunkMeshes[chunk.Position] = new ChunkMesh(chunk);
+                }
+                else
+                {
+                    _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk));
+                }
+            }
         }
 
         private List<Vector3> CalculateVoxelPositions(IEnumerable<Chunk> chunks)
