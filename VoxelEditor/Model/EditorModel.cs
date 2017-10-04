@@ -13,8 +13,10 @@ namespace VoxelEditor.Model
 {
     public class EditorModel : ModelRegistryContainer, IModel
     {
+        private const float VoxelSize = 0.5f / Constant.ChunkSizeX;
+
         private ModelRegistry _registry;
-        private Random _random;
+        private readonly Random _random;
 
         private float _lastUpdateTime;
         private float _deltaTime;
@@ -44,9 +46,9 @@ namespace VoxelEditor.Model
 
             _camera = new CameraPerspective { FarClip = 100 };
 
-            _player = new Player(0.3f);
+            _player = new Player(Vector3.UnitY);
             _world = new World(new Vector3I(4, 4, 4));
-            TestInitVoxels();
+            //TestInitVoxels();
         }
 
         public void Update(float absoluteTime, ModelInput input)
@@ -75,36 +77,35 @@ namespace VoxelEditor.Model
 
         private void HandleMovement(ICollection<KeyAction> keyActions)
         {
+            float speed = 2;
+
             if (keyActions.Contains(KeyAction.MoveUp))
             {
-                _player.Move(Vector3.UnitY, _deltaTime);
+                _player.Move(Vector3.UnitY * speed, _deltaTime);
             }
             if (keyActions.Contains(KeyAction.MoveDown))
             {
-                _player.Move(-Vector3.UnitY, _deltaTime);
+                _player.Move(-Vector3.UnitY * speed, _deltaTime);
             }
             if (keyActions.Contains(KeyAction.MoveForwards))
             {
-                _player.Move(-Vector3.UnitZ, _deltaTime);
+                _player.Move(-Vector3.UnitZ * speed, _deltaTime);
             }
             if (keyActions.Contains(KeyAction.MoveBackwards))
             {
-                _player.Move(Vector3.UnitZ, _deltaTime);
+                _player.Move(Vector3.UnitZ * speed, _deltaTime);
             }
             if (keyActions.Contains(KeyAction.MoveLeft))
             {
-                _player.Move(-Vector3.UnitX, _deltaTime);
+                _player.Move(-Vector3.UnitX * speed, _deltaTime);
             }
             if (keyActions.Contains(KeyAction.MoveRight))
             {
-                _player.Move(Vector3.UnitX, _deltaTime);
+                _player.Move(Vector3.UnitX * speed, _deltaTime);
             }
-            if (keyActions.Contains(KeyAction.EnableCameraRotation))
-            {
-                CalculatePlayerRotation();
-            }
+            CalculatePlayerRotation();
 
-            _camera.Position = _player.Position;
+            _camera.Position = (_player.Position - new Vector3(0.5f)) * VoxelSize;
             _camera.Pitch = _player.Rotation.X;
             _camera.Jaw = _player.Rotation.Y;
         }
@@ -115,11 +116,11 @@ namespace VoxelEditor.Model
 
             if (keyActions.Contains(KeyAction.RayTraceEmpty))
             {
-                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out collisionPossition);
+                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out collisionPossition);
             }
             else
             {
-                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, CalculateRaytraceDirection(_lastMousePosition), out collisionPossition);
+                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out collisionPossition);
             }
             _raytraceCollisionPosition = collisionPossition;
         }
@@ -155,7 +156,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, _world.VoxelSize, _world.WorldSize, _raytraceCollisionPosition, _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceCollisionPosition, _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }

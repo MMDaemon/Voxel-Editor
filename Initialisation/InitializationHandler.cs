@@ -38,7 +38,6 @@ namespace Initialisation
             inputHandler.AddHoldKeyAction(Key.Right, (int)KeyAction.MoveRight);
             inputHandler.AddHoldKeyAction(Key.Space, (int)KeyAction.MoveUp);
             inputHandler.AddHoldKeyAction(Key.ShiftLeft, (int)KeyAction.MoveDown);
-            inputHandler.AddHoldKeyAction(MouseButton.Middle, (int)KeyAction.EnableCameraRotation);
             inputHandler.AddHoldKeyAction(Key.Q, (int)KeyAction.RayTraceEmpty);
             inputHandler.AddPressKeyAction(MouseButton.Left, (int)KeyAction.PlaceMaterial);
             inputHandler.AddPressKeyAction(MouseButton.Right, (int)KeyAction.TakeMaterial);

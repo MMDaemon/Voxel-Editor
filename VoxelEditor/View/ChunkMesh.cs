@@ -299,9 +299,10 @@ namespace VoxelEditor.View
             for (int i = 0; i < vertexNumbers.Count; i += 3)
             {
                 Vector3 n = CalculateNormal(internalPositions[vertexNumbers[i]], internalPositions[vertexNumbers[i + 1]], internalPositions[vertexNumbers[i + 2]]);
-                Add(vertexNumbers[i], n);
-                Add(vertexNumbers[i + 1], n);
                 Add(vertexNumbers[i + 2], n);
+                Add(vertexNumbers[i + 1], n);
+                Add(vertexNumbers[i], n);
+
             }
 
             this.Add(voxelMesh.Transform(Matrix4x4.CreateTranslation((Vector3)pos)));

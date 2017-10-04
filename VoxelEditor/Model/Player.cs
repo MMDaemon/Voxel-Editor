@@ -5,21 +5,24 @@ namespace VoxelEditor.Model
 {
     internal class Player
     {
-        private float _speed;
-
         public Vector3 Position { get; private set; }
         public Vector2 Rotation { get; private set; }
 
-        public Player(float speed = 1.0f)
+        public Player()
         {
-            _speed = speed;
             Position = Vector3.Zero;
+            Rotation = Vector2.Zero;
+        }
+
+        public Player(Vector3 startPosition)
+        {
+            Position = startPosition;
             Rotation = Vector2.Zero;
         }
 
         public void Move(Vector3 velocity, float timeDelta)
         {
-            velocity = GetVectorAfterRotation(velocity*_speed);
+            velocity = GetVectorAfterRotation(velocity);
             Position += velocity * timeDelta;
         }
 

@@ -34,7 +34,7 @@ namespace VoxelEditor.View
         public EditorVisual()
         {
             GL.Enable(EnableCap.DepthTest);
-            //GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.CullFace);
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceCollisionPosition = Vector3.Zero;
@@ -169,10 +169,10 @@ namespace VoxelEditor.View
             Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
 
-            mesh.position.List.Add(new Vector3(positiveWorldSize.X, 0, negativeWorldSize.Z)); //0
-            mesh.position.List.Add(new Vector3(positiveWorldSize.X, 0, positiveWorldSize.Z)); //1
-            mesh.position.List.Add(new Vector3(negativeWorldSize.X, 0, positiveWorldSize.Z)); //2
-            mesh.position.List.Add(new Vector3(negativeWorldSize.X, 0, negativeWorldSize.Z)); //3
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X, -0.5f, negativeWorldSize.Z)); //0
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X, -0.5f, positiveWorldSize.Z)); //1
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X, -0.5f, positiveWorldSize.Z)); //2
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X, -0.5f, negativeWorldSize.Z)); //3
 
             mesh.normal.List.Add(Vector3.UnitY);
             mesh.normal.List.Add(Vector3.UnitY);

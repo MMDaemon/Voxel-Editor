@@ -22,6 +22,13 @@ namespace VoxelUtils
             Z = z;
         }
 
+        public Vector3I(Vector3I vector)
+        {
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
+        }
+
         public static Vector3I operator +(Vector3I left, Vector3I right)
         {
             return new Vector3I(left.X + right.X, left.Y + right.Y, left.Z + right.Z);

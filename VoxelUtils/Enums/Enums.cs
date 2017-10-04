@@ -12,7 +12,6 @@
         MoveBackwards,
         MoveRight, MoveUp,
         MoveDown,
-        EnableCameraRotation,
         RayTraceEmpty,
         PlaceMaterial,
         TakeMaterial
