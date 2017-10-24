@@ -47,6 +47,12 @@ namespace VoxelEditor.View
                 resourceManager.AddShader(_visual.AddShaderName, dir + "screenQuadVertex.glsl", dir + "addFragment.glsl"
                     , Resourcen.screenQuadVertex, Resourcen.addFragment);
             }
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.CrosshairsShaderName)))
+            {
+                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
+                resourceManager.AddShader(_visual.CrosshairsShaderName, dir + "screenQuadVertex.glsl", dir + "drawCrosshairsFragment.glsl"
+                    , Resourcen.screenQuadVertex, Resourcen.drawCrosshairsFragment);
+            }
         }
 
         public void ShaderChanged(string name, Shader shader)

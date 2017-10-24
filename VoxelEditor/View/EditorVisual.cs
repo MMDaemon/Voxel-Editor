@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using DMS.Geometry;
 using DMS.OpenGL;
@@ -15,12 +16,15 @@ namespace VoxelEditor.View
         private Shader _voxelShader;
         private Shader _raytraceShader;
         private Shader _addShader;
+        private Shader _crosshairsShader;
 
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
 
         private FBO _renderToTexture;
         private FBO _renderToTextureWithDepth;
+
+        private float _aspect;
 
         private float _voxelSize;
         private Vector3I _worldSize;
@@ -30,6 +34,7 @@ namespace VoxelEditor.View
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
         public string AddShaderName => nameof(_addShader);
+        public string CrosshairsShaderName => nameof(_crosshairsShader);
 
         public EditorVisual()
         {
@@ -61,7 +66,17 @@ namespace VoxelEditor.View
                 case nameof(_addShader):
                     _addShader = shader;
                     break;
+                case nameof(_crosshairsShader):
+                    _crosshairsShader = shader;
+                    break;
             }
+        }
+
+        public void Resize(int width, int height)
+        {
+            _aspect = (float) width / height;
+            _renderToTexture = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
         }
 
         public void Render(EditorViewModel viewModel)
@@ -72,43 +87,80 @@ namespace VoxelEditor.View
             _worldSize = viewModel.WorldSize;
             _raytraceCollisionPosition = viewModel.RayTraceCollisionPosition;
 
-            Texture raytraceTexture = RenderRaytraceOnTexture(cam, viewModel.RaytraceCollided);
-
             CalculateChunkMeshes(viewModel.Chunks);
 
-            Texture voxelTexture = RenderVoxelTexture(cam);
+            Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytraceCollided); });
+            Texture guiTexture = RenderOnTexture(delegate { RenderGUI(); });
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            _addShader.Activate();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            voxelTexture.Activate();
-            GL.Uniform1(_addShader.GetUniformLocation("image1"), TextureUnit.Texture0 - TextureUnit.Texture0);
-
-            GL.ActiveTexture(TextureUnit.Texture1);
-            raytraceTexture.Activate();
-            GL.Uniform1(_addShader.GetUniformLocation("image2"), TextureUnit.Texture1 - TextureUnit.Texture0);
-
-            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-
-            raytraceTexture.Deactivate();
-            voxelTexture.Deactivate();
-            _addShader.Deactivate();
+            RenderAddedTextures(mainTexture, guiTexture, 1.0f);
         }
 
-        public void Resize(int width, int height)
+        private Texture RenderOnTexture(Action render)
         {
-            _renderToTexture = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
-            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTexture.Activate();
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            render();
+
+            _renderToTexture.Deactivate();
+            return _renderToTexture.Texture;
         }
 
-        private Texture RenderVoxelTexture(float[] cam)
+        private Texture RenderOnTextureWithDepth(Action render)
         {
-            UpdateVoxelMesh();
-
             _renderToTextureWithDepth.Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            render();
+
+            _renderToTexture.Deactivate();
+            return _renderToTextureWithDepth.Texture;
+        }
+
+        private void RenderAddedTextures(Texture texture1, Texture texture2, float opaque)
+        {
+            _addShader.Activate();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            texture1.Activate();
+            GL.Uniform1(_addShader.GetUniformLocation("image1"), TextureUnit.Texture0 - TextureUnit.Texture0);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            texture2.Activate();
+            GL.Uniform1(_addShader.GetUniformLocation("image2"), TextureUnit.Texture1 - TextureUnit.Texture0);
+
+            GL.Uniform1(_addShader.GetUniformLocation("opaque"), opaque);
+
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+
+            texture1.Deactivate();
+            texture2.Deactivate();
+            _addShader.Deactivate();
+        }
+
+        private void RenderMain(float[] cam, bool raytraceCollided)
+        {
+            Texture raytraceTexture = RenderOnTexture(delegate { RenderRaytrace(cam, raytraceCollided); });
+            Texture voxelTexture = RenderOnTextureWithDepth(delegate { RenderVoxels(cam); });
+
+            RenderAddedTextures(voxelTexture, raytraceTexture, 0.5f);
+        }
+
+        private void RenderGUI()
+        {
+            _crosshairsShader.Activate();
+            GL.Uniform1(_crosshairsShader.GetUniformLocation("aspect"), _aspect);
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            _crosshairsShader.Deactivate();
+        }
+
+        private void RenderVoxels(float[] cam)
+        {
+            UpdateVoxelMesh();
+
             GL.Color4(Color4.Transparent);
             _voxelShader.Activate();
             GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
@@ -117,18 +169,12 @@ namespace VoxelEditor.View
                 _voxelGeometry.Draw();
             }
             _voxelShader.Deactivate();
-
-            _renderToTextureWithDepth.Deactivate();
-            return _renderToTextureWithDepth.Texture;
         }
 
-        private Texture RenderRaytraceOnTexture(float[] cam, bool raytraceCollided)
+        private void RenderRaytrace(float[] cam, bool raytraceCollided)
         {
             UpdateRaytraceMesh();
 
-            _renderToTexture.Activate();
-
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (raytraceCollided)
             {
                 GL.Color4(Color4.Transparent);
@@ -137,9 +183,6 @@ namespace VoxelEditor.View
                 _raytraceGeometry.Draw();
                 _raytraceShader.Deactivate();
             }
-
-            _renderToTexture.Deactivate();
-            return _renderToTexture.Texture;
         }
 
         private void UpdateVoxelMesh()
@@ -148,7 +191,7 @@ namespace VoxelEditor.View
 
             foreach (KeyValuePair<Vector3I, Mesh> chunkMesh in _chunkMeshes)
             {
-                mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key*Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
+                mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key * Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
             }
 
             _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);

@@ -69,6 +69,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="View\Resources\drawCrosshairsFragment.glsl" />
     <None Include="View\Resources\addFragment.glsl" />
     <None Include="View\Resources\raytraceFragment.glsl" />
     <None Include="View\Resources\screenQuadVertex.glsl" />

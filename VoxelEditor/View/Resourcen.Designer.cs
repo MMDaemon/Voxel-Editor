@@ -73,6 +73,16 @@ namespace VoxelEditor.View {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] drawCrosshairsFragment {
+            get {
+                object obj = ResourceManager.GetObject("drawCrosshairsFragment", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] raytraceFragment {
             get {
                 object obj = ResourceManager.GetObject("raytraceFragment", resourceCulture);
