@@ -6,3 +6,4 @@ obj
 *.sdf
 level.data
 /packages
+.vs/
