@@ -154,7 +154,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceVoxelPosition, (_raytraceHitPosition - new Vector3(0.5f)) * VoxelSize, _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceVoxelPosition, _raytraceHitPosition - new Vector3(0.5f), _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }
