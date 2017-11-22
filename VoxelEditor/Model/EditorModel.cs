@@ -29,7 +29,8 @@ namespace VoxelEditor.Model
         private readonly World _world;
 
         private bool _raytraceCollided;
-        private Vector3I _raytraceCollisionPosition;
+        private Vector3I _raytraceVoxelPosition;
+        private Vector3 _raytraceHitPosition;
 
         public IViewModel ViewModel => CreateViewModel();
 
@@ -112,28 +113,25 @@ namespace VoxelEditor.Model
 
         private void HandleRaytraceSelection(ICollection<KeyAction> keyActions)
         {
-            Vector3I collisionPossition;
-
             if (keyActions.Contains(KeyAction.RayTraceEmpty))
             {
-                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out collisionPossition);
+                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition, out _raytraceHitPosition);
             }
             else
             {
-                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out collisionPossition);
+                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition, out _raytraceHitPosition);
             }
-            _raytraceCollisionPosition = collisionPossition;
         }
 
         private void HandleUpdateWorld(ICollection<KeyAction> keyActions)
         {
             if (keyActions.Contains(KeyAction.PlaceMaterial) && _raytraceCollided)
             {
-                _world.AddMaterial(1, Constant.MaxMaterialAmount, _raytraceCollisionPosition);
+                _world.AddMaterial(1, Constant.MaxMaterialAmount, _raytraceVoxelPosition);
             }
             if (keyActions.Contains(KeyAction.TakeMaterial) && _raytraceCollided)
             {
-                _world.TakeMaterial(1, Constant.MaxMaterialAmount, _raytraceCollisionPosition);
+                _world.TakeMaterial(1, Constant.MaxMaterialAmount, _raytraceVoxelPosition);
             }
         }
 
@@ -156,7 +154,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceCollisionPosition, _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceVoxelPosition, (_raytraceHitPosition - new Vector3(0.5f)) * VoxelSize, _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }

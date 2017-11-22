@@ -88,7 +88,7 @@ namespace VoxelUtils
             return new Vector3I(left.X % right.X, left.Y % right.Y, left.Z % right.Z);
         }
 
-        public static explicit operator Vector3(Vector3I vec)
+        public static implicit operator Vector3(Vector3I vec)
         {
             return new Vector3(vec.X, vec.Y, vec.Z);
         }

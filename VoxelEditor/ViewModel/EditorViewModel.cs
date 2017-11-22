@@ -8,7 +8,7 @@ namespace VoxelEditor.ViewModel
 {
     internal class EditorViewModel : IViewModel
     {
-        private readonly Vector3I _rayTraceCollisionPosition;
+        private readonly Vector3I _raytraceVoxelPosition;
 
         public Matrix4x4 CameraMatrix { get; private set; }
 
@@ -18,15 +18,17 @@ namespace VoxelEditor.ViewModel
         public Vector3I WorldSize { get; private set; }
 
         public bool RaytraceCollided { get; private set; }
-        public Vector3 RayTraceCollisionPosition => (Vector3)_rayTraceCollisionPosition * VoxelSize;
+        public Vector3 RaytraceVoxelPosition => (Vector3)_raytraceVoxelPosition * VoxelSize;
+        public Vector3 RaytraceHitPosition { get; private set; }
 
-        public EditorViewModel(Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, Vector3I rayTraceCollisionPosition, bool raytraceCollided)
+        public EditorViewModel(Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, Vector3I raytraceVoxelPosition, Vector3 raytraceHitPosition, bool raytraceCollided)
         {
             CameraMatrix = cameraMatrix;
             Chunks = chunks;
             VoxelSize = voxelSize;
             WorldSize = worldSize;
-            _rayTraceCollisionPosition = rayTraceCollisionPosition;
+            _raytraceVoxelPosition = raytraceVoxelPosition;
+            RaytraceHitPosition = raytraceHitPosition;
             RaytraceCollided = raytraceCollided;
         }
     }

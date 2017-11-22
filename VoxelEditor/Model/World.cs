@@ -120,11 +120,11 @@ namespace VoxelEditor.Model
             return success;
         }
 
-        public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
+        public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition, out Vector3 hitPosition)
         {
             bool success = CalculateRayStartPosition(ref rayPosition, rayDirection);
             voxelPosition = new Vector3I(-1);
-
+            hitPosition = new Vector3(-1);
             if (success)
             {
                 success = false;
@@ -135,6 +135,7 @@ namespace VoxelEditor.Model
                     if (GetVoxel(globalPosition).Exists)
                     {
                         voxelPosition = globalPosition;
+                        hitPosition = rayPosition;
                         success = true;
                     }
                     else
@@ -148,10 +149,11 @@ namespace VoxelEditor.Model
             return success;
         }
 
-        public bool RaytraceEmptyOnFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
+        public bool RaytraceEmptyOnFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition, out Vector3 hitPosition)
         {
             bool success = CalculateRayStartPosition(ref rayPosition, rayDirection);
             voxelPosition = new Vector3I(-1);
+            hitPosition = new Vector3(-1);
 
             if (success)
             {
@@ -160,14 +162,16 @@ namespace VoxelEditor.Model
                 //Console.Write(globalPosition);
                 while (!success && PositionIsInsideWorld(globalPosition))
                 {
-                    rayPosition = RayStep(rayPosition, rayDirection);
-                    Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(rayPosition, rayDirection);
+                    Vector3 newRayPosition = RayStep(rayPosition, rayDirection);
+                    Vector3I newGlobalPosition = CalculateCurrentVoxelPosition(newRayPosition, rayDirection);
 
                     if ((!GetVoxel(globalPosition).Exists && PositionIsInsideWorld(newGlobalPosition) && GetVoxel(newGlobalPosition).Exists) || PositionIsUnderWorld(newGlobalPosition))
                     {
                         voxelPosition = globalPosition;
+                        hitPosition = rayPosition;
                         success = true;
                     }
+                    rayPosition = newRayPosition;
                     globalPosition = newGlobalPosition;
                 }
                 //Console.WriteLine(success + " " + voxelPosition);

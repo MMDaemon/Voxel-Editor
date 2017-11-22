@@ -28,7 +28,8 @@ namespace VoxelEditor.View
 
         private float _voxelSize;
         private Vector3I _worldSize;
-        private Vector3 _raytraceCollisionPosition;
+        private Vector3 _raytraceVoxelPosition;
+        private Vector3 _raytraceHitPosition;
         private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
 
         public string VoxelShaderName => nameof(_voxelShader);
@@ -42,7 +43,8 @@ namespace VoxelEditor.View
             GL.Enable(EnableCap.CullFace);
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
-            _raytraceCollisionPosition = Vector3.Zero;
+            _raytraceVoxelPosition = Vector3.Zero;
+            _raytraceHitPosition = Vector3.Zero;
             _renderToTexture = new FBO[3];
         }
 
@@ -88,7 +90,8 @@ namespace VoxelEditor.View
 
             _voxelSize = viewModel.VoxelSize;
             _worldSize = viewModel.WorldSize;
-            _raytraceCollisionPosition = viewModel.RayTraceCollisionPosition;
+            _raytraceVoxelPosition = viewModel.RaytraceVoxelPosition;
+            _raytraceHitPosition = viewModel.RaytraceHitPosition;
 
             CalculateChunkMeshes(viewModel.Chunks);
 
@@ -202,7 +205,10 @@ namespace VoxelEditor.View
 
         private void UpdateRaytraceMesh()
         {
-            Mesh mesh = Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceCollisionPosition));
+            Mesh mesh = new Mesh();
+            mesh.Add(Meshes.CreateSphere(0.1f*_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceHitPosition)));
+            mesh.Add(Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceVoxelPosition)));
+            
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 
