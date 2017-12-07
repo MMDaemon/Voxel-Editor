@@ -9,16 +9,19 @@ namespace VoxelEditor.Model
     internal class VoxelMarcher
     {
         private Vector3I _position;
-        private Vector3D _distanceToNext;
+        private Vector3M _distanceToNext;
         private bool colliding;
+
+        private Vector3M _marchingDirection;
 
         private Vector3I _worldSize;
 
         public VoxelMarcher(Vector3I worldSize, Vector3 rayStartPosition, Vector3 rayDirection)
         {
             _position = new Vector3I();
-            _distanceToNext = new Vector3D();
+            _distanceToNext = new Vector3M();
             _worldSize = worldSize;
+            _marchingDirection = (Vector3M)rayDirection;
             colliding = CalculateStartPosition(rayStartPosition, rayDirection);
         }
 
@@ -27,7 +30,7 @@ namespace VoxelEditor.Model
             positions = new List<Vector3I>();
             if (colliding)
             {
-                
+
             }
             return colliding;
         }
@@ -41,14 +44,14 @@ namespace VoxelEditor.Model
 
             if (PositionIsInsideWorld(rayStartPosition))
             {
-                SetStartPosition(rayStartPosition, rayDirection);
+                SetStartPosition(rayStartPosition);
                 return true;
             }
             if (rayStartPosition.X < negativeWorldSize.X)
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(negativeWorldSize.X, 0, 0), new Vector3(-1, 0, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
@@ -56,7 +59,7 @@ namespace VoxelEditor.Model
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(positiveWorldSize.X, 0, 0), new Vector3(1, 0, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
@@ -64,7 +67,7 @@ namespace VoxelEditor.Model
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, negativeWorldSize.Y, 0), new Vector3(0, -1, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
@@ -72,7 +75,7 @@ namespace VoxelEditor.Model
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, positiveWorldSize.Y, 0), new Vector3(0, 1, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
@@ -80,7 +83,7 @@ namespace VoxelEditor.Model
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, 0, negativeWorldSize.Z), new Vector3(0, 0, -1), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
@@ -88,90 +91,33 @@ namespace VoxelEditor.Model
             {
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, 0, positiveWorldSize.Z), new Vector3(0, 0, 1), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
-                    SetStartPosition(collision, rayDirection);
+                    SetStartPosition(collision);
                     return true;
                 }
             }
             return false;
         }
 
-        private void SetStartPosition(Vector3 position, Vector3 rayDirection)
+        private void SetStartPosition(Vector3 position)
         {
-            Vector3D fraction = (Vector3D)position;
-            _position = (Vector3I)fraction;
-            Vector3D offset = fraction % 1.0m;
+            Vector3M fraction = (Vector3M)position;
+            _position = (Vector3I)fraction.Floor();
+            _distanceToNext = fraction - _position;
 
-            if (position.X < 0.0f)
+            for (int i = 0; i <= 2; i++)
             {
-                _position.X--;
-                offset.X++;
-            }
-            if (position.Y < 0.0f)
-            {
-                _position.Y--;
-                offset.Y++;
-            }
-            if (position.Z < 0.0f)
-            {
-                _position.Z--;
-                offset.Z++;
-            }
-
-            if (rayDirection.X >= 0.0f)
-            {
-                if (offset.X >= 1.0m)
+                if (_marchingDirection[i] < 0)
                 {
-                    _position.X++;
-                    offset.X = 0.0m;
+                    if (_distanceToNext[i] == 0.0m)
+                    {
+                        _position[i]--;
+                    }
+                    _distanceToNext[i] = 1 - _distanceToNext[i];
                 }
-                _distanceToNext.X = 1.0m - offset.X;
-            }
-            else
-            {
-                if (offset.X <= 0.0m)
+                else if (_distanceToNext[i] == 0)
                 {
-                    _position.X--;
-                    offset.X = 1.0m;
+                    _distanceToNext[i] = 1;
                 }
-                _distanceToNext.X = offset.X;
-            }
-
-            if (rayDirection.Y >= 0.0f)
-            {
-                if (offset.Y >= 1.0m)
-                {
-                    _position.Y++;
-                    offset.Y = 0.0m;
-                }
-                _distanceToNext.Y = 1.0m - offset.Y;
-            }
-            else
-            {
-                if (offset.Y <= 0.0m)
-                {
-                    _position.Y--;
-                    offset.Y = 1.0m;
-                }
-                _distanceToNext.Y = offset.Y;
-            }
-
-            if (rayDirection.Z >= 0.0f)
-            {
-                if (offset.Z >= 1.0m)
-                {
-                    _position.Z++;
-                    offset.Z = 0.0m;
-                }
-                _distanceToNext.Z = 1.0m - offset.Z;
-            }
-            else
-            {
-                if (offset.Z <= 0.0m)
-                {
-                    _position.Z--;
-                    offset.Z = 1.0m;
-                }
-                _distanceToNext.Z = offset.Z;
             }
         }
 

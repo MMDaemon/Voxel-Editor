@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace VoxelUtils
 {
@@ -18,6 +19,42 @@ namespace VoxelUtils
         public Vector3I(Vector3I vector) : this(vector.X, vector.Y, vector.Z) { }
 
         public override string ToString() => $"({X},{Y},{Z})";
+
+        public int this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    default:
+                        throw new IndexOutOfRangeException();
+                }
+
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException();
+                }
+            }
+        }
 
         public static Vector3I operator -(Vector3I vec) => new Vector3I(-vec.X, -vec.Y, -vec.Z);
         public static Vector3I operator +(Vector3I left, Vector3I right) => new Vector3I(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
