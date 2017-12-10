@@ -14,9 +14,9 @@ namespace VoxelEditor.Model
         private Vector3I _position;
         private Vector3M _distanceToNext;
 
-        public Vector3I Position => _position;
+        public Vector3I VoxelPosition => _position;
 
-        public Vector3 GlobalPosition
+        public Vector3 HitPosition
         {
             get
             {
@@ -66,6 +66,7 @@ namespace VoxelEditor.Model
                     }
                 }
             }
+            _colliding = PositionIsInsideWorld(_position) || PositionIsUnderWorld(_position);
             return _colliding;
         }
 
@@ -74,7 +75,7 @@ namespace VoxelEditor.Model
             int dir = 0;
             for (int i = 1; i <= 2; i++)
             {
-                if (_distanceToNext[i] / Math.Abs(_marchingDirection[i]) < _distanceToNext[dir] / Math.Abs(_marchingDirection[dir]))
+                if (_marchingDirection[dir] == 0.0m || _marchingDirection[i] != 0 && _distanceToNext[i] / Math.Abs(_marchingDirection[i]) < _distanceToNext[dir] / Math.Abs(_marchingDirection[dir]))
                 {
                     dir = i;
                 }
@@ -192,5 +193,25 @@ namespace VoxelEditor.Model
             }
         }
 
+        private bool PositionIsInsideWorld(Vector3I globalPosition)
+        {
+            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            negativeWorldSize.Y = 0;
+            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+            return !(globalPosition < negativeWorldSize) && !(globalPosition >= positiveWorldSize);
+        }
+
+        private bool PositionIsUnderWorld(Vector3I globalPosition)
+        {
+            Vector3I negativeWorldSize = ((-_worldSize / 2) * Constant.ChunkSize);
+            negativeWorldSize.Y = 0;
+            Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
+            positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
+
+            return !(globalPosition.X < negativeWorldSize.X || globalPosition.X > positiveWorldSize.X ||
+                     globalPosition.Z < negativeWorldSize.Z || globalPosition.Z > positiveWorldSize.Z ||
+                     globalPosition.Y >= negativeWorldSize.Y);
+        }
     }
 }
