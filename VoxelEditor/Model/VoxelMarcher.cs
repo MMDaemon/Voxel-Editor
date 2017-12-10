@@ -8,31 +8,78 @@ namespace VoxelEditor.Model
 {
     internal class VoxelMarcher
     {
+        private Vector3I _worldSize;
+        private bool _colliding;
+        private Vector3M _marchingDirection;
         private Vector3I _position;
         private Vector3M _distanceToNext;
-        private bool colliding;
 
-        private Vector3M _marchingDirection;
+        public Vector3I Position => _position;
 
-        private Vector3I _worldSize;
-
-        public VoxelMarcher(Vector3I worldSize, Vector3 rayStartPosition, Vector3 rayDirection)
+        public Vector3 GlobalPosition
         {
-            _position = new Vector3I();
-            _distanceToNext = new Vector3M();
-            _worldSize = worldSize;
-            _marchingDirection = (Vector3M)rayDirection;
-            colliding = CalculateStartPosition(rayStartPosition, rayDirection);
+            get
+            {
+                Vector3M offset = new Vector3M();
+                for (int i = 0; i <= 2; i++)
+                {
+                    if (_distanceToNext[i] == 1.0m)
+                    {
+                        offset[i] = 0.0m;
+                    }
+                    else
+                    {
+                        offset[i] = _distanceToNext[i] * Math.Sign(_marchingDirection[i]);
+                    }
+                }
+                return new Vector3((float)(_position.X + offset.X), (float)(_position.Y + offset.Y), (float)(_position.Z + offset.Z));
+            }
         }
 
-        public bool CalculatePathToCollision(out List<Vector3I> positions)
+        public VoxelMarcher(Vector3I worldSize)
         {
-            positions = new List<Vector3I>();
-            if (colliding)
-            {
+            _worldSize = worldSize;
+            _colliding = false;
+            _position = new Vector3I();
+            _distanceToNext = new Vector3M();
 
+        }
+
+        public bool InitializeStartPosition(Vector3 rayStartPosition, Vector3 rayDirection)
+        {
+            _marchingDirection = (Vector3M)rayDirection;
+            _colliding = CalculateStartPosition(rayStartPosition, rayDirection);
+            return _colliding;
+        }
+
+        public bool CalculateNextPosition()
+        {
+            if (_colliding)
+            {
+                _distanceToNext -= _marchingDirection.Abs() * CalculateCheapestStep();
+                for (int i = 0; i <= 2; i++)
+                {
+                    if (_distanceToNext[i] == 0.0m)
+                    {
+                        _distanceToNext[i] = 1.0m;
+                        _position[i] += Math.Sign(_marchingDirection[i]);
+                    }
+                }
             }
-            return colliding;
+            return _colliding;
+        }
+
+        private decimal CalculateCheapestStep()
+        {
+            int dir = 0;
+            for (int i = 1; i <= 2; i++)
+            {
+                if (_distanceToNext[i] / Math.Abs(_marchingDirection[i]) < _distanceToNext[dir] / Math.Abs(_marchingDirection[dir]))
+                {
+                    dir = i;
+                }
+            }
+            return _distanceToNext[dir] / Math.Abs(_marchingDirection[dir]);
         }
 
         private bool CalculateStartPosition(Vector3 rayStartPosition, Vector3 rayDirection)
@@ -98,29 +145,6 @@ namespace VoxelEditor.Model
             return false;
         }
 
-        private void SetStartPosition(Vector3 position)
-        {
-            Vector3M fraction = (Vector3M)position;
-            _position = (Vector3I)fraction.Floor();
-            _distanceToNext = fraction - _position;
-
-            for (int i = 0; i <= 2; i++)
-            {
-                if (_marchingDirection[i] < 0)
-                {
-                    if (_distanceToNext[i] == 0.0m)
-                    {
-                        _position[i]--;
-                    }
-                    _distanceToNext[i] = 1 - _distanceToNext[i];
-                }
-                else if (_distanceToNext[i] == 0)
-                {
-                    _distanceToNext[i] = 1;
-                }
-            }
-        }
-
         private bool GetRayColissionWithPlane(Vector3 rayPosition, Vector3 rayDirection, Vector3 planePosition,
             Vector3 planeNormal, out Vector3 collision)
         {
@@ -143,6 +167,29 @@ namespace VoxelEditor.Model
             Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
             return !(position < negativeWorldSize) && !(position > positiveWorldSize);
+        }
+
+        private void SetStartPosition(Vector3 position)
+        {
+            Vector3M fraction = (Vector3M)position;
+            _position = (Vector3I)fraction.Floor();
+            _distanceToNext = fraction - _position;
+
+            for (int i = 0; i <= 2; i++)
+            {
+                if (_marchingDirection[i] < 0)
+                {
+                    if (_distanceToNext[i] == 0.0m)
+                    {
+                        _position[i]--;
+                    }
+                    _distanceToNext[i] = 1 - _distanceToNext[i];
+                }
+                else if (_distanceToNext[i] == 0)
+                {
+                    _distanceToNext[i] = 1;
+                }
+            }
         }
 
     }

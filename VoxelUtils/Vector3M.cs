@@ -82,5 +82,6 @@ namespace VoxelUtils
         public static implicit operator Vector3M(Vector3I vec) => new Vector3M(vec.X, vec.Y, vec.Z);
 
         public Vector3M Floor() => new Vector3M(Math.Floor(X), Math.Floor(Y), Math.Floor(Z));
+        public Vector3M Abs() => new Vector3M(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
     }
 }
