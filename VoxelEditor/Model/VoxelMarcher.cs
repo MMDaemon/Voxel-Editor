@@ -8,7 +8,7 @@ namespace VoxelEditor.Model
 {
     internal class VoxelMarcher
     {
-        private Vector3I _worldSize;
+        private readonly Vector3I _worldSize;
         private bool _colliding;
         private Vector3M _marchingDirection;
         private Vector3I _position;
@@ -29,7 +29,14 @@ namespace VoxelEditor.Model
                     }
                     else
                     {
-                        offset[i] = _distanceToNext[i] * Math.Sign(_marchingDirection[i]);
+                        if (_marchingDirection[i] < 0)
+                        {
+                            offset[i] = _distanceToNext[i];
+                        }
+                        else
+                        {
+                            offset[i] = 1 - _distanceToNext[i];
+                        }
                     }
                 }
                 return new Vector3((float)(_position.X + offset.X), (float)(_position.Y + offset.Y), (float)(_position.Z + offset.Z));
@@ -183,12 +190,12 @@ namespace VoxelEditor.Model
                     if (_distanceToNext[i] == 0.0m)
                     {
                         _position[i]--;
+                        _distanceToNext[i] = 1.0m;
                     }
-                    _distanceToNext[i] = 1 - _distanceToNext[i];
                 }
-                else if (_distanceToNext[i] == 0)
+                else
                 {
-                    _distanceToNext[i] = 1;
+                    _distanceToNext[i] = 1 - _distanceToNext[i];
                 }
             }
         }
