@@ -81,6 +81,26 @@ namespace VoxelEditor.View {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FadenkreuzBW {
+            get {
+                object obj = ResourceManager.GetObject("FadenkreuzBW", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap FadenkreuzW {
+            get {
+                object obj = ResourceManager.GetObject("FadenkreuzW", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] raytraceFragment {

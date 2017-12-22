@@ -156,10 +156,15 @@ namespace VoxelEditor.Model
             {
                 emptySet = true;
                 voxelPosition = _voxelMarcher.VoxelPosition;
-                hitPosition = _voxelMarcher.HitPosition;
+
                 success = _voxelMarcher.CalculateNextPosition();
             }
-            if (!(success && emptySet && (PositionIsUnderWorld(_voxelMarcher.VoxelPosition) || GetVoxel(_voxelMarcher.VoxelPosition).Exists)))
+            if (success && emptySet && (PositionIsUnderWorld(_voxelMarcher.VoxelPosition) ||
+                                        GetVoxel(_voxelMarcher.VoxelPosition).Exists))
+            {
+                hitPosition = _voxelMarcher.HitPosition;
+            }
+            else
             {
                 success = false;
             }

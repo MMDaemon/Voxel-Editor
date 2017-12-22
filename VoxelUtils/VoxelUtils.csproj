@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -58,6 +61,7 @@
     <Compile Include="Registry\Model\ModelRegistry.cs" />
     <Compile Include="Registry\View\ViewMaterialInfo.cs" />
     <Compile Include="Registry\View\ViewRegistry.cs" />
+    <Compile Include="Visual\RenderFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\DMS.Application\DMS.Application.csproj">
@@ -96,6 +100,10 @@
       <Project>{d5faf52f-e7ba-481b-861d-7be312a8a28f}</Project>
       <Name>MVCCore</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OpenTK.dll.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

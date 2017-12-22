@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using DMS.Geometry;
 using DMS.OpenGL;
@@ -8,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
 using VoxelUtils.Shared;
+using VoxelUtils.Visual;
 
 namespace VoxelEditor.View
 {
@@ -17,6 +19,8 @@ namespace VoxelEditor.View
         private Shader _raytraceShader;
         private Shader _addShader;
         private Shader _crosshairsShader;
+
+        private Texture _crosshairs;
 
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
@@ -46,6 +50,8 @@ namespace VoxelEditor.View
             _raytraceVoxelPosition = Vector3.Zero;
             _raytraceHitPosition = Vector3.Zero;
             _renderToTexture = new FBO[3];
+
+            _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -97,6 +103,7 @@ namespace VoxelEditor.View
 
             Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytraceCollided); }, 1);
             Texture guiTexture = RenderOnTexture(delegate { RenderGUI(); }, 2);
+            TextureLoader.SaveToFile(guiTexture, @"C:\Users\Matze\Desktop\test.png");
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -157,10 +164,14 @@ namespace VoxelEditor.View
 
         private void RenderGUI()
         {
-            _crosshairsShader.Activate();
-            GL.Uniform1(_crosshairsShader.GetUniformLocation("aspect"), _aspect);
-            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            _crosshairsShader.Deactivate();
+            //_crosshairsShader.Activate();
+            //GL.Uniform1(_crosshairsShader.GetUniformLocation("aspect"), _aspect);
+            //GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            //_crosshairsShader.Deactivate();
+
+            GL.Color3(Color.White);
+
+            RenderFunctions.DrawTexturedRect(new Vector2(-0.2f), new Vector2(0.4f), _crosshairs);
         }
 
         private void RenderVoxels(float[] cam)
@@ -206,9 +217,9 @@ namespace VoxelEditor.View
         private void UpdateRaytraceMesh()
         {
             Mesh mesh = new Mesh();
-            mesh.Add(Meshes.CreateSphere(0.1f*_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceHitPosition)));
+            mesh.Add(Meshes.CreateSphere(0.1f * _voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceHitPosition)));
             mesh.Add(Meshes.CreateCubeWithNormals(_voxelSize).Transform(Matrix4x4.CreateTranslation(_raytraceVoxelPosition)));
-            
+
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 
