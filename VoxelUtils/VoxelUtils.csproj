@@ -62,6 +62,7 @@
     <Compile Include="Registry\View\ViewMaterialInfo.cs" />
     <Compile Include="Registry\View\ViewRegistry.cs" />
     <Compile Include="Visual\RenderFunctions.cs" />
+    <Compile Include="Visual\TextureRenderer2D.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\DMS.Application\DMS.Application.csproj">
