@@ -68,6 +68,11 @@ namespace MVCCore
             SetModelViewInstances(state);
         }
 
+        private void GameWindowEvent(Action<GameWindow> gameWindowCall)
+        {
+            gameWindowCall((GameWindow)_app.GameWindow);
+        }
+
         private void SetModelViewInstances(int state)
         {
             (Type ModelType, Type ViewType) stateInformation = _stateHandler.GetStateInformation(state);
@@ -101,6 +106,7 @@ namespace MVCCore
                 }
                 _model.ModelEvent += (sender, e) => _view.ProcessModelEvent(e);
                 _model.StateChanged += StateChanged;
+                _model.GameWindowEvent += GameWindowEvent;
             }
             _app.ResourceManager.ShaderChanged += _view.ShaderChanged;
             _view.LoadResources(_app.ResourceManager);

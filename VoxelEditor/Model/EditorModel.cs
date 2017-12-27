@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using MVCCore.Interfaces;
+using OpenTK;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
 using VoxelUtils.Enums;
 using VoxelUtils.Registry.Model;
 using VoxelUtils.Visual;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 
 namespace VoxelEditor.Model
 {
@@ -36,6 +40,7 @@ namespace VoxelEditor.Model
 
         public event EventHandler ModelEvent;
         public event StateChangedHandler StateChanged;
+        public event GameWindowEventHandler GameWindowEvent;
 
         public EditorModel(IModelRegistry registry) : base(registry)
         {
@@ -70,10 +75,23 @@ namespace VoxelEditor.Model
 
         private void HandleKeyActions(ICollection<KeyAction> keyActions)
         {
+            HandleGuiActions(keyActions);
             HandleMovement(keyActions);
             HandleRaytraceSelection(keyActions);
             HandleUpdateWorld(keyActions);
 
+        }
+
+        private void HandleGuiActions(ICollection<KeyAction> keyActions)
+        {
+            if (keyActions.Contains(KeyAction.ExitGame))
+            {
+                ExitGame();
+            }
+            if (keyActions.Contains(KeyAction.ToggleFullscreen))
+            {
+                ToggleFullscreen();
+            }
         }
 
         private void HandleMovement(ICollection<KeyAction> keyActions)
@@ -169,6 +187,16 @@ namespace VoxelEditor.Model
                     _world.AddMaterial(1, Constant.MaxMaterialAmount, new Vector3I(x, y, z));
                 }
             }
+        }
+
+        private void ExitGame()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.Exit());
+        }
+
+        private void ToggleFullscreen()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Fullscreen == gameWindow.WindowState ? WindowState.Normal : WindowState.Fullscreen);
         }
 
         private void OnModelEvent()

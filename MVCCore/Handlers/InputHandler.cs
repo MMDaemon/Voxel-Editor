@@ -153,13 +153,12 @@ namespace MVCCore.Handlers
 
             //set before states
 
-            foreach (var key in _keyStatesBefore.Keys)
+            foreach (var key in _keyStatesBefore.Keys.ToList())
             {
                 _keyStatesBefore[key] = _keyStates[key];
             }
 
-            IEnumerable<MouseButton> mouseButtonsBefore = _mouseButtonStatesBefore.Keys.ToList();
-            foreach (var mouseButton in mouseButtonsBefore)
+            foreach (var mouseButton in _mouseButtonStatesBefore.Keys.ToList())
             {
                 _mouseButtonStatesBefore[mouseButton] = _mouseButtonStates[mouseButton];
             }

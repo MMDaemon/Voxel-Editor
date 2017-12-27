@@ -14,6 +14,8 @@
         MoveDown,
         RayTraceEmpty,
         PlaceMaterial,
-        TakeMaterial
+        TakeMaterial,
+        ExitGame,
+        ToggleFullscreen
     }
 }

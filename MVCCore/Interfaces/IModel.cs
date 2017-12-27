@@ -1,8 +1,10 @@
 ﻿using System;
+using OpenTK;
 
 namespace MVCCore.Interfaces
 {
 	public delegate void StateChangedHandler(int state, bool temporary);
+    public delegate void GameWindowEventHandler(Action<GameWindow> gameWindowCall);
 
 	public interface IModel
 	{
@@ -13,5 +15,6 @@ namespace MVCCore.Interfaces
 
         event EventHandler ModelEvent;
 		event StateChangedHandler StateChanged;
+	    event GameWindowEventHandler GameWindowEvent;
 	}
 }

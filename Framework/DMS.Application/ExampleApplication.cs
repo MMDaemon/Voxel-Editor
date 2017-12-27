@@ -33,8 +33,8 @@ namespace DMS.Application
 			//register callback for resizing of window
 			gameWindow.Resize += GameWindow_Resize;
 			//register callback for keyboard
-			gameWindow.KeyDown += GameWindow_KeyDown;
-			gameWindow.KeyDown += (sender, e) => { if (Key.Escape == e.Key) gameWindow.Exit(); };
+			//gameWindow.KeyDown += GameWindow_KeyDown;
+			//gameWindow.KeyDown += (sender, e) => { if (Key.Escape == e.Key) gameWindow.Exit(); };
 			ResourceManager = resourceProvider as ResourceManager;
 		}
 
