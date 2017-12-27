@@ -1,6 +1,6 @@
 ﻿using System;
 using MVCCore.Interfaces;
-using VoxelMenu.Modelview;
+using VoxelMenu.ViewModel;
 using VoxelUtils.Enums;
 
 namespace VoxelMenu.Model
@@ -11,7 +11,6 @@ namespace VoxelMenu.Model
 
         public event EventHandler ModelEvent;
         public event StateChangedHandler StateChanged;
-        public event GameWindowEventHandler GameWindowEvent;
 
         public void Update(float absoluteTime, ModelInput input)
         {
@@ -27,11 +26,6 @@ namespace VoxelMenu.Model
         {
             return new MenuViewModel();
             //TODO implement
-        }
-
-        private void ExitGame()
-        {
-            GameWindowEvent?.Invoke(gameWindow => gameWindow.Exit());
         }
 
         private void OnModelEvent()

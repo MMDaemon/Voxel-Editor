@@ -36,8 +36,6 @@ namespace MVCCore
             _app.Update += Update;
             _app.Render += Render;
             _app.Resize += Resize;
-            _model.ModelEvent += (sender, e) => _view.ProcessModelEvent(e);
-            _model.StateChanged += StateChanged;
 
             _timeSource.Start();
             _app.Run();
@@ -85,6 +83,7 @@ namespace MVCCore
             {
                 _view = (IView)Activator.CreateInstance(stateInformation.ViewType);
             }
+            _view.GameWindowEvent += GameWindowEvent;
 
             IModel existingModel = (from inactiveModel in _inactiveModels
                                     where inactiveModel.GetType() == stateInformation.ModelType
@@ -106,7 +105,6 @@ namespace MVCCore
                 }
                 _model.ModelEvent += (sender, e) => _view.ProcessModelEvent(e);
                 _model.StateChanged += StateChanged;
-                _model.GameWindowEvent += GameWindowEvent;
             }
             _app.ResourceManager.ShaderChanged += _view.ShaderChanged;
             _view.LoadResources(_app.ResourceManager);

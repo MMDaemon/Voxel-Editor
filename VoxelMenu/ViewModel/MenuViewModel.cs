@@ -1,6 +1,6 @@
 ﻿using MVCCore.Interfaces;
 
-namespace VoxelMenu.Modelview
+namespace VoxelMenu.ViewModel
 {
     internal class MenuViewModel : IViewModel
     {

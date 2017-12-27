@@ -9,6 +9,8 @@ namespace VoxelMenu.View
 {
     public class MenuView : IView
     {
+        public event GameWindowEventHandler GameWindowEvent;
+
         private Shader _menuShader;
 
         public void ShaderChanged(string name, Shader shader)
@@ -47,6 +49,11 @@ namespace VoxelMenu.View
         private void UpdateMesh()
         {
             //TODO implement
+        }
+
+        private void ExitGame()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.Exit());
         }
     }
 }

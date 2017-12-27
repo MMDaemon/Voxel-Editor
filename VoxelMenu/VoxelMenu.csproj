@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Modelview\MenuViewModel.cs" />
+    <Compile Include="ViewModel\MenuViewModel.cs" />
     <Compile Include="Model\MenuModel.cs" />
     <Compile Include="View\MenuView.cs" />
     <Compile Include="View\Resourcen.Designer.cs">

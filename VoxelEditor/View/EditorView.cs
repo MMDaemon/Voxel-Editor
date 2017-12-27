@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using DMS.Application;
 using DMS.Base;
 using DMS.OpenGL;
 using MVCCore.Interfaces;
+using OpenTK;
 using VoxelEditor.ViewModel;
+using VoxelUtils.Enums;
 using VoxelUtils.Registry.View;
 
 namespace VoxelEditor.View
@@ -15,6 +18,8 @@ namespace VoxelEditor.View
         private readonly EditorVisual _visual;
         private readonly EditorSound _sound;
 
+        public event GameWindowEventHandler GameWindowEvent;
+
         public EditorView(IViewRegistry registry) : base(registry)
         {
             _registry = (ViewRegistry)registry;
@@ -24,7 +29,10 @@ namespace VoxelEditor.View
 
         public void ProcessModelEvent(EventArgs e)
         {
-            //TODO implement
+            if (e is GuiKeyActionsEventArgs)
+            {
+                HandleKeyActions(((GuiKeyActionsEventArgs)e).KeyActions);
+            }
         }
 
         public void LoadResources(ResourceManager resourceManager)
@@ -68,6 +76,28 @@ namespace VoxelEditor.View
         public void Resize(int width, int height)
         {
             _visual.Resize(width, height);
+        }
+
+        private void HandleKeyActions(ICollection<KeyAction> keyActions)
+        {
+            if (keyActions.Contains(KeyAction.ExitGame))
+            {
+                ExitGame();
+            }
+            if (keyActions.Contains(KeyAction.ToggleFullscreen))
+            {
+                ToggleFullscreen();
+            }
+        }
+
+        private void ExitGame()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.Exit());
+        }
+
+        private void ToggleFullscreen()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Fullscreen == gameWindow.WindowState ? WindowState.Normal : WindowState.Fullscreen);
         }
     }
 }

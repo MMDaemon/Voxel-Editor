@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using MVCCore.Interfaces;
-using OpenTK;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
 using VoxelUtils.Enums;
@@ -40,7 +39,6 @@ namespace VoxelEditor.Model
 
         public event EventHandler ModelEvent;
         public event StateChangedHandler StateChanged;
-        public event GameWindowEventHandler GameWindowEvent;
 
         public EditorModel(IModelRegistry registry) : base(registry)
         {
@@ -84,13 +82,18 @@ namespace VoxelEditor.Model
 
         private void HandleGuiActions(ICollection<KeyAction> keyActions)
         {
+            List<KeyAction> guiKeyActions = new List<KeyAction>();
             if (keyActions.Contains(KeyAction.ExitGame))
             {
-                ExitGame();
+                guiKeyActions.Add(KeyAction.ExitGame);
             }
             if (keyActions.Contains(KeyAction.ToggleFullscreen))
             {
-                ToggleFullscreen();
+                guiKeyActions.Add(KeyAction.ToggleFullscreen);
+            }
+            if (guiKeyActions.Count > 0)
+            {
+                OnGuiKeyActionsSet(guiKeyActions);
             }
         }
 
@@ -189,19 +192,14 @@ namespace VoxelEditor.Model
             }
         }
 
-        private void ExitGame()
-        {
-            GameWindowEvent?.Invoke(gameWindow => gameWindow.Exit());
-        }
-
-        private void ToggleFullscreen()
-        {
-            GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Fullscreen == gameWindow.WindowState ? WindowState.Normal : WindowState.Fullscreen);
-        }
-
         private void OnModelEvent()
         {
             ModelEvent?.Invoke(null, null);
+        }
+
+        private void OnGuiKeyActionsSet(ICollection<KeyAction> keyActions)
+        {
+            ModelEvent?.Invoke(this, new GuiKeyActionsEventArgs(keyActions));
         }
 
         private void OnStateChanged(State state, bool temporary)

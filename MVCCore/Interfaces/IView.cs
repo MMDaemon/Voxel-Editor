@@ -1,12 +1,15 @@
 ﻿using System;
 using DMS.Application;
 using DMS.OpenGL;
+using OpenTK;
 
 namespace MVCCore.Interfaces
 {
-	public interface IView
+    public delegate void GameWindowEventHandler(Action<GameWindow> gameWindowCall);
+
+    public interface IView
 	{
-		void ShaderChanged(string name, Shader shader);
+        void ShaderChanged(string name, Shader shader);
 
 		void LoadResources(ResourceManager resourceManager);
 
@@ -14,5 +17,7 @@ namespace MVCCore.Interfaces
 
 		void Resize(int width, int height);
 	    void ProcessModelEvent(EventArgs e);
-	}
+
+	    event GameWindowEventHandler GameWindowEvent;
+    }
 }
