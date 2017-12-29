@@ -6,20 +6,14 @@ namespace VoxelUtils.Visual
 {
     public static class RenderFunctions
     {
-        public static void DrawTexturedRect(Vector2 position, Vector2 size, Texture tex)
+        public static void DrawRect(float xPos, float yPos, float xSize, float ySize)
         {
-            //the texture has to be enabled before use
-            tex.Activate();
             GL.Begin(PrimitiveType.Quads);
-            //when using textures we have to set a texture coordinate for each vertex
-            //by using the TexCoord command BEFORE the Vertex command
-            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(position.X, position.Y);
-            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(position.X + size.X, position.Y);
-            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(position.X + size.X, position.Y + size.Y);
-            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(position.X, position.Y + size.Y);
+            GL.TexCoord2(0.0f, 0.0f); GL.Vertex2(xPos, yPos);
+            GL.TexCoord2(1.0f, 0.0f); GL.Vertex2(xPos + xSize, yPos);
+            GL.TexCoord2(1.0f, 1.0f); GL.Vertex2(xPos + xSize, yPos + ySize);
+            GL.TexCoord2(0.0f, 1.0f); GL.Vertex2(xPos, yPos + ySize);
             GL.End();
-            //the texture is disabled, so no other draw calls use this texture
-            tex.Deactivate();
         }
     }
 }

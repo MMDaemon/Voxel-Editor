@@ -135,8 +135,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="View\Resources\FadenkreuzBW.png" />
-    <Content Include="View\Resources\FadenkreuzW.png" />
+    <Content Include="View\Textures\FadenkreuzBW.png" />
+    <Content Include="View\Textures\FadenkreuzW.png" />
+    <Content Include="View\Textures\Roboto.png" />
+    <Content Include="View\Textures\Roboto_Black.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

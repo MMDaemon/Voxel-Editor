@@ -20,13 +20,14 @@ namespace VoxelEditor.View
         private Shader _addShader;
         private Shader _crosshairsShader;
 
-        private Texture _crosshairs;
+        private readonly Texture _crosshairs;
+        private readonly TextureFont _font;
 
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
 
-        private FBO[] _renderToTexture;
-        private FBO _renderToTextureWithDepth;
+        private readonly FBO[] _renderToTexture;
+        private readonly FBO[] _renderToTextureWithDepth;
 
         private int _width;
         private int _height;
@@ -47,13 +48,17 @@ namespace VoxelEditor.View
         {
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Blend);
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceVoxelPosition = Vector3.Zero;
             _raytraceHitPosition = Vector3.Zero;
             _renderToTexture = new FBO[3];
+            _renderToTextureWithDepth = new FBO[1];
 
             _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
+            _font = new TextureFont(TextureLoader.FromBitmap(Resourcen.Roboto), 16, 0, 1, 1, .9f);
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -91,7 +96,7 @@ namespace VoxelEditor.View
             _renderToTexture[0] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTexture[1] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTexture[2] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
-            _renderToTextureWithDepth = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTextureWithDepth[0] = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
         }
 
         public void Render(EditorViewModel viewModel)
@@ -107,7 +112,6 @@ namespace VoxelEditor.View
 
             Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytraceCollided); }, 1);
             Texture guiTexture = RenderOnTexture(delegate { RenderGUI(); }, 2);
-            TextureLoader.SaveToFile(guiTexture, @"C:\Users\Matze\Desktop\test.png");
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -129,15 +133,15 @@ namespace VoxelEditor.View
 
         private Texture RenderOnTextureWithDepth(Action render)
         {
-            _renderToTextureWithDepth.Activate();
+            _renderToTextureWithDepth[0].Activate();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.ActiveTexture(TextureUnit.Texture0);
 
             render();
 
-            _renderToTextureWithDepth.Deactivate();
-            return _renderToTextureWithDepth.Texture;
+            _renderToTextureWithDepth[0].Deactivate();
+            return _renderToTextureWithDepth[0].Texture;
         }
 
         private void RenderAddedTextures(Texture texture1, Texture texture2, float opaque)
@@ -172,7 +176,26 @@ namespace VoxelEditor.View
         {
             GL.Color3(Color.White);
             float crosshairsSize = 70.0f;
-            RenderFunctions.DrawTexturedRect(new Vector2(-crosshairsSize / (2 * (float)_width), -crosshairsSize / (2 * (float)_height)), new Vector2(crosshairsSize / (float)_width, crosshairsSize / (float)_height), _crosshairs);
+
+            _crosshairs.Activate();
+            RenderFunctions.DrawRect(-crosshairsSize / (2 * (float)_width), -crosshairsSize / (2 * (float)_height), crosshairsSize / (float)_width, crosshairsSize / (float)_height);
+            _crosshairs.Deactivate();
+
+            GL.PushMatrix();
+            GL.Scale(1 / _aspect, 1, 1);
+
+            float width1 = _font.Width("Material: Stone", 0.07f);
+            float width2 = _font.Width("Amount: 1/32", 0.07f);
+            float width = width1 > width2 ? width1 : width2;
+            GL.Color4(new Color4(1, 1, 1, 0.9f));
+            RenderFunctions.DrawRect(-_aspect, 0.86f, width, 0.14f);
+
+            GL.Color3(Color.Black);
+            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: Stone");
+            _font.Print(-_aspect, 0.86f, 0, 0.07f, "Amount: 1/32");
+
+            GL.PopMatrix();
+
         }
 
         private void RenderVoxels(float[] cam)

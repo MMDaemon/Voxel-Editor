@@ -124,12 +124,6 @@
   <data name="drawCrosshairsFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\drawcrosshairsfragment.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="FadenkreuzBW" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\fadenkreuzbw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FadenkreuzW" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>resources\fadenkreuzw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="raytraceFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\raytracefragment.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -150,5 +144,17 @@
   </data>
   <data name="guiVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\guivertex.glsl;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="FadenkreuzBW" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>textures\fadenkreuzbw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FadenkreuzW" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>textures\fadenkreuzw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Roboto" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>textures\roboto.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Roboto_Black" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>textures\roboto_black.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

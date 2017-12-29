@@ -18,7 +18,7 @@ namespace VoxelEditor.Model
     {
         private const float VoxelSize = 1.0f / Constant.ChunkSizeX;
 
-        private ModelRegistry _registry;
+        private readonly ModelRegistry _registry;
         private readonly Random _random;
 
         private float _lastUpdateTime;
