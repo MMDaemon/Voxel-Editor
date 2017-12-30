@@ -30,6 +30,7 @@ namespace Initialisation
             InputHandler inputHandler = new InputHandler(gameWindow);
             inputHandler.AddPressKeyAction(Key.Escape, (int)KeyAction.Exit);
             inputHandler.AddPressKeyAction(Key.F11, (int)KeyAction.ToggleFullscreen);
+            inputHandler.AddPressKeyAction(Key.E, (int)KeyAction.SelectMaterial);
             inputHandler.AddHoldKeyAction(Key.W, (int)KeyAction.MoveForwards);
             inputHandler.AddHoldKeyAction(Key.Up, (int)KeyAction.MoveForwards);
             inputHandler.AddHoldKeyAction(Key.S, (int)KeyAction.MoveBackwards);
@@ -78,13 +79,14 @@ namespace Initialisation
             _modelRegistry = new ModelRegistry();
             _viewRegistry = new ViewRegistry();
 
-            //TODO regsiter Materials
+            RegisterMaterial(1, new MaterialInfo("stone", null, new RenderProperties(), new MaterialBehavior()));
+            RegisterMaterial(2, new MaterialInfo("dirt", null, new RenderProperties(), new MaterialBehavior()));
         }
 
         public void RegisterMaterial(int id, MaterialInfo materialInfo)
         {
-            _modelRegistry.RegisterMaterial(id, materialInfo.MaterialBehavior);
-            _viewRegistry.RegisterMaterial(id, materialInfo.Texture, materialInfo.RenderProperties);
+            _modelRegistry.RegisterMaterial(id, materialInfo);
+            _viewRegistry.RegisterMaterial(id, materialInfo);
         }
     }
 }

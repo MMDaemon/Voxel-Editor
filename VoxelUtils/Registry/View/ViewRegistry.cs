@@ -1,22 +1,25 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using MVCCore.Interfaces;
-using VoxelUtils.Initialization;
 
 namespace VoxelUtils.Registry.View
 {
     public class ViewRegistry : IViewRegistry
     {
-        private Dictionary<int, ViewMaterialInfo> _materials;
+        private Dictionary<int, IViewMaterialInfo> _materials;
 
         public ViewRegistry()
         {
-            _materials = new Dictionary<int, ViewMaterialInfo>();
+            _materials = new Dictionary<int, IViewMaterialInfo>();
         }
 
-        public void RegisterMaterial(int id, Bitmap texture, RenderProperties renderProperties)
+        public void RegisterMaterial(int id, IViewMaterialInfo materialInfo)
         {
-            //TODO implement
+            _materials.Add(id, materialInfo);
+        }
+
+        public IViewMaterialInfo GetMaterialInfo(int id)
+        {
+            return _materials[id];
         }
     }
 }

@@ -57,9 +57,9 @@
     <Compile Include="Vector3I.cs" />
     <Compile Include="Visual\CameraPerspective.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registry\Model\ModelMaterialInfo.cs" />
+    <Compile Include="Registry\Model\IModelMaterialInfo.cs" />
     <Compile Include="Registry\Model\ModelRegistry.cs" />
-    <Compile Include="Registry\View\ViewMaterialInfo.cs" />
+    <Compile Include="Registry\View\IViewMaterialInfo.cs" />
     <Compile Include="Registry\View\ViewRegistry.cs" />
     <Compile Include="Visual\RenderFunctions.cs" />
     <Compile Include="Visual\TextureRenderer2D.cs" />

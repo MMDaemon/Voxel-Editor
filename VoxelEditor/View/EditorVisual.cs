@@ -8,6 +8,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
+using VoxelUtils.Registry.View;
 using VoxelUtils.Shared;
 using VoxelUtils.Visual;
 
@@ -15,6 +16,8 @@ namespace VoxelEditor.View
 {
     internal class EditorVisual
     {
+        private readonly ViewRegistry _registry;
+
         private Shader _voxelShader;
         private Shader _raytraceShader;
         private Shader _addShader;
@@ -44,8 +47,10 @@ namespace VoxelEditor.View
         public string AddShaderName => nameof(_addShader);
         public string CrosshairsShaderName => nameof(_crosshairsShader);
 
-        public EditorVisual()
+        public EditorVisual(ViewRegistry registry)
         {
+            _registry = registry;
+
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
@@ -111,7 +116,7 @@ namespace VoxelEditor.View
             CalculateChunkMeshes(viewModel.Chunks);
 
             Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytraceCollided); }, 1);
-            Texture guiTexture = RenderOnTexture(delegate { RenderGUI(); }, 2);
+            Texture guiTexture = RenderOnTexture(delegate { RenderGUI(viewModel.MaterialId, viewModel.MaterialAmount); }, 2);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -172,7 +177,7 @@ namespace VoxelEditor.View
             RenderAddedTextures(voxelTexture, raytraceTexture, 0.5f);
         }
 
-        private void RenderGUI()
+        private void RenderGUI(int materialId, int materialAmount)
         {
             GL.Color3(Color.White);
             float crosshairsSize = 70.0f;
@@ -184,15 +189,18 @@ namespace VoxelEditor.View
             GL.PushMatrix();
             GL.Scale(1 / _aspect, 1, 1);
 
-            float width1 = _font.Width("Material: Stone"+" ", 0.07f);
-            float width2 = _font.Width("Amount: 1/32"+" ", 0.07f);
+            float width1 = _font.Width("Material: Stone" + " ", 0.07f);
+            float width2 = _font.Width("Amount: 1/32" + " ", 0.07f);
             float width = width1 > width2 ? width1 : width2;
             GL.Color4(new Color4(1, 1, 1, 0.9f));
             RenderFunctions.DrawRect(-_aspect, 0.86f, width, 0.14f);
 
             GL.Color3(Color.Black);
-            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: Stone");
-            _font.Print(-_aspect, 0.86f, 0, 0.07f, "Amount: 1/32");
+            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: "+_registry.GetMaterialInfo(materialId).Name);
+            string amountText = materialAmount == Constant.MaxMaterialAmount
+                ? "1"
+                : "1/" + (Constant.MaxMaterialAmount / materialAmount);
+            _font.Print(-_aspect, 0.86f, 0, 0.07f, "Amount: " + amountText);
 
             GL.PopMatrix();
 

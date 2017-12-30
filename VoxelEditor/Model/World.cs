@@ -39,6 +39,14 @@ namespace VoxelEditor.Model
 
         }
 
+        public Voxel GetVoxel(Vector3I globalPosition)
+        {
+            Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
+            Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
+
+            return _chunks[chunkPosition][voxelPosition];
+        }
+
         public bool AddMaterial(int materialId, int amount, Vector3I globalPosition)
         {
             bool success = false;
@@ -553,14 +561,6 @@ namespace VoxelEditor.Model
                 position.Y = initialPosition.Y;
                 position.X++;
             }
-        }
-
-        public Voxel GetVoxel(Vector3I globalPosition)
-        {
-            Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
-            Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
-
-            return _chunks[chunkPosition][voxelPosition];
         }
 
         private Vector3I CalculateChunkPosition(Vector3I globalPosition)

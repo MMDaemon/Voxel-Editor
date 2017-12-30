@@ -25,7 +25,7 @@ namespace VoxelEditor.View
         public EditorView(IViewRegistry registry) : base(registry)
         {
             _registry = (ViewRegistry)registry;
-            _visual = new EditorVisual();
+            _visual = new EditorVisual(_registry);
             _sound = new EditorSound();
 
             _cursorVisible = false;

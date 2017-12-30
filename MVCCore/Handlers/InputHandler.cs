@@ -72,7 +72,7 @@ namespace MVCCore.Handlers
 
         private ModelInput CreateModelInput()
         {
-            ModelInput modelInput = new ModelInput(GetMousePos(), GetScreenCenter());
+            ModelInput modelInput = new ModelInput(_gameWindow.Mouse.GetState(), GetScreenCenter());
             modelInput.KeyActions.AddRange(GetKeyActions());
             return modelInput;
         }
@@ -107,11 +107,6 @@ namespace MVCCore.Handlers
             {
                 _mouseButtonStates[mouseButton] = false;
             }
-        }
-
-        private Vector2 GetMousePos()
-        {
-            return new Vector2((float)(_gameWindow.Mouse.X - _gameWindow.Width / 2) / _gameWindow.Height * 2, (float)-(_gameWindow.Mouse.Y - _gameWindow.Height / 2) / _gameWindow.Height * 2);
         }
 
         private Point GetScreenCenter()

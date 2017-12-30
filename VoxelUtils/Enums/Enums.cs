@@ -17,6 +17,7 @@
         RayTraceEmpty,
         PlaceMaterial,
         TakeMaterial,
-        ToggleCursorVisible
+        ToggleCursorVisible,
+        SelectMaterial
     }
 }

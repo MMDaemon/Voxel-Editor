@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
+using OpenTK.Input;
 
 namespace MVCCore.Interfaces
 {
 	public class ModelInput
 	{
-		public Vector2 MousePosition { get; private set; }
+		public MouseState MouseState { get; private set; }
 
 	    public Point ScreenCenter { get; private set; }
 
 		public List<int> KeyActions { get; private set; }
 
-		public ModelInput(Vector2 mousePosition, Point screenCenter)
+		public ModelInput(MouseState mouseState, Point screenCenter)
 		{
-			MousePosition = mousePosition;
+			MouseState = mouseState;
 		    ScreenCenter = screenCenter;
 		    KeyActions = new List<int>();
 		}

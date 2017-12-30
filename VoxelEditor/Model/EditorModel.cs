@@ -25,6 +25,7 @@ namespace VoxelEditor.Model
 
         private float _lastUpdateTime;
         private float _deltaTime;
+        private int _scrollWheelBefore;
         private bool _cursorLocked;
         private Point _screenCenter;
         private Vector2 _cursorDelta;
@@ -33,6 +34,8 @@ namespace VoxelEditor.Model
 
         private readonly Player _player;
         private readonly World _world;
+        private int _materialAmount;
+        private int _materialID;
 
         private bool _raytraceCollided;
         private Vector3I _raytraceVoxelPosition;
@@ -49,13 +52,15 @@ namespace VoxelEditor.Model
             _random = new Random();
 
             _lastUpdateTime = 0.0f;
-
+            _scrollWheelBefore = 0;
             _cursorLocked = true;
 
             _camera = new CameraPerspective { FarClip = 100 };
 
             _player = new Player(Vector3.UnitY);
             _world = new World(new Vector3I(4, 4, 4));
+            _materialAmount = Constant.MaxMaterialAmount;
+            _materialID = 1;
             //TestInitVoxels();
         }
 
@@ -76,7 +81,7 @@ namespace VoxelEditor.Model
             {
                 _cursorDelta = new Vector2(0);
             }
-
+            HandleScrolling(input.MouseState.Wheel);
             HandleKeyActions(input.KeyActions.Cast<KeyAction>().ToList());
         }
 
@@ -85,10 +90,32 @@ namespace VoxelEditor.Model
             _camera.Aspect = (float)width / height;
         }
 
+        private void HandleScrolling(int scrollWheel)
+        {
+            Console.WriteLine(scrollWheel);
+            int difference = scrollWheel - _scrollWheelBefore;
+            _scrollWheelBefore = scrollWheel;
+            for (int i = 0; i < difference; i++)
+            {
+                if (_materialAmount < Constant.MaxMaterialAmount)
+                {
+                    _materialAmount *= 2;
+                }
+            }
+            for (int i = 0; i > difference; i--)
+            {
+                if (_materialAmount > 1)
+                {
+                    _materialAmount /= 2;
+                }
+            }
+        }
+
         private void HandleKeyActions(ICollection<KeyAction> keyActions)
         {
             HandleGuiActions(keyActions);
             HandleMovement(keyActions);
+            HandleSelection(keyActions);
             HandleRaytraceSelection(keyActions);
             HandleUpdateWorld(keyActions);
 
@@ -169,6 +196,14 @@ namespace VoxelEditor.Model
             _camera.Jaw = _player.Rotation.Y;
         }
 
+        private void HandleSelection(ICollection<KeyAction> keyActions)
+        {
+            if (keyActions.Contains(KeyAction.SelectMaterial))
+            {
+                _materialID = _materialID % _registry.MaterialCount + 1;
+            }
+        }
+
         private void HandleRaytraceSelection(ICollection<KeyAction> keyActions)
         {
             if (keyActions.Contains(KeyAction.RayTraceEmpty))
@@ -185,11 +220,22 @@ namespace VoxelEditor.Model
         {
             if (keyActions.Contains(KeyAction.PlaceMaterial) && _raytraceCollided)
             {
-                _world.AddMaterial(1, Constant.MaxMaterialAmount, _raytraceVoxelPosition);
+                int addAmount = _materialAmount;
+                int overhead = Constant.MaxMaterialAmount - (_world.GetVoxel(_raytraceVoxelPosition).Amount + _materialAmount);
+                if (overhead < 0)
+                {
+                    addAmount += overhead;
+                }
+                _world.AddMaterial(_materialID, addAmount, _raytraceVoxelPosition);
             }
             if (keyActions.Contains(KeyAction.TakeMaterial) && _raytraceCollided)
             {
-                _world.TakeMaterial(1, Constant.MaxMaterialAmount, _raytraceVoxelPosition);
+                int takeAmount = _materialAmount;
+                if (_world.GetVoxel(_raytraceVoxelPosition).Amount < _materialAmount)
+                {
+                    takeAmount = _world.GetVoxel(_raytraceVoxelPosition).Amount;
+                }
+                _world.TakeMaterial(_materialID, takeAmount, _raytraceVoxelPosition);
             }
         }
 
@@ -212,7 +258,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _raytraceVoxelPosition, _raytraceHitPosition - new Vector3(0.5f), _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytraceHitPosition - new Vector3(0.5f), _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }
