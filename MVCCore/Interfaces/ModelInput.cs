@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 
 namespace MVCCore.Interfaces
@@ -7,12 +8,15 @@ namespace MVCCore.Interfaces
 	{
 		public Vector2 MousePosition { get; private set; }
 
+	    public Point ScreenCenter { get; private set; }
+
 		public List<int> KeyActions { get; private set; }
 
-		public ModelInput(Vector2 mousePosition)
+		public ModelInput(Vector2 mousePosition, Point screenCenter)
 		{
 			MousePosition = mousePosition;
-			KeyActions = new List<int>();
+		    ScreenCenter = screenCenter;
+		    KeyActions = new List<int>();
 		}
 	}
 }

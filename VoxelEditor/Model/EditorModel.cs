@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
+using System.Windows.Forms;
 using MVCCore.Interfaces;
 using VoxelEditor.ViewModel;
 using VoxelUtils;
@@ -23,8 +25,9 @@ namespace VoxelEditor.Model
 
         private float _lastUpdateTime;
         private float _deltaTime;
-        private Vector2 _lastMousePosition;
-        private Vector2 _deltaMousePosition;
+        private bool _cursorLocked;
+        private Point _screenCenter;
+        private Vector2 _cursorDelta;
 
         private readonly CameraPerspective _camera;
 
@@ -46,7 +49,8 @@ namespace VoxelEditor.Model
             _random = new Random();
 
             _lastUpdateTime = 0.0f;
-            _lastMousePosition = Vector2.Zero;
+
+            _cursorLocked = true;
 
             _camera = new CameraPerspective { FarClip = 100 };
 
@@ -60,8 +64,18 @@ namespace VoxelEditor.Model
             _deltaTime = absoluteTime - _lastUpdateTime;
             _lastUpdateTime = absoluteTime;
 
-            _deltaMousePosition = input.MousePosition - _lastMousePosition;
-            _lastMousePosition = input.MousePosition;
+            _screenCenter = input.ScreenCenter;
+
+            if (_cursorLocked)
+            {
+                Point mouseDelta = Cursor.Position - new Size(_screenCenter);
+                _cursorDelta = new Vector2((float)mouseDelta.X, -(float)mouseDelta.Y);
+                Cursor.Position = _screenCenter;
+            }
+            else
+            {
+                _cursorDelta = new Vector2(0);
+            }
 
             HandleKeyActions(input.KeyActions.Cast<KeyAction>().ToList());
         }
@@ -83,10 +97,33 @@ namespace VoxelEditor.Model
         private void HandleGuiActions(ICollection<KeyAction> keyActions)
         {
             List<KeyAction> guiKeyActions = new List<KeyAction>();
-            if (keyActions.Contains(KeyAction.ExitGame))
+            if (keyActions.Contains(KeyAction.Exit))
             {
-                guiKeyActions.Add(KeyAction.ExitGame);
+                if (!_cursorLocked)
+                {
+                    guiKeyActions.Add(KeyAction.Exit);
+                }
+                else
+                {
+                    _cursorLocked = false;
+                    guiKeyActions.Add(KeyAction.ToggleCursorVisible);
+                }
             }
+            if (!_cursorLocked)
+            {
+                if (keyActions.Contains(KeyAction.PlaceMaterial))
+                {
+                    _cursorLocked = true;
+                    guiKeyActions.Add(KeyAction.ToggleCursorVisible);
+                    keyActions.Remove(KeyAction.PlaceMaterial);
+                    Cursor.Position = _screenCenter;
+                }
+                if (keyActions.Contains(KeyAction.TakeMaterial))
+                {
+                    keyActions.Remove(KeyAction.TakeMaterial);
+                }
+            }
+
             if (keyActions.Contains(KeyAction.ToggleFullscreen))
             {
                 guiKeyActions.Add(KeyAction.ToggleFullscreen);
@@ -158,7 +195,7 @@ namespace VoxelEditor.Model
 
         private void CalculatePlayerRotation()
         {
-            _player.Rotate(300 * new Vector2(-_deltaMousePosition.Y, _deltaMousePosition.X));
+            _player.Rotate(new Vector2(-_cursorDelta.Y, _cursorDelta.X));
         }
 
         private Vector3 CalculateRaytraceDirection(Vector2 mousePosition)

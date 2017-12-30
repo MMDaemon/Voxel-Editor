@@ -28,7 +28,7 @@ namespace Initialisation
         public InputHandler InitializeInputHandler(GameWindow gameWindow)
         {
             InputHandler inputHandler = new InputHandler(gameWindow);
-            inputHandler.AddPressKeyAction(Key.Escape, (int)KeyAction.ExitGame);
+            inputHandler.AddPressKeyAction(Key.Escape, (int)KeyAction.Exit);
             inputHandler.AddPressKeyAction(Key.F11, (int)KeyAction.ToggleFullscreen);
             inputHandler.AddHoldKeyAction(Key.W, (int)KeyAction.MoveForwards);
             inputHandler.AddHoldKeyAction(Key.Up, (int)KeyAction.MoveForwards);

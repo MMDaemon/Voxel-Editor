@@ -58,7 +58,7 @@ namespace VoxelEditor.View
             _renderToTextureWithDepth = new FBO[1];
 
             _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
-            _font = new TextureFont(TextureLoader.FromBitmap(Resourcen.Roboto), 16, 0, 1, 1, .9f);
+            _font = new TextureFont(TextureLoader.FromBitmap(Resourcen.Coders_Crux), 16, 0, 0.6f, 0.9f, 0.75f);
         }
 
         public void ShaderChanged(string name, Shader shader)
@@ -184,8 +184,8 @@ namespace VoxelEditor.View
             GL.PushMatrix();
             GL.Scale(1 / _aspect, 1, 1);
 
-            float width1 = _font.Width("Material: Stone", 0.07f);
-            float width2 = _font.Width("Amount: 1/32", 0.07f);
+            float width1 = _font.Width("Material: Stone"+" ", 0.07f);
+            float width2 = _font.Width("Amount: 1/32"+" ", 0.07f);
             float width = width1 > width2 ? width1 : width2;
             GL.Color4(new Color4(1, 1, 1, 0.9f));
             RenderFunctions.DrawRect(-_aspect, 0.86f, width, 0.14f);

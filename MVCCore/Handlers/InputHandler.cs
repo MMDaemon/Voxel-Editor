@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using MVCCore.Interfaces;
 using OpenTK;
@@ -71,7 +72,7 @@ namespace MVCCore.Handlers
 
         private ModelInput CreateModelInput()
         {
-            ModelInput modelInput = new ModelInput(GetMousePos());
+            ModelInput modelInput = new ModelInput(GetMousePos(), GetScreenCenter());
             modelInput.KeyActions.AddRange(GetKeyActions());
             return modelInput;
         }
@@ -111,6 +112,11 @@ namespace MVCCore.Handlers
         private Vector2 GetMousePos()
         {
             return new Vector2((float)(_gameWindow.Mouse.X - _gameWindow.Width / 2) / _gameWindow.Height * 2, (float)-(_gameWindow.Mouse.Y - _gameWindow.Height / 2) / _gameWindow.Height * 2);
+        }
+
+        private Point GetScreenCenter()
+        {
+            return _gameWindow.PointToScreen(new Point(_gameWindow.Width / 2, _gameWindow.Height / 2));
         }
 
         private IEnumerable<int> GetKeyActions()

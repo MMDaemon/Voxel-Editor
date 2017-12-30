@@ -18,6 +18,8 @@ namespace VoxelEditor.View
         private readonly EditorVisual _visual;
         private readonly EditorSound _sound;
 
+        private bool _cursorVisible;
+
         public event GameWindowEventHandler GameWindowEvent;
 
         public EditorView(IViewRegistry registry) : base(registry)
@@ -25,6 +27,8 @@ namespace VoxelEditor.View
             _registry = (ViewRegistry)registry;
             _visual = new EditorVisual();
             _sound = new EditorSound();
+
+            _cursorVisible = false;
         }
 
         public void ProcessModelEvent(EventArgs e)
@@ -70,6 +74,7 @@ namespace VoxelEditor.View
 
         public void Render(IViewModel viewModel)
         {
+            SetCursorVisible();
             _visual.Render((EditorViewModel)viewModel);
         }
 
@@ -80,13 +85,17 @@ namespace VoxelEditor.View
 
         private void HandleKeyActions(ICollection<KeyAction> keyActions)
         {
-            if (keyActions.Contains(KeyAction.ExitGame))
+            if (keyActions.Contains(KeyAction.Exit))
             {
                 ExitGame();
             }
             if (keyActions.Contains(KeyAction.ToggleFullscreen))
             {
                 ToggleFullscreen();
+            }
+            if (keyActions.Contains(KeyAction.ToggleCursorVisible))
+            {
+                _cursorVisible = !_cursorVisible;
             }
         }
 
@@ -98,6 +107,11 @@ namespace VoxelEditor.View
         private void ToggleFullscreen()
         {
             GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Fullscreen == gameWindow.WindowState ? WindowState.Normal : WindowState.Fullscreen);
+        }
+
+        private void SetCursorVisible()
+        {
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.CursorVisible = _cursorVisible);
         }
     }
 }

@@ -7,6 +7,8 @@
 
     public enum KeyAction
     {
+        Exit,
+        ToggleFullscreen,
         MoveForwards,
         MoveLeft,
         MoveBackwards,
@@ -15,7 +17,6 @@
         RayTraceEmpty,
         PlaceMaterial,
         TakeMaterial,
-        ExitGame,
-        ToggleFullscreen
+        ToggleCursorVisible
     }
 }
