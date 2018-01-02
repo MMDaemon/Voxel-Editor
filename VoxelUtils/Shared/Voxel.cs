@@ -1,4 +1,7 @@
-﻿namespace VoxelUtils.Shared
+﻿using System;
+using System.Threading;
+
+namespace VoxelUtils.Shared
 {
     public class Voxel
     {
@@ -21,7 +24,11 @@
         public int EmptyNeighborCount { get; set; }
         public float FillingQuantity => (float)Amount / Constant.MaxMaterialAmount;
 
-        public bool Exists => FillingQuantity > 1.0f / (2 * EmptyNeighborCount);
+        public bool Exists => FillingQuantity >= 1.0f / Math.Pow(2, EmptyNeighborCount);
+
+        public bool IsEmpty => Amount == 0;
+
+        public bool IsFull => Amount == Constant.MaxMaterialAmount;
 
         public Voxel(int materialId, int amount, int emptyNeighborCount = 6)
         {

@@ -136,11 +136,11 @@ namespace VoxelEditor.Model
             voxelPosition = new Vector3I(-1);
             hitPosition = new Vector3(-1);
 
-            while (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && !GetVoxel(_voxelMarcher.VoxelPosition).Exists)
+            while (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)
             {
                 success = _voxelMarcher.CalculateNextPosition();
             }
-            if (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && GetVoxel(_voxelMarcher.VoxelPosition).Exists)
+            if (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && !GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)
             {
                 voxelPosition = _voxelMarcher.VoxelPosition;
                 hitPosition = _voxelMarcher.HitPosition;
@@ -160,7 +160,7 @@ namespace VoxelEditor.Model
 
             bool emptySet = false;
 
-            while (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && !GetVoxel(_voxelMarcher.VoxelPosition).Exists)
+            while (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)
             {
                 emptySet = true;
                 voxelPosition = _voxelMarcher.VoxelPosition;
@@ -168,7 +168,7 @@ namespace VoxelEditor.Model
                 success = _voxelMarcher.CalculateNextPosition();
             }
             if (success && emptySet && (PositionIsUnderWorld(_voxelMarcher.VoxelPosition) ||
-                                        GetVoxel(_voxelMarcher.VoxelPosition).Exists))
+                                        !GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty))
             {
                 hitPosition = _voxelMarcher.HitPosition;
             }
