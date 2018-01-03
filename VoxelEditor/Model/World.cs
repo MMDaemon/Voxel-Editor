@@ -165,11 +165,10 @@ namespace VoxelEditor.Model
             return success;
         }
 
-        public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition, out Vector3 hitPosition)
+        public bool RaytraceFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
         {
             bool success = _voxelMarcher.InitializeStartPosition(rayPosition, rayDirection);
             voxelPosition = new Vector3I(-1);
-            hitPosition = new Vector3(-1);
 
             while (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)
             {
@@ -178,7 +177,6 @@ namespace VoxelEditor.Model
             if (success && !PositionIsUnderWorld(_voxelMarcher.VoxelPosition) && !GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)
             {
                 voxelPosition = _voxelMarcher.VoxelPosition;
-                hitPosition = _voxelMarcher.HitPosition;
             }
             else
             {
@@ -187,11 +185,10 @@ namespace VoxelEditor.Model
             return success;
         }
 
-        public bool RaytraceEmptyOnFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition, out Vector3 hitPosition)
+        public bool RaytraceEmptyOnFilledVoxel(Vector3 rayPosition, Vector3 rayDirection, out Vector3I voxelPosition)
         {
             bool success = _voxelMarcher.InitializeStartPosition(rayPosition, rayDirection);
             voxelPosition = new Vector3I(-1);
-            hitPosition = new Vector3(-1);
 
             bool emptySet = false;
 
@@ -202,12 +199,8 @@ namespace VoxelEditor.Model
 
                 success = _voxelMarcher.CalculateNextPosition();
             }
-            if (success && emptySet && (PositionIsUnderWorld(_voxelMarcher.VoxelPosition) ||
-                                        !GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty))
-            {
-                hitPosition = _voxelMarcher.HitPosition;
-            }
-            else
+            if (!(success && emptySet && (PositionIsUnderWorld(_voxelMarcher.VoxelPosition) ||
+                                        !GetVoxel(_voxelMarcher.VoxelPosition).IsEmpty)))
             {
                 success = false;
             }

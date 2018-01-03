@@ -39,7 +39,6 @@ namespace VoxelEditor.View
         private float _voxelSize;
         private Vector3I _worldSize;
         private Vector3 _raytraceVoxelPosition;
-        private Vector3 _raytraceHitPosition;
         private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
 
         public string VoxelShaderName => nameof(_voxelShader);
@@ -58,7 +57,6 @@ namespace VoxelEditor.View
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceVoxelPosition = Vector3.Zero;
-            _raytraceHitPosition = Vector3.Zero;
             _renderToTexture = new FBO[3];
             _renderToTextureWithDepth = new FBO[1];
 
@@ -111,7 +109,6 @@ namespace VoxelEditor.View
             _voxelSize = viewModel.VoxelSize;
             _worldSize = viewModel.WorldSize;
             _raytraceVoxelPosition = viewModel.RaytraceVoxelPosition;
-            _raytraceHitPosition = viewModel.RaytraceHitPosition;
 
             CalculateChunkMeshes(viewModel.Chunks);
 

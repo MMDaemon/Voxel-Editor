@@ -39,7 +39,6 @@ namespace VoxelEditor.Model
 
         private bool _raytraceCollided;
         private Vector3I _raytraceVoxelPosition;
-        private Vector3 _raytraceHitPosition;
 
         public IViewModel ViewModel => CreateViewModel();
 
@@ -208,11 +207,11 @@ namespace VoxelEditor.Model
         {
             if (keyActions.Contains(KeyAction.RayTraceEmpty))
             {
-                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition, out _raytraceHitPosition);
+                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition);
             }
             else
             {
-                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition, out _raytraceHitPosition);
+                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition);
             }
         }
 
@@ -258,7 +257,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytraceHitPosition - new Vector3(0.5f), _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytraceCollided);
             _world.ResetUpdateList();
             return viewModel;
         }

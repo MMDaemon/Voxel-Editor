@@ -20,9 +20,8 @@ namespace VoxelEditor.ViewModel
 
         public bool RaytraceCollided { get; private set; }
         public Vector3 RaytraceVoxelPosition { get; private set; }
-        public Vector3 RaytraceHitPosition { get; private set; }
 
-        public EditorViewModel(Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, int materialId, int materialAmount, Vector3I raytraceVoxelPosition, Vector3 raytraceHitPosition, bool raytraceCollided)
+        public EditorViewModel(Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, int materialId, int materialAmount, Vector3I raytraceVoxelPosition, bool raytraceCollided)
         {
             CameraMatrix = cameraMatrix;
 
@@ -35,7 +34,6 @@ namespace VoxelEditor.ViewModel
             MaterialAmount = materialAmount;
 
             RaytraceVoxelPosition = (Vector3)raytraceVoxelPosition * VoxelSize;
-            RaytraceHitPosition = raytraceHitPosition * VoxelSize;
             RaytraceCollided = raytraceCollided;
         }
     }
