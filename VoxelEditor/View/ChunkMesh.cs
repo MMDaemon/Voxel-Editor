@@ -267,18 +267,22 @@ namespace VoxelEditor.View
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
-        public ChunkMesh(Chunk chunk)
+        public ChunkMesh(Chunk chunk, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ)
         {
-            for (int x = 0; x < Constant.ChunkSizeX; x++)
+            for (int x = 0; x < sizeX; x++)
             {
-                for (int y = 0; y < Constant.ChunkSizeY; y++)
+                for (int y = 0; y < sizeY; y++)
                 {
-                    for (int z = 0; z < Constant.ChunkSizeZ; z++)
+                    for (int z = 0; z < sizeZ; z++)
                     {
                         AddVoxelMesh(chunk, new Vector3I(x, y, z));
                     }
                 }
             }
+        }
+
+        public ChunkMesh(Chunk chunk, Vector3I size) : this(chunk, size.X, size.Y, size.Z)
+        {
         }
 
         private void AddVoxelMesh(Chunk chunk, Vector3I pos)

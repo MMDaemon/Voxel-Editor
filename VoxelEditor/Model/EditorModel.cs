@@ -57,7 +57,7 @@ namespace VoxelEditor.Model
             _camera = new CameraPerspective { FarClip = 100 };
 
             _player = new Player(Vector3.UnitY);
-            _world = new World(new Vector3I(4, 4, 4));
+            _world = new World(new Vector3I(2, 2, 2));
             _materialAmount = Constant.MaxMaterialAmount;
             _materialID = 1;
             //TestInitVoxels();

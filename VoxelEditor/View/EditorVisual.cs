@@ -40,6 +40,7 @@ namespace VoxelEditor.View
         private Vector3I _worldSize;
         private Vector3 _raytraceVoxelPosition;
         private readonly Dictionary<Vector3I, Mesh> _chunkMeshes;
+        private readonly Dictionary<Vector3I, Mesh> _chunkPartMeshes;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
@@ -56,6 +57,7 @@ namespace VoxelEditor.View
             GL.Enable(EnableCap.Blend);
 
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
+            _chunkPartMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceVoxelPosition = Vector3.Zero;
             _renderToTexture = new FBO[3];
             _renderToTextureWithDepth = new FBO[1];
@@ -193,7 +195,7 @@ namespace VoxelEditor.View
             RenderFunctions.DrawRect(-_aspect, 0.86f, width, 0.14f);
 
             GL.Color3(Color.Black);
-            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: "+_registry.GetMaterialInfo(materialId).Name);
+            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: " + _registry.GetMaterialInfo(materialId).Name);
             string amountText = materialAmount == Constant.MaxMaterialAmount
                 ? "1"
                 : "1/" + (Constant.MaxMaterialAmount / materialAmount);
@@ -240,6 +242,11 @@ namespace VoxelEditor.View
                 mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key * Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
             }
 
+            foreach (KeyValuePair<Vector3I, Mesh> chunkPartMesh in _chunkPartMeshes)
+            {
+                mesh.Add(chunkPartMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)chunkPartMesh.Key)).Transform(Matrix4x4.CreateScale(_voxelSize)));
+            }
+
             _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
         }
 
@@ -260,10 +267,10 @@ namespace VoxelEditor.View
             Vector3I positiveWorldSize = ((_worldSize / 2) * Constant.ChunkSize);
             positiveWorldSize.Y = _worldSize.Y * Constant.ChunkSizeY;
 
-            mesh.position.List.Add(new Vector3(positiveWorldSize.X, -0.5f, negativeWorldSize.Z)); //0
-            mesh.position.List.Add(new Vector3(positiveWorldSize.X, -0.5f, positiveWorldSize.Z)); //1
-            mesh.position.List.Add(new Vector3(negativeWorldSize.X, -0.5f, positiveWorldSize.Z)); //2
-            mesh.position.List.Add(new Vector3(negativeWorldSize.X, -0.5f, negativeWorldSize.Z)); //3
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X - 0.5f, -0.5f, negativeWorldSize.Z - 0.5f)); //0
+            mesh.position.List.Add(new Vector3(positiveWorldSize.X - 0.5f, -0.5f, positiveWorldSize.Z - 0.5f)); //1
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, positiveWorldSize.Z - 0.5f)); //2
+            mesh.position.List.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, negativeWorldSize.Z - 0.5f)); //3
 
             mesh.normal.List.Add(Vector3.UnitY);
             mesh.normal.List.Add(Vector3.UnitY);
@@ -292,6 +299,76 @@ namespace VoxelEditor.View
                 {
                     _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk));
                 }
+
+                CalculateChunkPartMeshes(chunk);
+            }
+        }
+
+        private void CalculateChunkPartMeshes(Chunk chunk)
+        {
+            Vector3I borderChunkPosition = -(_worldSize / 2);
+            borderChunkPosition.Y = 0; /*minimum height = 0*/
+
+            if (chunk.Position.X == borderChunkPosition.X)
+            {
+                CalculateChunkPartMesh(chunk, new Vector3I(1, 0, 0));
+                if (chunk.Position.Y == borderChunkPosition.Y)
+                {
+                    CalculateChunkPartMesh(chunk, new Vector3I(1, 1, 0));
+                    if (chunk.Position.Z == borderChunkPosition.Z)
+                    {
+                        CalculateChunkPartMesh(chunk, new Vector3I(1, 1, 1));
+                    }
+                }
+                if (chunk.Position.Z == borderChunkPosition.Z)
+                {
+                    CalculateChunkPartMesh(chunk, new Vector3I(1, 0, 1));
+                }
+            }
+            if (chunk.Position.Y == borderChunkPosition.Y)
+            {
+                CalculateChunkPartMesh(chunk, new Vector3I(0, 1, 0));
+                if (chunk.Position.Z == borderChunkPosition.Z)
+                {
+                    CalculateChunkPartMesh(chunk, new Vector3I(0, 1, 1));
+                }
+            }
+            if (chunk.Position.Z == borderChunkPosition.Z)
+            {
+                CalculateChunkPartMesh(chunk, new Vector3I(0, 0, 1));
+            }
+        }
+
+        private void CalculateChunkPartMesh(Chunk chunk, Vector3I direction)
+        {
+            Vector3I partChunkSize = Constant.ChunkSize;
+            for (int i = 0; i < 3; i++)
+            {
+                if (direction[i] != 0)
+                {
+                    partChunkSize[i] = 1;
+                }
+            }
+            Chunk partChunk = new Chunk(chunk.Position * Constant.ChunkSize - direction);
+
+            for (int x = direction.X; x <= partChunkSize.X; x++)
+            {
+                for (int y = direction.Y; y <= partChunkSize.Y; y++)
+                {
+                    for (int z = direction.Z; z <= partChunkSize.Z; z++)
+                    {
+                        partChunk[x, y, z] = chunk[x - direction.X, y - direction.Y, z - direction.Z];
+                    }
+                }
+            }
+
+            if (_chunkPartMeshes.ContainsKey(partChunk.Position))
+            {
+                _chunkPartMeshes[partChunk.Position] = new ChunkMesh(partChunk, partChunkSize);
+            }
+            else
+            {
+                _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, partChunkSize));
             }
         }
 

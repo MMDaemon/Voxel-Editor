@@ -107,7 +107,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(negativeWorldSize.X, 0, 0), new Vector3(-1, 0, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             if (rayStartPosition.X > positiveWorldSize.X)
@@ -115,7 +115,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(positiveWorldSize.X, 0, 0), new Vector3(1, 0, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             if (rayStartPosition.Y < negativeWorldSize.Y)
@@ -123,7 +123,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, negativeWorldSize.Y, 0), new Vector3(0, -1, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             if (rayStartPosition.Y > positiveWorldSize.Y)
@@ -131,7 +131,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, positiveWorldSize.Y, 0), new Vector3(0, 1, 0), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             if (rayStartPosition.Z < negativeWorldSize.Z)
@@ -139,7 +139,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, 0, negativeWorldSize.Z), new Vector3(0, 0, -1), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             if (rayStartPosition.Z > positiveWorldSize.Z)
@@ -147,7 +147,7 @@ namespace VoxelEditor.Model
                 if (GetRayColissionWithPlane(rayStartPosition, rayDirection, new Vector3(0, 0, positiveWorldSize.Z), new Vector3(0, 0, 1), out Vector3 collision) && PositionIsInsideWorld(collision))
                 {
                     SetStartPosition(collision);
-                    return true;
+                    return PositionIsInsideWorld(_position);
                 }
             }
             return false;
