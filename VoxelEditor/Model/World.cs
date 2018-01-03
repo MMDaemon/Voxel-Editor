@@ -81,6 +81,24 @@ namespace VoxelEditor.Model
                                 _updatedChunkCoordinates.Add(position.ChunkPosition);
                             }
                         }
+
+                        //Update NeighborChunk if neccessairy
+                        foreach (Vector3I neighborPosition in GetNeighbors(globalPosition))
+                        {
+                            if (PositionIsInsideWorld(neighborPosition))
+                            {
+                                IList<(Vector3I ChunkPosition, Vector3I VoxelPosition)> neighborPositions =
+                                    CalculateVoxelPositions(neighborPosition);
+                                foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in neighborPositions)
+                                {
+                                    if (!_updatedChunkCoordinates.Contains(position.ChunkPosition))
+                                    {
+                                        _updatedChunkCoordinates.Add(position.ChunkPosition);
+                                    }
+                                }
+                            }
+                        }
+
                         success = true;
                     }
                 }
@@ -115,6 +133,23 @@ namespace VoxelEditor.Model
                         if (!_updatedChunkCoordinates.Contains(position.ChunkPosition))
                         {
                             _updatedChunkCoordinates.Add(position.ChunkPosition);
+                        }
+                    }
+
+                    //Update NeighborChunk if neccessairy
+                    foreach (Vector3I neighborPosition in GetNeighbors(globalPosition))
+                    {
+                        if (PositionIsInsideWorld(neighborPosition))
+                        {
+                            IList<(Vector3I ChunkPosition, Vector3I VoxelPosition)> neighborPositions =
+                            CalculateVoxelPositions(neighborPosition);
+                            foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in neighborPositions)
+                            {
+                                if (!_updatedChunkCoordinates.Contains(position.ChunkPosition))
+                                {
+                                    _updatedChunkCoordinates.Add(position.ChunkPosition);
+                                }
+                            }
                         }
                     }
 
