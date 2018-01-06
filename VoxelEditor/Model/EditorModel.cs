@@ -91,7 +91,6 @@ namespace VoxelEditor.Model
 
         private void HandleScrolling(int scrollWheel)
         {
-            Console.WriteLine(scrollWheel);
             int difference = scrollWheel - _scrollWheelBefore;
             _scrollWheelBefore = scrollWheel;
             for (int i = 0; i < difference; i++)

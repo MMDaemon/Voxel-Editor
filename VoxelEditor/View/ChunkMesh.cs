@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using DMS.Geometry;
 using VoxelUtils;
@@ -288,8 +289,9 @@ namespace VoxelEditor.View
         private void AddVoxelMesh(Chunk chunk, Vector3I pos)
         {
             Mesh voxelMesh = new Mesh();
-            List<Vector3> internalPositions = CalculateInternalPositions(pos);
-            List<int> vertexNumbers = GetVertexNumbersFromLookup(CalculateNeededVoxels(chunk, pos));
+            List<Voxel> neededVoxels = CalculateNeededVoxels(chunk, pos);
+            List<Vector3> internalPositions = CalculateInternalPositions(neededVoxels);
+            List<int> vertexNumbers = GetVertexNumbersFromLookup(neededVoxels);
 
             uint id = 0;
             void Add(int index, Vector3 n)
@@ -327,25 +329,57 @@ namespace VoxelEditor.View
             };
         }
 
-        private List<Vector3> CalculateInternalPositions(Vector3I pos)
+        private List<Vector3> CalculateInternalPositions(List<Voxel> voxels)
         {
-            List<Vector3> internalPositions = new List<Vector3>
+            List<Vector3> internalPositions = new List<Vector3>()
             {
-                new Vector3(0.5f, 0.0f, 0.0f),
-                new Vector3(1.0f, 0.5f, 0.0f),
-                new Vector3(0.5f, 1.0f, 0.0f),
-                new Vector3(0.0f, 0.5f, 0.0f),
-                new Vector3(0.5f, 0.0f, 1.0f),
-                new Vector3(1.0f, 0.5f, 1.0f),
-                new Vector3(0.5f, 1.0f, 1.0f),
-                new Vector3(0.0f, 0.5f, 1.0f),
-                new Vector3(0.0f, 0.0f, 0.5f),
-                new Vector3(1.0f, 0.0f, 0.5f),
-                new Vector3(0.0f, 1.0f, 0.5f),
-                new Vector3(1.0f, 1.0f, 0.5f)
+                new Vector3(CalculateInternalPosition(voxels[0],voxels[1]), 0.0f, 0.0f),
+                new Vector3(1.0f, CalculateInternalPosition(voxels[1],voxels[2]), 0.0f),
+                new Vector3(CalculateInternalPosition(voxels[3],voxels[2]), 1.0f, 0.0f),
+                new Vector3(0.0f, CalculateInternalPosition(voxels[0],voxels[3]), 0.0f),
+                new Vector3(CalculateInternalPosition(voxels[4],voxels[5]), 0.0f, 1.0f),
+                new Vector3(1.0f, CalculateInternalPosition(voxels[5],voxels[6]), 1.0f),
+                new Vector3(CalculateInternalPosition(voxels[7],voxels[6]), 1.0f, 1.0f),
+                new Vector3(0.0f, CalculateInternalPosition(voxels[4],voxels[7]), 1.0f),
+                new Vector3(0.0f, 0.0f, CalculateInternalPosition(voxels[0],voxels[4])),
+                new Vector3(1.0f, 0.0f, CalculateInternalPosition(voxels[1],voxels[5])),
+                new Vector3(0.0f, 1.0f, CalculateInternalPosition(voxels[3],voxels[7])),
+                new Vector3(1.0f, 1.0f, CalculateInternalPosition(voxels[2],voxels[6]))
             };
 
             return internalPositions;
+        }
+
+        private float CalculateInternalPosition(Voxel first, Voxel second)
+        {
+            if (first.Exists)
+            {
+                if (second.Exists)
+                {
+                    return 0.5f;
+                }
+                else
+                {
+                    return CalculateInternalDistance(first, second);
+                }
+            }
+            else
+            {
+                if (second.Exists)
+                {
+                    return 1 - CalculateInternalDistance(second, first);
+                }
+                else
+                {
+                    return 0.5f;
+                }
+            }
+        }
+
+        private float CalculateInternalDistance(Voxel existing, Voxel other)
+        {
+            return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount) +
+                           Math.Pow(other.FillingQuantity, (float)1 / other.EmptyNeighborCount) - 0.5f);
         }
 
         private List<int> GetVertexNumbersFromLookup(List<Voxel> voxels)
