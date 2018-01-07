@@ -378,7 +378,7 @@ namespace VoxelEditor.View
 
         private float CalculateInternalDistance(Voxel existing, Voxel other)
         {
-            return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount) +
+            return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount)*(1+other.FillingQuantity*Math.Pow(2,other.EmptyNeighborCount)) +
                            Math.Pow(other.FillingQuantity, (float)1 / other.EmptyNeighborCount) - 0.5f);
         }
 
