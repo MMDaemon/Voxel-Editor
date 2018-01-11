@@ -9,6 +9,7 @@ using VoxelEditor.ViewModel;
 using VoxelUtils;
 using VoxelUtils.Enums;
 using VoxelUtils.Registry.Model;
+using VoxelUtils.Shared;
 using VoxelUtils.Visual;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
@@ -37,7 +38,7 @@ namespace VoxelEditor.Model
         private int _materialAmount;
         private int _materialID;
 
-        private bool _raytraceCollided;
+        private Voxel _raytracedVoxel;
         private Vector3I _raytraceVoxelPosition;
 
         public IViewModel ViewModel => CreateViewModel();
@@ -206,17 +207,33 @@ namespace VoxelEditor.Model
         {
             if (keyActions.Contains(KeyAction.RayTraceEmpty))
             {
-                _raytraceCollided = _world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition);
+                if (_world.RaytraceEmptyOnFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ),
+                    out _raytraceVoxelPosition))
+                {
+                    _raytracedVoxel = _world.GetVoxel(_raytraceVoxelPosition);
+                }
+                else
+                {
+                    _raytracedVoxel = null;
+                }
             }
             else
             {
-                _raytraceCollided = _world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ), out _raytraceVoxelPosition);
+                if (_world.RaytraceFilledVoxel(_player.Position, _player.GetVectorAfterRotation(-Vector3.UnitZ),
+                    out _raytraceVoxelPosition))
+                {
+                    _raytracedVoxel = _world.GetVoxel(_raytraceVoxelPosition);
+                }
+                else
+                {
+                    _raytracedVoxel = null;
+                }
             }
         }
 
         private void HandleUpdateWorld(ICollection<KeyAction> keyActions)
         {
-            if (keyActions.Contains(KeyAction.PlaceMaterial) && _raytraceCollided)
+            if (keyActions.Contains(KeyAction.PlaceMaterial) && _raytracedVoxel != null)
             {
                 int addAmount = _materialAmount;
                 int overhead = Constant.MaxMaterialAmount - (_world.GetVoxel(_raytraceVoxelPosition).Amount + _materialAmount);
@@ -226,7 +243,7 @@ namespace VoxelEditor.Model
                 }
                 _world.AddMaterial(_materialID, addAmount, _raytraceVoxelPosition);
             }
-            if (keyActions.Contains(KeyAction.TakeMaterial) && _raytraceCollided)
+            if (keyActions.Contains(KeyAction.TakeMaterial) && _raytracedVoxel != null)
             {
                 int takeAmount = _materialAmount;
                 if (_world.GetVoxel(_raytraceVoxelPosition).Amount < _materialAmount)
@@ -256,7 +273,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytraceCollided);
+            EditorViewModel viewModel = new EditorViewModel(_camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytracedVoxel);
             _world.ResetUpdateList();
             return viewModel;
         }

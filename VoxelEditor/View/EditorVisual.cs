@@ -114,8 +114,8 @@ namespace VoxelEditor.View
 
             CalculateChunkMeshes(viewModel.Chunks);
 
-            Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytraceCollided); }, 1);
-            Texture guiTexture = RenderOnTexture(delegate { RenderGUI(viewModel.MaterialId, viewModel.MaterialAmount); }, 2);
+            Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytracedVoxel != null); }, 1);
+            Texture guiTexture = RenderOnTexture(delegate { RenderGui(viewModel.MaterialId, viewModel.MaterialAmount, viewModel.RaytracedVoxel); }, 2);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -176,7 +176,7 @@ namespace VoxelEditor.View
             RenderAddedTextures(voxelTexture, raytraceTexture, 0.5f);
         }
 
-        private void RenderGUI(int materialId, int materialAmount)
+        private void RenderGui(int materialId, int materialAmount, Voxel raytracedVoxel)
         {
             GL.Color3(Color.White);
             float crosshairsSize = 70.0f;
@@ -185,24 +185,79 @@ namespace VoxelEditor.View
             RenderFunctions.DrawRect(-crosshairsSize / (2 * (float)_width), -crosshairsSize / (2 * (float)_height), crosshairsSize / (float)_width, crosshairsSize / (float)_height);
             _crosshairs.Deactivate();
 
+            float centerPos =
+                -CalculateVoxelContentGuiTextWidth(materialId, materialAmount, 0.07f) / _aspect / 2;
+            RenderVoxelContentGui(materialId, materialAmount, 0.07f, new Vector2(centerPos, -1.0f), "Selected:");
+
+            if (raytracedVoxel != null && raytracedVoxel.MaterialId != Constant.MaterialAir)
+            {
+                centerPos =
+                -CalculateVoxelContentGuiTextWidth(raytracedVoxel.MaterialId, raytracedVoxel.Amount, 0.07f) / _aspect / 2;
+                RenderVoxelContentGui(raytracedVoxel.MaterialId, raytracedVoxel.Amount, 0.07f, new Vector2(centerPos, 0.79f), "Looking at:");
+            }
+        }
+
+        private void RenderVoxelContentGui(int materialId, int materialAmount, float fontSize, Vector2 position, string title = "")
+        {
             GL.PushMatrix();
             GL.Scale(1 / _aspect, 1, 1);
 
-            float width1 = _font.Width("Material: Stone" + " ", 0.07f);
-            float width2 = _font.Width("Amount: 1/32" + " ", 0.07f);
-            float width = width1 > width2 ? width1 : width2;
+            float width = CalculateVoxelContentGuiTextWidth(materialId, materialAmount, fontSize, true);
             GL.Color4(new Color4(1, 1, 1, 0.9f));
-            RenderFunctions.DrawRect(-_aspect, 0.86f, width, 0.14f);
+            RenderFunctions.DrawRect(_aspect * position.X, position.Y, width, (title == "" ? 2 : 2.8f) * fontSize);
 
             GL.Color3(Color.Black);
-            _font.Print(-_aspect, 0.93f, 0, 0.07f, "Material: " + _registry.GetMaterialInfo(materialId).Name);
-            string amountText = materialAmount == Constant.MaxMaterialAmount
-                ? "1"
-                : "1/" + (Constant.MaxMaterialAmount / materialAmount);
-            _font.Print(-_aspect, 0.86f, 0, 0.07f, "Amount: " + amountText);
+            if (title != "")
+            {
+                _font.Print(_aspect * position.X, position.Y + 2 * fontSize, 0, 0.8f * fontSize, title);
+            }
+
+            _font.Print(_aspect * position.X, position.Y + fontSize, 0, fontSize, "Material: " + _registry.GetMaterialInfo(materialId).Name);
+
+            _font.Print(_aspect * position.X, position.Y, 0, fontSize, "Amount: " + GetTextForAmount(materialAmount));
 
             GL.PopMatrix();
+        }
 
+        private float CalculateVoxelContentGuiTextWidth(int materialId, int materialAmount, float fontSize, bool addSpace = false)
+        {
+            string text1 = "Material: " + _registry.GetMaterialInfo(materialId).Name;
+            string text2 = "Amount: " + GetTextForAmount(materialAmount);
+
+            if (addSpace)
+            {
+                text1 += " ";
+                text2 += " ";
+            }
+
+            float width1 = _font.Width(text1, fontSize);
+            float width2 = _font.Width(text2, fontSize);
+            return width1 > width2 ? width1 : width2;
+        }
+
+        private string GetTextForAmount(float materialAmount)
+        {
+            materialAmount /= Constant.MaxMaterialAmount;
+
+            string amountText = $"{materialAmount}";
+
+            if (materialAmount != 0 && materialAmount != 1 && materialAmount % (1.0f / 128) == 0)
+            {
+                int value1 = (int)(materialAmount * 128);
+                int value2 = 128;
+                while (value1 % 2 == 0)
+                {
+                    value1 /= 2;
+                    value2 /= 2;
+                }
+                amountText = $"{value1}/{value2} ({(int)(materialAmount * 128)}/128)";
+            }
+            if (materialAmount == 1)
+            {
+                amountText = "1 (128/128)";
+            }
+
+            return amountText;
         }
 
         private void RenderVoxels(float[] cam)
