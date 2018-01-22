@@ -114,7 +114,7 @@ namespace VoxelEditor.View
 
             CalculateChunkMeshes(viewModel.Chunks);
 
-            Texture mainTexture = RenderOnTexture(delegate { RenderMain(cam, viewModel.RaytracedVoxel != null); }, 1);
+            Texture mainTexture = RenderOnTexture(delegate { RenderMain(viewModel.CameraPosition, cam, viewModel.RaytracedVoxel != null); }, 1);
             Texture guiTexture = RenderOnTexture(delegate { RenderGui(viewModel.MaterialId, viewModel.MaterialAmount, viewModel.RaytracedVoxel); }, 2);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -168,10 +168,10 @@ namespace VoxelEditor.View
             _addShader.Deactivate();
         }
 
-        private void RenderMain(float[] cam, bool raytraceCollided)
+        private void RenderMain(Vector3 cameraPosition, float[] cam, bool raytraceCollided)
         {
             Texture raytraceTexture = RenderOnTexture(delegate { RenderRaytrace(cam, raytraceCollided); }, 0);
-            Texture voxelTexture = RenderOnTextureWithDepth(delegate { RenderVoxels(cam); });
+            Texture voxelTexture = RenderOnTextureWithDepth(delegate { RenderVoxels(cameraPosition, cam); });
 
             RenderAddedTextures(voxelTexture, raytraceTexture, 0.5f);
         }
@@ -260,13 +260,17 @@ namespace VoxelEditor.View
             return amountText;
         }
 
-        private void RenderVoxels(float[] cam)
+        private void RenderVoxels(Vector3 cameraPosition, float[] cam)
         {
             UpdateVoxelMesh();
 
             GL.Color4(Color4.Transparent);
             _voxelShader.Activate();
             GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
+            GL.Uniform3(_voxelShader.GetUniformLocation("cameraPosition"), cameraPosition.ToOpenTK());
+            GL.Uniform3(_voxelShader.GetUniformLocation("ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
+            GL.Uniform3(_voxelShader.GetUniformLocation("lightDirection"), new OpenTK.Vector3(1f, 1.5f, -2f).Normalized());
+            GL.Uniform3(_voxelShader.GetUniformLocation("lightColor"), new OpenTK.Vector3(1f, 1f, 1f));
             if (_voxelGeometry.IDLength > 0)
             {
                 _voxelGeometry.Draw();
@@ -282,7 +286,7 @@ namespace VoxelEditor.View
             {
                 GL.Color4(Color4.Transparent);
                 _raytraceShader.Activate();
-                GL.UniformMatrix4(_voxelShader.GetUniformLocation("camera"), 1, false, cam);
+                GL.UniformMatrix4(_raytraceShader.GetUniformLocation("camera"), 1, false, cam);
                 _raytraceGeometry.Draw();
                 _raytraceShader.Deactivate();
             }
@@ -327,10 +331,10 @@ namespace VoxelEditor.View
             mesh.position.List.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, positiveWorldSize.Z - 0.5f)); //2
             mesh.position.List.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, negativeWorldSize.Z - 0.5f)); //3
 
-            mesh.normal.List.Add(Vector3.UnitY);
-            mesh.normal.List.Add(Vector3.UnitY);
-            mesh.normal.List.Add(Vector3.UnitY);
-            mesh.normal.List.Add(Vector3.UnitY);
+            mesh.normal.List.Add(-Vector3.UnitY);
+            mesh.normal.List.Add(-Vector3.UnitY);
+            mesh.normal.List.Add(-Vector3.UnitY);
+            mesh.normal.List.Add(-Vector3.UnitY);
 
             mesh.IDs.Add(0);
             mesh.IDs.Add(2);

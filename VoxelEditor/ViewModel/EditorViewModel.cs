@@ -8,6 +8,7 @@ namespace VoxelEditor.ViewModel
 {
     internal class EditorViewModel : IViewModel
     {
+        public Vector3 CameraPosition { get; private set; }
         public Matrix4x4 CameraMatrix { get; private set; }
 
         public IEnumerable<Chunk> Chunks { get; private set; }
@@ -21,15 +22,16 @@ namespace VoxelEditor.ViewModel
         public Voxel RaytracedVoxel { get; private set; }
         public Vector3 RaytraceVoxelPosition { get; private set; }
 
-        public EditorViewModel(Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, int materialId, int materialAmount, Vector3I raytraceVoxelPosition, Voxel raytracedVoxel)
+        public EditorViewModel(Vector3 cameraPosition, Matrix4x4 cameraMatrix, IEnumerable<Chunk> chunks, float voxelSize, Vector3I worldSize, int materialId, int materialAmount, Vector3I raytraceVoxelPosition, Voxel raytracedVoxel)
         {
+            CameraPosition = cameraPosition;
             CameraMatrix = cameraMatrix;
 
             Chunks = chunks;
             VoxelSize = voxelSize;
 
             WorldSize = worldSize;
-            
+
             MaterialId = materialId;
             MaterialAmount = materialAmount;
 
