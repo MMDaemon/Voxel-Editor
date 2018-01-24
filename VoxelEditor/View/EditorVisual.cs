@@ -18,10 +18,12 @@ namespace VoxelEditor.View
     {
         private readonly ViewRegistry _registry;
 
+        private float _time;
+
         private Shader _voxelShader;
         private Shader _raytraceShader;
         private Shader _addShader;
-        private Shader _crosshairsShader;
+        private Shader _ssaoShader;
         private Shader _depthShader;
 
         private readonly Texture _crosshairs;
@@ -47,7 +49,7 @@ namespace VoxelEditor.View
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
         public string AddShaderName => nameof(_addShader);
-        public string CrosshairsShaderName => nameof(_crosshairsShader);
+        public string SsaoShaderName => nameof(_ssaoShader);
         public string DepthShaderName => nameof(_depthShader);
 
         public EditorVisual(ViewRegistry registry)
@@ -62,7 +64,7 @@ namespace VoxelEditor.View
             _chunkMeshes = new Dictionary<Vector3I, Mesh>();
             _chunkPartMeshes = new Dictionary<Vector3I, Mesh>();
             _raytraceVoxelPosition = Vector3.Zero;
-            _renderToTexture = new FBO[3];
+            _renderToTexture = new FBO[5];
             _renderToTextureWithDepth = new FBO[2];
 
             _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
@@ -90,15 +92,15 @@ namespace VoxelEditor.View
                 case nameof(_addShader):
                     _addShader = shader;
                     break;
-                case nameof(_crosshairsShader):
-                    _crosshairsShader = shader;
-                    break;
                 case nameof(_depthShader):
                     _depthShader = shader;
                     if (!ReferenceEquals(shader, null))
                     {
                         UpdateDepthMesh(CalculateVoxelMesh());
                     }
+                    break;
+                case nameof(_ssaoShader):
+                    _ssaoShader = shader;
                     break;
             }
         }
@@ -111,12 +113,16 @@ namespace VoxelEditor.View
             _renderToTexture[0] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTexture[1] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTexture[2] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTexture[3] = new FBO(Texture.Create(width / 2, height / 2, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
+            _renderToTexture[4] = new FBO(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTextureWithDepth[0] = new FBOwithDepth(Texture.Create(width, height, PixelInternalFormat.Rgba32f, PixelFormat.Rgba, PixelType.Float));
             _renderToTextureWithDepth[1] = new FBOwithDepth(Texture.Create(width / 2, height / 2, PixelInternalFormat.R32f, PixelFormat.Red, PixelType.Float));
         }
 
         public void Render(EditorViewModel viewModel)
         {
+            _time = viewModel.Time;
+
             float[] cam = viewModel.CameraMatrix.ToArray();
 
             _voxelSize = viewModel.VoxelSize;
@@ -190,7 +196,11 @@ namespace VoxelEditor.View
 
             UpdateDepthMesh(mesh);
             Texture depthTexture = RenderOnTextureWithDepth(delegate { RenderDepth(cameraPosition, cam); }, 1);
-            
+
+            Texture ssaoTexture = RenderOnTexture(delegate { RenderSsao(depthTexture); }, 3);
+
+            voxelTexture = RenderOnTexture(delegate { RenderAddedTextures(voxelTexture, ssaoTexture, 0.2f); }, 4);
+
             RenderAddedTextures(voxelTexture, raytraceTexture, 0.5f);
         }
 
@@ -297,6 +307,8 @@ namespace VoxelEditor.View
         private void RenderDepth(Vector3 cameraPosition, float[] cam)
         {
             GL.Color4(Color4.White);
+            GL.ClearColor(Color.Red);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
             _depthShader.Activate();
             GL.UniformMatrix4(_depthShader.GetUniformLocation("camera"), 1, false, cam);
             if (_depthGeometry.IDLength > 0)
@@ -304,6 +316,19 @@ namespace VoxelEditor.View
                 _depthGeometry.Draw();
             }
             _depthShader.Deactivate();
+            GL.ClearColor(Color.Transparent);
+        }
+
+        private void RenderSsao(Texture depthTexture)
+        {
+            _ssaoShader.Activate();
+            GL.Uniform2(_ssaoShader.GetUniformLocation("iResolution"), new OpenTK.Vector2(_width, _height));
+            GL.Uniform1(_ssaoShader.GetUniformLocation("iGlobalTime"), _time);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            depthTexture.Activate();
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            _ssaoShader.Deactivate();
+            depthTexture.Deactivate();
         }
 
         private void RenderRaytrace(float[] cam, bool raytraceCollided)

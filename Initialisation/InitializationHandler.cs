@@ -79,8 +79,10 @@ namespace Initialisation
             _modelRegistry = new ModelRegistry();
             _viewRegistry = new ViewRegistry();
 
-            RegisterMaterial(1, new MaterialInfo("stone", null, new RenderProperties(), new MaterialBehavior()));
-            RegisterMaterial(2, new MaterialInfo("dirt", null, new RenderProperties(), new MaterialBehavior()));
+            RegisterMaterial(1, new MaterialInfo("stone", Textures.Stone, new RenderProperties(), new MaterialBehavior()));
+            RegisterMaterial(2, new MaterialInfo("dirt", Textures.Dirt, new RenderProperties(), new MaterialBehavior()));
+            RegisterMaterial(3, new MaterialInfo("grass", Textures.Grass, new RenderProperties(), new MaterialBehavior()));
+            RegisterMaterial(4, new MaterialInfo("sand", Textures.Sand, new RenderProperties(), new MaterialBehavior()));
         }
 
         public void RegisterMaterial(int id, MaterialInfo materialInfo)

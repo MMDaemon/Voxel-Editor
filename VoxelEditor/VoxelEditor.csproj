@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="View\Resources\ssaoFragment.glsl" />
     <None Include="View\Resources\drawCrosshairsFragment.glsl" />
     <None Include="View\Resources\addFragment.glsl" />
     <None Include="View\Resources\raytraceFragment.glsl" />

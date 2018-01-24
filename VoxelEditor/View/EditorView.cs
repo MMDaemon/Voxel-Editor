@@ -41,33 +41,30 @@ namespace VoxelEditor.View
 
         public void LoadResources(ResourceManager resourceManager)
         {
+            var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
+
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.VoxelShaderName)))
             {
-                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.VoxelShaderName, dir + "voxelVertex.glsl", dir + "voxelFragment.glsl"
                     , Resourcen.voxelVertex, Resourcen.voxelFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.RaytraceShaderName)))
             {
-                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.RaytraceShaderName, dir + "raytraceVertex.glsl", dir + "raytraceFragment.glsl"
                     , Resourcen.raytraceVertex, Resourcen.raytraceFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.AddShaderName)))
             {
-                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.AddShaderName, dir + "screenQuadVertex.glsl", dir + "addFragment.glsl"
                     , Resourcen.screenQuadVertex, Resourcen.addFragment);
             }
-            if (ReferenceEquals(null, resourceManager.GetShader(_visual.CrosshairsShaderName)))
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.SsaoShaderName)))
             {
-                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
-                resourceManager.AddShader(_visual.CrosshairsShaderName, dir + "screenQuadVertex.glsl", dir + "drawCrosshairsFragment.glsl"
-                    , Resourcen.screenQuadVertex, Resourcen.drawCrosshairsFragment);
+                resourceManager.AddShader(_visual.SsaoShaderName, dir + "screenQuadVertex.glsl", dir + "ssaoFragment.glsl"
+                    , Resourcen.screenQuadVertex, Resourcen.ssaoFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.DepthShaderName)))
             {
-                var dir = Path.GetDirectoryName(PathTools.GetSourceFilePath()) + @"\Resources\";
                 resourceManager.AddShader(_visual.DepthShaderName, dir + "depthVertex.glsl", dir + "depthFragment.glsl"
                     , Resourcen.depthVertex, Resourcen.depthFragment);
             }

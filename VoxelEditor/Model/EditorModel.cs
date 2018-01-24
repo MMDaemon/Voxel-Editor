@@ -273,7 +273,7 @@ namespace VoxelEditor.Model
 
         private EditorViewModel CreateViewModel()
         {
-            EditorViewModel viewModel = new EditorViewModel(_camera.Position, _camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytracedVoxel);
+            EditorViewModel viewModel = new EditorViewModel(_lastUpdateTime, _camera.Position, _camera.CalcMatrix(), _world.UpdatedChunks, VoxelSize, _world.WorldSize, _materialID, _materialAmount, _raytraceVoxelPosition, _raytracedVoxel);
             _world.ResetUpdateList();
             return viewModel;
         }
