@@ -9,6 +9,8 @@ namespace VoxelEditor.View
 {
     internal class ChunkMesh : Mesh
     {
+        private readonly float sqrtHalf;
+
         private static readonly int[] FacesLookup ={
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -270,6 +272,8 @@ namespace VoxelEditor.View
 
         public ChunkMesh(Chunk chunk, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ)
         {
+            sqrtHalf = (float)Math.Sqrt(0.5);
+
             for (int x = 0; x < sizeX; x++)
             {
                 for (int y = 0; y < sizeY; y++)
@@ -378,8 +382,14 @@ namespace VoxelEditor.View
 
         private float CalculateInternalDistance(Voxel existing, Voxel other)
         {
-            return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount)*(1+other.FillingQuantity*Math.Pow(2,other.EmptyNeighborCount)) +
-                           Math.Pow(other.FillingQuantity, (float)1 / other.EmptyNeighborCount) - 0.5f);
+            //return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount)*(1+other.FillingQuantity*Math.Pow(2,other.EmptyNeighborCount)) +
+            //Math.Pow(other.FillingQuantity, (float)1 / other.EmptyNeighborCount) - 0.5f);
+
+            float existingPart = (existing.FillingQuantity - existing.Threshold) / (1 - existing.Threshold) * sqrtHalf;
+
+            float otherPart = other.FillingQuantity / other.Threshold * (1 - existingPart);
+
+            return existingPart + otherPart;
         }
 
         private List<int> GetVertexNumbersFromLookup(List<Voxel> voxels)

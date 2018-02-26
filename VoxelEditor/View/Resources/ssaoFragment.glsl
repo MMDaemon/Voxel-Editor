@@ -25,7 +25,7 @@ void main()
         // get a random 2D offset vector
         vec2 off = vec2(radius*pow(f, radAttenuation)*sin(f*spiral+iGlobalTime*spinSpeed), 
 						radius*pow(f, radAttenuation)*cos(f*spiral+iGlobalTime*spinSpeed));	
-        // sample the zbuffer at a neightbor pixel (in a 16 pixel radious)        		
+        // sample the zbuffer at a neightbor pixel      		
         float z = 1.0-texture( image, uv + off ).x;
         // accumulate occlusion if difference is less than 0.1 units
 		ao += clamp( (zr-z)/0.1, 0.0, 1.0);

@@ -24,7 +24,9 @@ namespace VoxelUtils.Shared
         public int EmptyNeighborCount { get; set; }
         public float FillingQuantity => (float)Amount / Constant.MaxMaterialAmount;
 
-        public bool Exists => FillingQuantity >= 1.0f / Math.Pow(2, EmptyNeighborCount);
+        public bool Exists => FillingQuantity >= Threshold;
+
+        public float Threshold => (float)(1.0f / Math.Pow(2, EmptyNeighborCount));
 
         public bool IsEmpty => Amount == 0;
 

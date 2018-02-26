@@ -53,25 +53,24 @@ namespace VoxelEditor.Model
 
             if (amount > 0)
             {
-                bool emptyBefore = false;
-
                 Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
                 Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
 
-                if (amount <= Constant.MaxMaterialAmount)
+                bool existsBefore = _chunks[chunkPosition][voxelPosition].Exists;
+
+                if (_chunks[chunkPosition][voxelPosition].Amount + amount <= Constant.MaxMaterialAmount)
                 {
                     IList<(Vector3I ChunkPosition, Vector3I VoxelPosition)> positions =
                         CalculateVoxelPositions(globalPosition);
 
                     if (_chunks[chunkPosition][voxelPosition].MaterialId == Constant.MaterialAir)
                     {
-                        emptyBefore = true;
                         foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in positions)
                         {
                             _chunks[position.ChunkPosition][position.VoxelPosition].MaterialId = materialId;
                         }
                     }
-                    if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount + amount <= Constant.MaxMaterialAmount)
+                    if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId)
                     {
                         foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in positions)
                         {
@@ -103,7 +102,7 @@ namespace VoxelEditor.Model
                     }
                 }
 
-                if (emptyBefore && success)
+                if (!existsBefore && _chunks[chunkPosition][voxelPosition].Exists)
                 {
                     DecrementNeighborsEmptyNeighborCount(globalPosition);
                 }
@@ -121,6 +120,8 @@ namespace VoxelEditor.Model
             {
                 Vector3I chunkPosition = CalculateChunkPosition(globalPosition);
                 Vector3I voxelPosition = CalculateVoxelPositionInChunk(globalPosition, chunkPosition);
+
+                bool existsBefore = _chunks[chunkPosition][voxelPosition].Exists;
 
                 if (_chunks[chunkPosition][voxelPosition].MaterialId == materialId && _chunks[chunkPosition][voxelPosition].Amount >= amount)
                 {
@@ -154,7 +155,7 @@ namespace VoxelEditor.Model
                     }
 
                     success = true;
-                    if (_chunks[chunkPosition][voxelPosition].Amount == 0)
+                    if (existsBefore && !_chunks[chunkPosition][voxelPosition].Exists)
                     {
                         IncrementNeighborsEmptyNeighborCount(globalPosition);
                     }
@@ -238,7 +239,12 @@ namespace VoxelEditor.Model
 
                     foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in positions)
                     {
+                        bool existsBefore = _chunks[position.ChunkPosition][position.VoxelPosition].Exists;
                         _chunks[position.ChunkPosition][position.VoxelPosition].EmptyNeighborCount++;
+                        if (!existsBefore && _chunks[position.ChunkPosition][position.VoxelPosition].Exists)
+                        {
+                            DecrementNeighborsEmptyNeighborCount(neighborPosition);
+                        }
                     }
                 }
             }
@@ -257,7 +263,12 @@ namespace VoxelEditor.Model
 
                     foreach ((Vector3I ChunkPosition, Vector3I VoxelPosition) position in positions)
                     {
+                        bool existsBefore = _chunks[position.ChunkPosition][position.VoxelPosition].Exists;
                         _chunks[position.ChunkPosition][position.VoxelPosition].EmptyNeighborCount--;
+                        if (existsBefore && !_chunks[position.ChunkPosition][position.VoxelPosition].Exists)
+                        {
+                            IncrementNeighborsEmptyNeighborCount(neighborPosition);
+                        }
                     }
                 }
             }
