@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using DMS.Geometry;
-using DMS.OpenGL;
+using Zenseless.Geometry;
+using Zenseless.OpenGL;
 using OpenTK.Graphics.OpenGL;
 
 namespace VoxelUtils.Visual
@@ -16,17 +16,17 @@ namespace VoxelUtils.Visual
             _texture = texture;
             _shader = shader;
 
-            Mesh mesh = new Mesh();
+            DefaultMesh mesh = new DefaultMesh();
 
-            mesh.position.List.Add(new Vector3(position.X, position.Y, 0)); //0
-            mesh.position.List.Add(new Vector3(position.X + size.X, position.Y, 0)); //1
-            mesh.position.List.Add(new Vector3(position.X + size.X, position.Y + size.Y, 0)); //2
-            mesh.position.List.Add(new Vector3(position.X, position.Y + size.Y, 0)); //3
+            mesh.Position.Add(new Vector3(position.X, position.Y, 0)); //0
+            mesh.Position.Add(new Vector3(position.X + size.X, position.Y, 0)); //1
+            mesh.Position.Add(new Vector3(position.X + size.X, position.Y + size.Y, 0)); //2
+            mesh.Position.Add(new Vector3(position.X, position.Y + size.Y, 0)); //3
 
-            mesh.uv.List.Add(new Vector2(0.0f, 0.0f));
-            mesh.uv.List.Add(new Vector2(1.0f, 0.0f));
-            mesh.uv.List.Add(new Vector2(1.0f, 1.0f));
-            mesh.uv.List.Add(new Vector2(0.0f, 1.0f));
+            mesh.TexCoord.Add(new Vector2(0.0f, 0.0f));
+            mesh.TexCoord.Add(new Vector2(1.0f, 0.0f));
+            mesh.TexCoord.Add(new Vector2(1.0f, 1.0f));
+            mesh.TexCoord.Add(new Vector2(0.0f, 1.0f));
 
             mesh.IDs.Add(0);
             mesh.IDs.Add(2);

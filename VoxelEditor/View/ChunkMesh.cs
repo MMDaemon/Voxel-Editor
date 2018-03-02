@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DMS.Geometry;
+using Zenseless.Geometry;
 using VoxelUtils;
 using VoxelUtils.Shared;
 
 namespace VoxelEditor.View
 {
-    internal class ChunkMesh : Mesh
+    internal class ChunkMesh : DefaultMesh
     {
         private readonly float sqrtHalf;
 
@@ -292,7 +292,7 @@ namespace VoxelEditor.View
 
         private void AddVoxelMesh(Chunk chunk, Vector3I pos)
         {
-            Mesh voxelMesh = new Mesh();
+            DefaultMesh voxelMesh = new DefaultMesh();
             List<Voxel> neededVoxels = CalculateNeededVoxels(chunk, pos);
             List<Vector3> internalPositions = CalculateInternalPositions(neededVoxels);
             List<int> vertexNumbers = GetVertexNumbersFromLookup(neededVoxels);
@@ -300,8 +300,8 @@ namespace VoxelEditor.View
             uint id = 0;
             void Add(int index, Vector3 n)
             {
-                voxelMesh.position.List.Add(internalPositions[index]);
-                voxelMesh.normal.List.Add(n);
+                voxelMesh.Position.Add(internalPositions[index]);
+                voxelMesh.Normal.Add(n);
                 voxelMesh.IDs.Add(id);
                 ++id;
             }

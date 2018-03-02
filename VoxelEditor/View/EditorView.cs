@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using DMS.Application;
-using DMS.Base;
-using DMS.OpenGL;
 using MVCCore.Interfaces;
 using OpenTK;
 using VoxelEditor.ViewModel;
 using VoxelUtils.Enums;
 using VoxelUtils.Registry.View;
+using Zenseless.Application;
+using Zenseless.Base;
+using Zenseless.HLGL;
+using Zenseless.OpenGL;
 
 namespace VoxelEditor.View
 {
@@ -70,7 +71,7 @@ namespace VoxelEditor.View
             }
         }
 
-        public void ShaderChanged(string name, Shader shader)
+        public void ShaderChanged(string name, IShader shader)
         {
             _visual.ShaderChanged(name, shader);
         }

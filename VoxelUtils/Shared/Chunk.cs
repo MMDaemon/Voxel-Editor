@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace VoxelUtils.Shared
+﻿namespace VoxelUtils.Shared
 {
     public class Chunk
     {

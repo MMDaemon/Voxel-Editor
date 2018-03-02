@@ -4,7 +4,6 @@ using System.Linq;
 using MVCCore.Interfaces;
 using OpenTK;
 using OpenTK.Input;
-using Vector2 = System.Numerics.Vector2;
 
 namespace MVCCore.Handlers
 {

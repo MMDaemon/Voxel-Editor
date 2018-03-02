@@ -1,17 +1,17 @@
-﻿using DMS.Application;
-using OpenTK;
+﻿using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using MVCCore.Handlers;
 using MVCCore.Interfaces;
+using Zenseless.Application;
 
 namespace MVCCore
 {
     public class MainController
     {
-        private readonly ExampleApplication _app;
+        private readonly ExampleWindow _app;
         private readonly InputHandler _inputHandler;
         private readonly StateHandler _stateHandler;
         private readonly IModelRegistry _modelRegistry;
@@ -23,7 +23,8 @@ namespace MVCCore
 
         public MainController(IInitializationHandler initializationHandler)
         {
-            _app = new ExampleApplication();
+            _app = new ExampleWindow();
+            _app.RemoveDefaultKeyHandler();
             _inputHandler = initializationHandler.InitializeInputHandler((GameWindow)_app.GameWindow);
             _stateHandler = initializationHandler.InitializeStateHandler();
             _modelRegistry = initializationHandler.InitalizeModelRegistry();

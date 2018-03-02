@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-using DMS.Geometry;
+using Zenseless.Geometry;
 
 namespace VoxelUtils.Visual
 {

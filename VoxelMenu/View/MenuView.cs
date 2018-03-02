@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-using DMS.Application;
-using DMS.Base;
-using DMS.OpenGL;
+using Zenseless.Application;
+using Zenseless.Base;
+using Zenseless.OpenGL;
 using MVCCore.Interfaces;
+using Zenseless.HLGL;
 
 namespace VoxelMenu.View
 {
@@ -11,9 +12,9 @@ namespace VoxelMenu.View
     {
         public event GameWindowEventHandler GameWindowEvent;
 
-        private Shader _menuShader;
+        private IShader _menuShader;
 
-        public void ShaderChanged(string name, Shader shader)
+        public void ShaderChanged(string name, IShader shader)
         {
             if (nameof(_menuShader) != name) return;
             _menuShader = shader;

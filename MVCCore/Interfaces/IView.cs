@@ -1,23 +1,23 @@
 ﻿using System;
-using DMS.Application;
-using DMS.OpenGL;
 using OpenTK;
+using Zenseless.Application;
+using Zenseless.HLGL;
 
 namespace MVCCore.Interfaces
 {
     public delegate void GameWindowEventHandler(Action<GameWindow> gameWindowCall);
 
     public interface IView
-	{
-        void ShaderChanged(string name, Shader shader);
+    {
+        void ShaderChanged(string name, IShader shader);
 
-		void LoadResources(ResourceManager resourceManager);
+        void LoadResources(ResourceManager resourceManager);
 
-		void Render(IViewModel viewModel);
+        void Render(IViewModel viewModel);
 
-		void Resize(int width, int height);
-	    void ProcessModelEvent(EventArgs e);
+        void Resize(int width, int height);
+        void ProcessModelEvent(EventArgs e);
 
-	    event GameWindowEventHandler GameWindowEvent;
+        event GameWindowEventHandler GameWindowEvent;
     }
 }

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using MVCCore.Interfaces;
-using VoxelUtils.Initialization;
 
 namespace VoxelUtils.Registry.Model
 {
-	public class ModelRegistry : IModelRegistry
+    public class ModelRegistry : IModelRegistry
 	{
 		private readonly Dictionary<int, IModelMaterialInfo> _materials;
 

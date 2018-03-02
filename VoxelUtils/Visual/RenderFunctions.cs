@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using DMS.OpenGL;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 
 namespace VoxelUtils.Visual
 {
