@@ -9,9 +9,11 @@ using VoxelUtils;
 using VoxelUtils.Registry.View;
 using VoxelUtils.Shared;
 using VoxelUtils.Visual;
+using Zenseless.Base;
 using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
+using OpenGl4 = OpenTK.Graphics.OpenGL4;
 
 namespace VoxelEditor.View
 {
@@ -27,6 +29,12 @@ namespace VoxelEditor.View
         private IShader _ssaoShader;
         private IShader _depthShader;
 
+        /// <summary>
+        /// Contains the textureIds for the different materials
+        /// </summary>
+        private readonly Dictionary<int, int> _textureIDs;
+
+        private readonly Texture _materialTextureArray;
         private readonly ITexture _crosshairs;
         private readonly TextureFont _font;
 
@@ -44,8 +52,8 @@ namespace VoxelEditor.View
         private float _voxelSize;
         private Vector3I _worldSize;
         private Vector3 _raytraceVoxelPosition;
-        private readonly Dictionary<Vector3I, DefaultMesh> _chunkMeshes;
-        private readonly Dictionary<Vector3I, DefaultMesh> _chunkPartMeshes;
+        private readonly Dictionary<Vector3I, VoxelMesh> _chunkMeshes;
+        private readonly Dictionary<Vector3I, VoxelMesh> _chunkPartMeshes;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
@@ -63,14 +71,18 @@ namespace VoxelEditor.View
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.Texture2D);
 
-            _chunkMeshes = new Dictionary<Vector3I, DefaultMesh>();
-            _chunkPartMeshes = new Dictionary<Vector3I, DefaultMesh>();
+            _chunkMeshes = new Dictionary<Vector3I, VoxelMesh>();
+            _chunkPartMeshes = new Dictionary<Vector3I, VoxelMesh>();
             _raytraceVoxelPosition = Vector3.Zero;
             _renderToTexture = new FBO[5];
             _renderToTextureWithDepth = new FBO[2];
 
+            _textureIDs = new Dictionary<int, int>();
+            _materialTextureArray = new Texture(OpenGl4.TextureTarget.Texture2DArray);
             _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
             _font = new TextureFont(TextureLoader.FromBitmap(Resourcen.Coders_Crux), 16, 0, 0.6f, 0.9f, 0.75f);
+
+            InitializeMaterialTextures();
         }
 
         public void ShaderChanged(string name, IShader shader)
@@ -98,7 +110,7 @@ namespace VoxelEditor.View
                     _depthShader = shader;
                     if (!ReferenceEquals(shader, null))
                     {
-                        UpdateDepthMesh(CalculateVoxelMesh());
+                        UpdateDepthMesh(CalculateVoxelMesh().DefaultMesh);
                     }
                     break;
                 case nameof(_ssaoShader):
@@ -191,12 +203,12 @@ namespace VoxelEditor.View
         {
             ITexture raytraceTexture = RenderOnTexture(delegate { RenderRaytrace(cam, raytraceCollided); }, 0);
 
-            DefaultMesh mesh = CalculateVoxelMesh();
+            VoxelMesh mesh = CalculateVoxelMesh();
 
             UpdateVoxelMesh(mesh);
             ITexture voxelTexture = RenderOnTextureWithDepth(delegate { RenderVoxels(cameraPosition, cam); }, 0);
 
-            UpdateDepthMesh(mesh);
+            UpdateDepthMesh(mesh.DefaultMesh);
             ITexture depthTexture = RenderOnTextureWithDepth(delegate { RenderDepth(cameraPosition, cam); }, 1);
 
             ITexture ssaoTexture = RenderOnTexture(delegate { RenderSsao(depthTexture); }, 3);
@@ -292,8 +304,10 @@ namespace VoxelEditor.View
 
         private void RenderVoxels(Vector3 cameraPosition, float[] cam)
         {
-            GL.Color4(Color4.Transparent);
             _voxelShader.Activate();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            _materialTextureArray.Activate();
+            GL.Uniform1(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "texArray"), TextureUnit.Texture0 - TextureUnit.Texture0);
             GL.UniformMatrix4(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "camera"), 1, false, cam);
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "cameraPosition"), cameraPosition.ToOpenTK());
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
@@ -303,6 +317,7 @@ namespace VoxelEditor.View
             {
                 _voxelGeometry.Draw();
             }
+            _materialTextureArray.Deactivate();
             _voxelShader.Deactivate();
         }
 
@@ -347,16 +362,18 @@ namespace VoxelEditor.View
             }
         }
 
-        private DefaultMesh CalculateVoxelMesh()
+        private VoxelMesh CalculateVoxelMesh()
         {
-            DefaultMesh mesh = CreateWorldGround();
+            VoxelMesh mesh = new VoxelMesh();
 
-            foreach (KeyValuePair<Vector3I, DefaultMesh> chunkMesh in _chunkMeshes)
+            mesh.Add(CreateWorldGround());
+
+            foreach (KeyValuePair<Vector3I, VoxelMesh> chunkMesh in _chunkMeshes)
             {
                 mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key * Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
             }
 
-            foreach (KeyValuePair<Vector3I, DefaultMesh> chunkPartMesh in _chunkPartMeshes)
+            foreach (KeyValuePair<Vector3I, VoxelMesh> chunkPartMesh in _chunkPartMeshes)
             {
                 mesh.Add(chunkPartMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)chunkPartMesh.Key)).Transform(Matrix4x4.CreateScale(_voxelSize)));
             }
@@ -364,9 +381,11 @@ namespace VoxelEditor.View
             return mesh;
         }
 
-        private void UpdateVoxelMesh(DefaultMesh mesh)
+        private void UpdateVoxelMesh(VoxelMesh mesh)
         {
-            _voxelGeometry = VAOLoader.FromMesh(mesh, _voxelShader);
+            _voxelGeometry = VAOLoader.FromMesh(mesh.DefaultMesh, _voxelShader);
+            var loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "uv3d");
+            _voxelGeometry.SetAttribute(loc, mesh.TexCoord3D.ToArray(), OpenGl4.VertexAttribPointerType.Float, 3);
         }
 
         private void UpdateDepthMesh(DefaultMesh mesh)
@@ -516,6 +535,28 @@ namespace VoxelEditor.View
                 }
             }
             return voxelPositions;
+        }
+
+        private void InitializeMaterialTextures()
+        {
+            _materialTextureArray.Activate();
+            GL.TexStorage3D(TextureTarget3d.Texture2DArray, 1, SizedInternalFormat.Rgba8, 512, 512, _registry.MaterialIds.Count);
+            int textureId = 0;
+            foreach (int materialId in _registry.MaterialIds)
+            {
+                _textureIDs.Add(materialId, textureId);
+                LoadSubImage3D(_registry.GetMaterialInfo(materialId).Texture, textureId);
+                textureId++;
+            }
+            _materialTextureArray.Filter = TextureFilterMode.Mipmap;
+            _materialTextureArray.WrapFunction = TextureWrapFunction.Repeat;
+            _materialTextureArray.Deactivate();
+        }
+
+        private void LoadSubImage3D(Bitmap bitmap, int level)
+        {
+            var buffer = bitmap.ToBuffer();
+            OpenGl4.GL.TexSubImage3D(_materialTextureArray.Target, 0, 0, 0, level, bitmap.Width, bitmap.Height, 1, OpenGl4.PixelFormat.Bgra, OpenGl4.PixelType.UnsignedByte, buffer);
         }
     }
 }

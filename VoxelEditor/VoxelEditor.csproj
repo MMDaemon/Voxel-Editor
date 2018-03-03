@@ -96,6 +96,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resourcen.resx</DependentUpon>
     </Compile>
+    <Compile Include="View\VoxelMesh.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenTK.dll.config" />

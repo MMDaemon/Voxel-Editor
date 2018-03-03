@@ -7,7 +7,7 @@ using VoxelUtils.Shared;
 
 namespace VoxelEditor.View
 {
-    internal class ChunkMesh : DefaultMesh
+    internal class ChunkMesh : VoxelMesh
     {
         private readonly float sqrtHalf;
 
@@ -292,7 +292,7 @@ namespace VoxelEditor.View
 
         private void AddVoxelMesh(Chunk chunk, Vector3I pos)
         {
-            DefaultMesh voxelMesh = new DefaultMesh();
+            VoxelMesh voxelMesh = new VoxelMesh();
             List<Voxel> neededVoxels = CalculateNeededVoxels(chunk, pos);
             List<Vector3> internalPositions = CalculateInternalPositions(neededVoxels);
             List<int> vertexNumbers = GetVertexNumbersFromLookup(neededVoxels);
@@ -300,9 +300,10 @@ namespace VoxelEditor.View
             uint id = 0;
             void Add(int index, Vector3 n)
             {
-                voxelMesh.Position.Add(internalPositions[index]);
-                voxelMesh.Normal.Add(n);
-                voxelMesh.IDs.Add(id);
+                voxelMesh.DefaultMesh.Position.Add(internalPositions[index]);
+                voxelMesh.DefaultMesh.Normal.Add(n);
+                voxelMesh.DefaultMesh.IDs.Add(id);
+                voxelMesh.TexCoord3D.Add(internalPositions[index]);
                 ++id;
             }
 
