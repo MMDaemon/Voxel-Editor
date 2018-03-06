@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Numerics;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -41,6 +42,8 @@ namespace VoxelEditor.View
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
         private VAO _depthGeometry;
+
+        private BufferObject _materialBuffer;
 
         private readonly FBO[] _renderToTexture;
         private readonly FBO[] _renderToTextureWithDepth;
@@ -313,10 +316,13 @@ namespace VoxelEditor.View
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightDirection"), new OpenTK.Vector3(1f, 1.5f, -2f).Normalized());
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightColor"), new OpenTK.Vector3(1f, 1f, 1f));
+            GL.Uniform1(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "materialCount"), _textureIDs.Count);
+            _materialBuffer.ActivateBind(3);
             if (_voxelGeometry.IDLength > 0)
             {
                 _voxelGeometry.Draw();
             }
+            _materialBuffer.Deactivate();
             _materialTextureArray.Deactivate();
             _voxelShader.Deactivate();
         }
@@ -364,7 +370,7 @@ namespace VoxelEditor.View
 
         private VoxelMesh CalculateVoxelMesh()
         {
-            VoxelMesh mesh = new VoxelMesh();
+            VoxelMesh mesh = new VoxelMesh(_textureIDs.Count);
 
             mesh.Add(CreateWorldGround());
 
@@ -386,6 +392,12 @@ namespace VoxelEditor.View
             _voxelGeometry = VAOLoader.FromMesh(mesh.DefaultMesh, _voxelShader);
             var loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "uv3d");
             _voxelGeometry.SetAttribute(loc, mesh.TexCoord3D.ToArray(), OpenGl4.VertexAttribPointerType.Float, 3);
+            loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "vertexId");
+            _voxelGeometry.SetAttribute(loc, mesh.DefaultMesh.IDs.ToArray(), OpenGl4.VertexAttribPointerType.Float, 1);
+
+            _materialBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
+            _materialBuffer.Set(mesh.MaterialAmount.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
+
         }
 
         private void UpdateDepthMesh(DefaultMesh mesh)
@@ -415,6 +427,11 @@ namespace VoxelEditor.View
             mesh.Position.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, positiveWorldSize.Z - 0.5f)); //2
             mesh.Position.Add(new Vector3(negativeWorldSize.X - 0.5f, -0.5f, negativeWorldSize.Z - 0.5f)); //3
 
+            mesh.TexCoord.Add(new Vector2(0, 0));
+            mesh.TexCoord.Add(new Vector2(_worldSize.X * Constant.ChunkSizeX, 0));
+            mesh.TexCoord.Add(new Vector2(_worldSize.X * Constant.ChunkSizeX, _worldSize.Z * Constant.ChunkSizeZ));
+            mesh.TexCoord.Add(new Vector2(0, _worldSize.Z * Constant.ChunkSizeZ));
+
             mesh.Normal.Add(-Vector3.UnitY);
             mesh.Normal.Add(-Vector3.UnitY);
             mesh.Normal.Add(-Vector3.UnitY);
@@ -436,11 +453,11 @@ namespace VoxelEditor.View
             {
                 if (_chunkMeshes.ContainsKey(chunk.Position))
                 {
-                    _chunkMeshes[chunk.Position] = new ChunkMesh(chunk);
+                    _chunkMeshes[chunk.Position] = new ChunkMesh(chunk, _textureIDs.Keys.ToArray());
                 }
                 else
                 {
-                    _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk));
+                    _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk, _textureIDs.Keys.ToArray()));
                 }
 
                 CalculateChunkPartMeshes(chunk);
@@ -507,11 +524,11 @@ namespace VoxelEditor.View
 
             if (_chunkPartMeshes.ContainsKey(partChunk.Position))
             {
-                _chunkPartMeshes[partChunk.Position] = new ChunkMesh(partChunk, partChunkSize);
+                _chunkPartMeshes[partChunk.Position] = new ChunkMesh(partChunk, _textureIDs.Keys.ToArray(), partChunkSize);
             }
             else
             {
-                _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, partChunkSize));
+                _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, _textureIDs.Keys.ToArray(), partChunkSize));
             }
         }
 

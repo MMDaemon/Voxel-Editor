@@ -5,12 +5,19 @@ uniform vec3 ambientLightColor;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform sampler2DArray texArray;
+uniform int materialCount;
+
+layout(std430, binding = 3) buffer materialLayout
+{
+	float materials[];
+};
 
 in vec3 pos;
 in vec3 n;
 in vec2 uvX;
 in vec2 uvY;
 in vec2 uvZ;
+flat in int id;
 
 out vec4 color;
 
@@ -30,7 +37,17 @@ void main() {
 	vec3 normal = normalize(n);
 	vec3 viewDirection = normalize(cameraPosition - pos);
 
-	vec3 materialColor = abs(normal.x) * texture(texArray, vec3(uvX, 0)).xyz + abs(normal.y) * texture(texArray, vec3(uvY, 0)).xyz + abs(normal.z) * texture(texArray, vec3(uvZ, 0)).xyz;
+	vec3 materialColor = vec3(0);
+
+	//materialColor += materials[(id * materialCount)+4];
+
+	//for(int i = 0; i < materialCount; i++){
+	//	materialColor += materials[(id * materialCount)];
+	//}
+
+	for(int i = 0; i < materialCount; i++){
+		materialColor += materials[(id * materialCount) + i] * (abs(normal.x) * texture(texArray, vec3(uvX, i)).xyz + abs(normal.y) * texture(texArray, vec3(uvY, i)).xyz + abs(normal.z) * texture(texArray, vec3(uvZ, i)).xyz);
+	}
 
 	vec3 ambient = ambientLightColor * materialColor;
 

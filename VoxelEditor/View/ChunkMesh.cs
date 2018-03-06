@@ -270,7 +270,7 @@ namespace VoxelEditor.View
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
-        public ChunkMesh(Chunk chunk, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ)
+        public ChunkMesh(Chunk chunk, int[] materialIds, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ) : base(materialIds.Length)
         {
             sqrtHalf = (float)Math.Sqrt(0.5);
 
@@ -280,21 +280,23 @@ namespace VoxelEditor.View
                 {
                     for (int z = 0; z < sizeZ; z++)
                     {
-                        AddVoxelMesh(chunk, new Vector3I(x, y, z));
+                        AddVoxelMesh(chunk, materialIds, new Vector3I(x, y, z));
                     }
                 }
             }
         }
 
-        public ChunkMesh(Chunk chunk, Vector3I size) : this(chunk, size.X, size.Y, size.Z)
+        public ChunkMesh(Chunk chunk, int[] materialIds, Vector3I size) : this(chunk, materialIds, size.X, size.Y, size.Z)
         {
         }
 
-        private void AddVoxelMesh(Chunk chunk, Vector3I pos)
+        private void AddVoxelMesh(Chunk chunk, int[] materialIds, Vector3I pos)
         {
-            VoxelMesh voxelMesh = new VoxelMesh();
+            VoxelMesh voxelMesh = new VoxelMesh(materialIds.Length);
             List<Voxel> neededVoxels = CalculateNeededVoxels(chunk, pos);
-            List<Vector3> internalPositions = CalculateInternalPositions(neededVoxels);
+            List<float> internalDistances = CalculateInternalDistances(neededVoxels);
+            List<Vector3> internalPositions = CalculateInternalPositions(internalDistances);
+            List<float[]> materialAmounts = CalculateMaterialAmounts(materialIds, neededVoxels);
             List<int> vertexNumbers = GetVertexNumbersFromLookup(neededVoxels);
 
             uint id = 0;
@@ -304,7 +306,11 @@ namespace VoxelEditor.View
                 voxelMesh.DefaultMesh.Normal.Add(n);
                 voxelMesh.DefaultMesh.IDs.Add(id);
                 voxelMesh.TexCoord3D.Add(internalPositions[index]);
-                ++id;
+                for (int i = 0; i < materialIds.Length; i++)
+                {
+                    voxelMesh.MaterialAmount.Add(materialAmounts[index][i]);
+                }
+                id++;
             }
 
             for (int i = 0; i < vertexNumbers.Count; i += 3)
@@ -334,28 +340,49 @@ namespace VoxelEditor.View
             };
         }
 
-        private List<Vector3> CalculateInternalPositions(List<Voxel> voxels)
+        private List<Vector3> CalculateInternalPositions(List<float> internalDistances)
         {
             List<Vector3> internalPositions = new List<Vector3>()
             {
-                new Vector3(CalculateInternalPosition(voxels[0],voxels[1]), 0.0f, 0.0f),
-                new Vector3(1.0f, CalculateInternalPosition(voxels[1],voxels[2]), 0.0f),
-                new Vector3(CalculateInternalPosition(voxels[3],voxels[2]), 1.0f, 0.0f),
-                new Vector3(0.0f, CalculateInternalPosition(voxels[0],voxels[3]), 0.0f),
-                new Vector3(CalculateInternalPosition(voxels[4],voxels[5]), 0.0f, 1.0f),
-                new Vector3(1.0f, CalculateInternalPosition(voxels[5],voxels[6]), 1.0f),
-                new Vector3(CalculateInternalPosition(voxels[7],voxels[6]), 1.0f, 1.0f),
-                new Vector3(0.0f, CalculateInternalPosition(voxels[4],voxels[7]), 1.0f),
-                new Vector3(0.0f, 0.0f, CalculateInternalPosition(voxels[0],voxels[4])),
-                new Vector3(1.0f, 0.0f, CalculateInternalPosition(voxels[1],voxels[5])),
-                new Vector3(0.0f, 1.0f, CalculateInternalPosition(voxels[3],voxels[7])),
-                new Vector3(1.0f, 1.0f, CalculateInternalPosition(voxels[2],voxels[6]))
+                new Vector3(internalDistances[0], 0.0f, 0.0f),
+                new Vector3(1.0f, internalDistances[1], 0.0f),
+                new Vector3(internalDistances[2], 1.0f, 0.0f),
+                new Vector3(0.0f, internalDistances[3], 0.0f),
+                new Vector3(internalDistances[4], 0.0f, 1.0f),
+                new Vector3(1.0f, internalDistances[5], 1.0f),
+                new Vector3(internalDistances[6], 1.0f, 1.0f),
+                new Vector3(0.0f, internalDistances[7], 1.0f),
+                new Vector3(0.0f, 0.0f, internalDistances[8]),
+                new Vector3(1.0f, 0.0f, internalDistances[9]),
+                new Vector3(0.0f, 1.0f, internalDistances[10]),
+                new Vector3(1.0f, 1.0f, internalDistances[11])
             };
 
             return internalPositions;
         }
 
-        private float CalculateInternalPosition(Voxel first, Voxel second)
+        private List<float> CalculateInternalDistances(List<Voxel> voxels)
+        {
+            List<float> internalDistances = new List<float>()
+            {
+                CalculateInternalDistance(voxels[0],voxels[1]),
+                CalculateInternalDistance(voxels[1],voxels[2]),
+                CalculateInternalDistance(voxels[3],voxels[2]),
+                CalculateInternalDistance(voxels[0],voxels[3]),
+                CalculateInternalDistance(voxels[4],voxels[5]),
+                CalculateInternalDistance(voxels[5],voxels[6]),
+                CalculateInternalDistance(voxels[7],voxels[6]),
+                CalculateInternalDistance(voxels[4],voxels[7]),
+                CalculateInternalDistance(voxels[0],voxels[4]),
+                CalculateInternalDistance(voxels[1],voxels[5]),
+                CalculateInternalDistance(voxels[3],voxels[7]),
+                CalculateInternalDistance(voxels[2],voxels[6])
+            };
+
+            return internalDistances;
+        }
+
+        private float CalculateInternalDistance(Voxel first, Voxel second)
         {
             if (first.Exists)
             {
@@ -365,14 +392,14 @@ namespace VoxelEditor.View
                 }
                 else
                 {
-                    return CalculateInternalDistance(first, second);
+                    return CalculateDistanceBetween(first, second);
                 }
             }
             else
             {
                 if (second.Exists)
                 {
-                    return 1 - CalculateInternalDistance(second, first);
+                    return 1 - CalculateDistanceBetween(second, first);
                 }
                 else
                 {
@@ -381,7 +408,7 @@ namespace VoxelEditor.View
             }
         }
 
-        private float CalculateInternalDistance(Voxel existing, Voxel other)
+        private float CalculateDistanceBetween(Voxel existing, Voxel other)
         {
             //return (float)(Math.Pow(existing.FillingQuantity, (float)1 / existing.EmptyNeighborCount)*(1+other.FillingQuantity*Math.Pow(2,other.EmptyNeighborCount)) +
             //Math.Pow(other.FillingQuantity, (float)1 / other.EmptyNeighborCount) - 0.5f);
@@ -391,6 +418,46 @@ namespace VoxelEditor.View
             float otherPart = other.FillingQuantity / other.Threshold * (1 - existingPart);
 
             return existingPart + otherPart;
+        }
+
+        private List<float[]> CalculateMaterialAmounts(int[] materialIds, List<Voxel> voxels)
+        {
+            List<float[]> materialAmounts = new List<float[]>()
+            {
+                CalculateMaterialAmountsBetween(materialIds, voxels[0], voxels[1]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[1], voxels[2]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[3], voxels[2]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[0], voxels[3]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[4], voxels[5]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[5], voxels[6]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[7], voxels[6]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[4], voxels[7]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[0], voxels[4]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[1], voxels[5]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[3], voxels[7]),
+                CalculateMaterialAmountsBetween(materialIds, voxels[2], voxels[6])
+            };
+
+            return materialAmounts;
+        }
+
+        private float[] CalculateMaterialAmountsBetween(int[] materialIds, Voxel voxel1, Voxel voxel2)
+        {
+            float[] materialAmounts = new float[materialIds.Length];
+            float addedFillingQuantity = voxel1.FillingQuantity + voxel2.FillingQuantity;
+            for (int i = 0; i < materialIds.Length; i++)
+            {
+                materialAmounts[i] = 0;
+                if (materialIds[i] == voxel1.MaterialId)
+                {
+                    materialAmounts[i] += voxel1.FillingQuantity / addedFillingQuantity;
+                }
+                if (materialIds[i] == voxel2.MaterialId)
+                {
+                    materialAmounts[i] += voxel2.FillingQuantity / addedFillingQuantity;
+                }
+            }
+            return materialAmounts;
         }
 
         private List<int> GetVertexNumbersFromLookup(List<Voxel> voxels)
