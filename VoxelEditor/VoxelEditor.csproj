@@ -108,6 +108,7 @@
     <None Include="View\Resources\screenQuadVertex.glsl" />
     <None Include="View\Resources\guiFragment.glsl" />
     <None Include="View\Resources\depthFragment.glsl" />
+    <None Include="View\Resources\lightCalculation.glsl" />
     <None Include="View\Resources\voxelFragment.glsl" />
     <None Include="View\Resources\raytraceVertex.glsl" />
     <None Include="View\Resources\guiVertex.glsl" />

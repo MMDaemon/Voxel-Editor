@@ -9,17 +9,13 @@ in int vertexId;
 
 out vec3 pos;
 out vec3 n;
-out vec2 uvX;
-out vec2 uvY;
-out vec2 uvZ;
+out vec3 uv;
 flat out int id;
 
 void main() {
 	pos = position;
 	n = normal;
-	uvX = uv3d.yz;
-	uvY = uv3d.xz;
-	uvZ = uv3d.xy;
+	uv = uv3d;
 	id = vertexId;
 	gl_Position = camera * vec4(position, 1.0);
 }

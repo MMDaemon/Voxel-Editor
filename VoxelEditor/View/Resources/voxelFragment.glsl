@@ -14,23 +14,16 @@ layout(std430, binding = 3) buffer materialLayout
 
 in vec3 pos;
 in vec3 n;
-in vec2 uvX;
-in vec2 uvY;
-in vec2 uvZ;
+in vec3 uv;
 flat in int id;
 
 out vec4 color;
 
-float lambert(vec3 n, vec3 l)
-{
-	return max(0, dot(n, l));
-}
+#include "lightCalculation.glsl"
 
-float specular(vec3 n, vec3 l, vec3 v, float shininess)
+vec3 triplanarTexture(sampler2DArray texArray, float id, vec3 uv, vec3 normal)
 {
-	//if(0 > dot(n, l)) return 0;
-	vec3 r = reflect(-l, n);
-	return pow(max(0, dot(r, v)), shininess);
+	return (abs(normal.x) * texture(texArray, vec3(uv.yz, id)).xyz + abs(normal.y) * texture(texArray, vec3(uv.xz, id)).xyz + abs(normal.z) * texture(texArray, vec3(uv.xy, id)).xyz);
 }
 
 void main() {
@@ -39,19 +32,9 @@ void main() {
 
 	vec3 materialColor = vec3(0);
 
-	//materialColor += materials[(id * materialCount)+4];
-
-	//for(int i = 0; i < materialCount; i++){
-	//	materialColor += materials[(id * materialCount)];
-	//}
-
 	for(int i = 0; i < materialCount; i++){
-		materialColor += materials[(id * materialCount) + i] * (abs(normal.x) * texture(texArray, vec3(uvX, i)).xyz + abs(normal.y) * texture(texArray, vec3(uvY, i)).xyz + abs(normal.z) * texture(texArray, vec3(uvZ, i)).xyz);
+		materialColor += materials[(id * materialCount) + i] * triplanarTexture(texArray, i, uv, normal);
 	}
 
-	vec3 ambient = ambientLightColor * materialColor;
-
-	vec3 light = materialColor * lightColor * lambert(normal, -lightDirection) + lightColor * specular(normal, lightDirection, viewDirection, 100);
-
-	color = vec4(ambient + light, 1.0);
+	color = calculateLight(materialColor, lightColor, ambientLightColor, lightDirection, viewDirection, normal);
 }
