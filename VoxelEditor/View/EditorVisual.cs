@@ -29,6 +29,7 @@ namespace VoxelEditor.View
         private IShader _addShader;
         private IShader _ssaoShader;
         private IShader _depthShader;
+        private IShader _geometryShader;
 
         /// <summary>
         /// Contains the textureIds for the different materials
@@ -36,9 +37,11 @@ namespace VoxelEditor.View
         private readonly Dictionary<int, int> _textureIDs;
 
         private readonly Texture _materialTextureArray;
+        private readonly ITexture _groundTexture;
         private readonly ITexture _crosshairs;
         private readonly TextureFont _font;
 
+        private VAO _groundGeometry;
         private VAO _voxelGeometry;
         private VAO _raytraceGeometry;
         private VAO _depthGeometry;
@@ -52,7 +55,7 @@ namespace VoxelEditor.View
         private int _height;
         private float _aspect;
 
-        private float _voxelSize;
+        private float _voxelSize = 1;
         private Vector3I _worldSize;
         private Vector3 _raytraceVoxelPosition;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkMeshes;
@@ -63,6 +66,7 @@ namespace VoxelEditor.View
         public string AddShaderName => nameof(_addShader);
         public string SsaoShaderName => nameof(_ssaoShader);
         public string DepthShaderName => nameof(_depthShader);
+        public string GeometryShaderName => nameof(_geometryShader);
 
         public EditorVisual(ViewRegistry registry)
         {
@@ -83,6 +87,7 @@ namespace VoxelEditor.View
             _textureIDs = new Dictionary<int, int>();
             _materialTextureArray = new Texture(OpenGl4.TextureTarget.Texture2DArray);
             _crosshairs = TextureLoader.FromBitmap(Resourcen.FadenkreuzBW);
+            _groundTexture = TextureLoader.FromBitmap(_registry.GetMaterialInfo(1).Texture);
             _font = new TextureFont(TextureLoader.FromBitmap(Resourcen.Coders_Crux), 16, 0, 0.6f, 0.9f, 0.75f);
 
             InitializeMaterialTextures();
@@ -119,6 +124,10 @@ namespace VoxelEditor.View
                 case nameof(_ssaoShader):
                     _ssaoShader = shader;
                     break;
+                case nameof(_geometryShader):
+                    _geometryShader = shader;
+                    CreateWorldGround();
+                    break;
             }
         }
 
@@ -145,6 +154,8 @@ namespace VoxelEditor.View
             _voxelSize = viewModel.VoxelSize;
             _worldSize = viewModel.WorldSize;
             _raytraceVoxelPosition = viewModel.RaytraceVoxelPosition;
+
+            Console.WriteLine(viewModel.CameraPosition);
 
             CalculateChunkMeshes(viewModel.Chunks);
 
@@ -209,7 +220,14 @@ namespace VoxelEditor.View
             VoxelMesh mesh = CalculateVoxelMesh();
 
             UpdateVoxelMesh(mesh);
-            ITexture voxelTexture = RenderOnTextureWithDepth(delegate { RenderVoxels(cameraPosition, cam); }, 0);
+
+            CreateWorldGround();
+
+            ITexture voxelTexture = RenderOnTextureWithDepth(delegate
+            {
+                RenderVoxels(cameraPosition, cam);
+                RenderGround(cameraPosition, cam);
+            }, 0);
 
             UpdateDepthMesh(mesh.DefaultMesh);
             ITexture depthTexture = RenderOnTextureWithDepth(delegate { RenderDepth(cameraPosition, cam); }, 1);
@@ -305,6 +323,24 @@ namespace VoxelEditor.View
             return amountText;
         }
 
+        private void RenderGround(Vector3 cameraPosition, float[] cam)
+        {
+            _geometryShader.Activate();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            _groundTexture.Activate();
+            GL.Uniform1(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "tex"), TextureUnit.Texture0 - TextureUnit.Texture0);
+            GL.UniformMatrix4(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "camera"), 1, false, cam);
+            GL.Uniform3(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "cameraPosition"), cameraPosition.ToOpenTK());
+            GL.Uniform3(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
+            GL.Uniform3(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "lightDirection"), new OpenTK.Vector3(1f, 1.5f, -2f).Normalized());
+            GL.Uniform3(_geometryShader.GetResourceLocation(ShaderResourceType.Uniform, "lightColor"), new OpenTK.Vector3(1f, 1f, 1f));
+
+            _groundGeometry.Draw();
+
+            _groundTexture.Deactivate();
+            _geometryShader.Deactivate();
+        }
+
         private void RenderVoxels(Vector3 cameraPosition, float[] cam)
         {
             _voxelShader.Activate();
@@ -372,8 +408,6 @@ namespace VoxelEditor.View
         {
             VoxelMesh mesh = new VoxelMesh(_textureIDs.Count);
 
-            mesh.Add(CreateWorldGround());
-
             foreach (KeyValuePair<Vector3I, VoxelMesh> chunkMesh in _chunkMeshes)
             {
                 mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key * Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
@@ -413,7 +447,7 @@ namespace VoxelEditor.View
             _raytraceGeometry = VAOLoader.FromMesh(mesh, _raytraceShader);
         }
 
-        private DefaultMesh CreateWorldGround()
+        private void CreateWorldGround()
         {
             DefaultMesh mesh = new DefaultMesh();
 
@@ -444,7 +478,9 @@ namespace VoxelEditor.View
             mesh.IDs.Add(3);
             mesh.IDs.Add(2);
 
-            return mesh.Transform(Matrix4x4.CreateScale(_voxelSize));
+            mesh = mesh.Transform(Matrix4x4.CreateScale(_voxelSize));
+
+            _groundGeometry = VAOLoader.FromMesh(mesh, _geometryShader);
         }
 
         private void CalculateChunkMeshes(IEnumerable<Chunk> viewModelChunks)

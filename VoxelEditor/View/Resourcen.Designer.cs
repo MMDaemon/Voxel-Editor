@@ -133,6 +133,26 @@ namespace VoxelEditor.View {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] geometryFragment {
+            get {
+                object obj = ResourceManager.GetObject("geometryFragment", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] geometryVertex {
+            get {
+                object obj = ResourceManager.GetObject("geometryVertex", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] guiFragment {
             get {
                 object obj = ResourceManager.GetObject("guiFragment", resourceCulture);

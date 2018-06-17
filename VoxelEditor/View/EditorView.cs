@@ -69,6 +69,11 @@ namespace VoxelEditor.View
                 resourceManager.AddShader(_visual.DepthShaderName, dir + "depth.vert", dir + "depth.frag"
                     , Resourcen.depthVertex, Resourcen.depthFragment);
             }
+            if (ReferenceEquals(null, resourceManager.GetShader(_visual.GeometryShaderName)))
+            {
+                resourceManager.AddShader(_visual.GeometryShaderName, dir + "geometry.vert", dir + "geometry.frag"
+                    , Resourcen.geometryVertex, Resourcen.geometryFragment);
+            }
         }
 
         public void ShaderChanged(string name, IShader shader)

@@ -109,6 +109,8 @@
     <None Include="View\Resources\gui.frag" />
     <None Include="View\Resources\depth.frag" />
     <None Include="View\Resources\lightCalculation.glsl" />
+    <None Include="View\Resources\geometry.frag" />
+    <None Include="View\Resources\geometry.vert" />
     <None Include="View\Resources\voxel.frag" />
     <None Include="View\Resources\raytrace.vert" />
     <None Include="View\Resources\gui.vert" />

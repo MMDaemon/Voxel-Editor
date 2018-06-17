@@ -169,4 +169,10 @@
   <data name="ssaoFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>resources\ssao.frag;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="geometryFragment" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\geometry.frag;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="geometryVertex" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>resources\geometry.vert;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
