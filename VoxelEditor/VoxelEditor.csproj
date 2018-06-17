@@ -101,19 +101,19 @@
   <ItemGroup>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
-    <None Include="View\Resources\ssaoFragment.glsl" />
-    <None Include="View\Resources\drawCrosshairsFragment.glsl" />
-    <None Include="View\Resources\addFragment.glsl" />
-    <None Include="View\Resources\raytraceFragment.glsl" />
-    <None Include="View\Resources\screenQuadVertex.glsl" />
-    <None Include="View\Resources\guiFragment.glsl" />
-    <None Include="View\Resources\depthFragment.glsl" />
+    <None Include="View\Resources\ssao.frag" />
+    <None Include="View\Resources\drawCrosshairs.frag" />
+    <None Include="View\Resources\add.frag" />
+    <None Include="View\Resources\raytrace.frag" />
+    <None Include="View\Resources\screenQuad.vert" />
+    <None Include="View\Resources\gui.frag" />
+    <None Include="View\Resources\depth.frag" />
     <None Include="View\Resources\lightCalculation.glsl" />
-    <None Include="View\Resources\voxelFragment.glsl" />
-    <None Include="View\Resources\raytraceVertex.glsl" />
-    <None Include="View\Resources\guiVertex.glsl" />
-    <None Include="View\Resources\depthVertex.glsl" />
-    <None Include="View\Resources\voxelVertex.glsl" />
+    <None Include="View\Resources\voxel.frag" />
+    <None Include="View\Resources\raytrace.vert" />
+    <None Include="View\Resources\gui.vert" />
+    <None Include="View\Resources\depth.vert" />
+    <None Include="View\Resources\voxel.vert" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MVCCore\MVCCore.csproj">

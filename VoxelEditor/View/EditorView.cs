@@ -46,27 +46,27 @@ namespace VoxelEditor.View
 
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.VoxelShaderName)))
             {
-                resourceManager.AddShader(_visual.VoxelShaderName, dir + "voxelVertex.glsl", dir + "voxelFragment.glsl"
+                resourceManager.AddShader(_visual.VoxelShaderName, dir + "voxel.vert", dir + "voxel.frag"
                     , Resourcen.voxelVertex, Resourcen.voxelFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.RaytraceShaderName)))
             {
-                resourceManager.AddShader(_visual.RaytraceShaderName, dir + "raytraceVertex.glsl", dir + "raytraceFragment.glsl"
+                resourceManager.AddShader(_visual.RaytraceShaderName, dir + "raytrace.vert", dir + "raytrace.frag"
                     , Resourcen.raytraceVertex, Resourcen.raytraceFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.AddShaderName)))
             {
-                resourceManager.AddShader(_visual.AddShaderName, dir + "screenQuadVertex.glsl", dir + "addFragment.glsl"
+                resourceManager.AddShader(_visual.AddShaderName, dir + "screenQuad.vert", dir + "add.frag"
                     , Resourcen.screenQuadVertex, Resourcen.addFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.SsaoShaderName)))
             {
-                resourceManager.AddShader(_visual.SsaoShaderName, dir + "screenQuadVertex.glsl", dir + "ssaoFragment.glsl"
+                resourceManager.AddShader(_visual.SsaoShaderName, dir + "screenQuad.vert", dir + "ssao.frag"
                     , Resourcen.screenQuadVertex, Resourcen.ssaoFragment);
             }
             if (ReferenceEquals(null, resourceManager.GetShader(_visual.DepthShaderName)))
             {
-                resourceManager.AddShader(_visual.DepthShaderName, dir + "depthVertex.glsl", dir + "depthFragment.glsl"
+                resourceManager.AddShader(_visual.DepthShaderName, dir + "depth.vert", dir + "depth.frag"
                     , Resourcen.depthVertex, Resourcen.depthFragment);
             }
         }
