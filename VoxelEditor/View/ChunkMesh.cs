@@ -270,7 +270,7 @@ namespace VoxelEditor.View
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
     };
 
-        public ChunkMesh(Chunk chunk, int[] materialIds, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ) : base(materialIds.Length)
+        public ChunkMesh(Chunk chunk, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ)
         {
             sqrtHalf = (float)Math.Sqrt(0.5);
 
@@ -280,49 +280,60 @@ namespace VoxelEditor.View
                 {
                     for (int z = 0; z < sizeZ; z++)
                     {
-                        AddVoxelMesh(chunk, materialIds, new Vector3I(x, y, z));
+                        AddVoxelMesh(chunk, new Vector3I(x, y, z));
                     }
                 }
             }
         }
 
-        public ChunkMesh(Chunk chunk, int[] materialIds, Vector3I size) : this(chunk, materialIds, size.X, size.Y, size.Z)
+        public ChunkMesh(Chunk chunk, Vector3I size) : this(chunk, size.X, size.Y, size.Z)
         {
         }
 
-        private void AddVoxelMesh(Chunk chunk, int[] materialIds, Vector3I pos)
+        private void AddVoxelMesh(Chunk chunk, Vector3I pos)
         {
-            VoxelMesh voxelMesh = new VoxelMesh(materialIds.Length);
+
             List<Voxel> neededVoxels = CalculateNeededVoxels(chunk, pos);
-            List<float> internalDistances = CalculateInternalDistances(neededVoxels);
-            List<Vector3> internalPositions = CalculateInternalPositions(internalDistances);
-            List<float[]> materialAmounts = CalculateMaterialAmounts(materialIds, neededVoxels);
             List<int> vertexNumbers = GetVertexNumbersFromLookup(neededVoxels);
 
-            uint id = 0;
-            void Add(int index, Vector3 n)
+            if (vertexNumbers.Count > 0)
             {
-                voxelMesh.DefaultMesh.Position.Add(internalPositions[index]);
-                voxelMesh.DefaultMesh.Normal.Add(n);
-                voxelMesh.DefaultMesh.IDs.Add(id);
-                voxelMesh.TexCoord3D.Add(internalPositions[index]);
-                for (int i = 0; i < materialIds.Length; i++)
+                VoxelMesh voxelMesh = new VoxelMesh();
+
+                List<float> internalDistances = CalculateInternalDistances(neededVoxels);
+                List<Vector3> internalPositions = CalculateInternalPositions(internalDistances);
+
+                List<float> materialAmounts = CalculateMaterialAmounts(neededVoxels);
+                List<int> materialIds = CalculateMaterialIds(neededVoxels);
+
+                for (int i = 0; i < 8; i++)
                 {
-                    voxelMesh.MaterialAmount.Add(materialAmounts[index][i]);
+                    voxelMesh.MaterialAmount.Add(materialAmounts[i]);
+                    voxelMesh.MaterialId.Add(materialIds[i]);
                 }
-                id++;
+
+                uint id = 0;
+                void Add(int index, Vector3 n)
+                {
+                    voxelMesh.DefaultMesh.Position.Add(internalPositions[index]);
+                    voxelMesh.DefaultMesh.Normal.Add(n);
+                    voxelMesh.DefaultMesh.IDs.Add(id);
+                    voxelMesh.TexCoord3D.Add(internalPositions[index]);
+                    voxelMesh.VoxelId.Add(0);
+                    id++;
+                }
+
+                for (int i = 0; i < vertexNumbers.Count; i += 3)
+                {
+                    Vector3 n = CalculateNormal(internalPositions[vertexNumbers[i]], internalPositions[vertexNumbers[i + 1]], internalPositions[vertexNumbers[i + 2]]);
+                    Add(vertexNumbers[i + 2], n);
+                    Add(vertexNumbers[i + 1], n);
+                    Add(vertexNumbers[i], n);
+
+                }
+
+                this.Add(voxelMesh.Transform(Matrix4x4.CreateTranslation((Vector3)pos)));
             }
-
-            for (int i = 0; i < vertexNumbers.Count; i += 3)
-            {
-                Vector3 n = CalculateNormal(internalPositions[vertexNumbers[i]], internalPositions[vertexNumbers[i + 1]], internalPositions[vertexNumbers[i + 2]]);
-                Add(vertexNumbers[i + 2], n);
-                Add(vertexNumbers[i + 1], n);
-                Add(vertexNumbers[i], n);
-
-            }
-
-            this.Add(voxelMesh.Transform(Matrix4x4.CreateTranslation((Vector3)pos)));
         }
 
         private List<Voxel> CalculateNeededVoxels(Chunk chunk, Vector3I pos)
@@ -458,6 +469,35 @@ namespace VoxelEditor.View
                 }
             }
             return materialAmounts;
+        }
+
+        private List<float> CalculateMaterialAmounts(List<Voxel> voxels)
+        {
+            List<float> materialAmounts = new List<float>();
+            foreach (var voxel in voxels)
+            {
+                materialAmounts.Add(voxel.FillingQuantity);
+            }
+
+            return materialAmounts;
+        }
+
+        private List<int> CalculateMaterialIds(List<Voxel> voxels)
+        {
+            List<int> materialIds = new List<int>();
+            foreach (var voxel in voxels)
+            {
+                if (voxel.MaterialId == 0)
+                {
+                    materialIds.Add(0);
+                }
+                else
+                {
+                    materialIds.Add(voxel.MaterialId-1);
+                }
+            }
+
+            return materialIds;
         }
 
         private List<int> GetVertexNumbersFromLookup(List<Voxel> voxels)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -46,7 +45,8 @@ namespace VoxelEditor.View
         private VAO _raytraceGeometry;
         private VAO _depthGeometry;
 
-        private BufferObject _materialBuffer;
+        private BufferObject _amountBuffer;
+        private BufferObject _idBuffer;
 
         private readonly FBO[] _renderToTexture;
         private readonly FBO[] _renderToTextureWithDepth;
@@ -60,6 +60,8 @@ namespace VoxelEditor.View
         private Vector3 _raytraceVoxelPosition;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkMeshes;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkPartMeshes;
+        private readonly Dictionary<Vector3I, VAO> _chunkGeometry;
+        private readonly Dictionary<Vector3I, VAO> _chunkPartGeometry;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
@@ -352,13 +354,14 @@ namespace VoxelEditor.View
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightDirection"), new OpenTK.Vector3(1f, 1.5f, -2f).Normalized());
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightColor"), new OpenTK.Vector3(1f, 1f, 1f));
-            GL.Uniform1(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "materialCount"), _textureIDs.Count);
-            _materialBuffer.ActivateBind(3);
+            _amountBuffer.ActivateBind(3);
+            _idBuffer.ActivateBind(4);
             if (_voxelGeometry.IDLength > 0)
             {
                 _voxelGeometry.Draw();
             }
-            _materialBuffer.Deactivate();
+            _idBuffer.Deactivate();
+            _amountBuffer.Deactivate();
             _materialTextureArray.Deactivate();
             _voxelShader.Deactivate();
         }
@@ -406,7 +409,7 @@ namespace VoxelEditor.View
 
         private VoxelMesh CalculateVoxelMesh()
         {
-            VoxelMesh mesh = new VoxelMesh(_textureIDs.Count);
+            VoxelMesh mesh = new VoxelMesh();
 
             foreach (KeyValuePair<Vector3I, VoxelMesh> chunkMesh in _chunkMeshes)
             {
@@ -426,11 +429,13 @@ namespace VoxelEditor.View
             _voxelGeometry = VAOLoader.FromMesh(mesh.DefaultMesh, _voxelShader);
             var loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "uv3d");
             _voxelGeometry.SetAttribute(loc, mesh.TexCoord3D.ToArray(), OpenGl4.VertexAttribPointerType.Float, 3);
-            loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "vertexId");
-            _voxelGeometry.SetAttribute(loc, mesh.DefaultMesh.IDs.ToArray(), OpenGl4.VertexAttribPointerType.Float, 1);
+            loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "voxelId");
+            _voxelGeometry.SetAttribute(loc, mesh.VoxelId.ToArray(), OpenGl4.VertexAttribPointerType.Float, 1);
 
-            _materialBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
-            _materialBuffer.Set(mesh.MaterialAmount.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
+            _amountBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
+            _amountBuffer.Set(mesh.MaterialAmount.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
+            _idBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
+            _idBuffer.Set(mesh.MaterialId.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
 
         }
 
@@ -489,11 +494,11 @@ namespace VoxelEditor.View
             {
                 if (_chunkMeshes.ContainsKey(chunk.Position))
                 {
-                    _chunkMeshes[chunk.Position] = new ChunkMesh(chunk, _textureIDs.Keys.ToArray());
+                    _chunkMeshes[chunk.Position] = new ChunkMesh(chunk);
                 }
                 else
                 {
-                    _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk, _textureIDs.Keys.ToArray()));
+                    _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk));
                 }
 
                 CalculateChunkPartMeshes(chunk);
@@ -560,11 +565,11 @@ namespace VoxelEditor.View
 
             if (_chunkPartMeshes.ContainsKey(partChunk.Position))
             {
-                _chunkPartMeshes[partChunk.Position] = new ChunkMesh(partChunk, _textureIDs.Keys.ToArray(), partChunkSize);
+                _chunkPartMeshes[partChunk.Position] = new ChunkMesh(partChunk, partChunkSize);
             }
             else
             {
-                _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, _textureIDs.Keys.ToArray(), partChunkSize));
+                _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, partChunkSize));
             }
         }
 

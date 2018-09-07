@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Zenseless.Geometry;
 
@@ -8,17 +9,17 @@ namespace VoxelEditor.View
     {
         public DefaultMesh DefaultMesh { get; private set; }
         public List<Vector3> TexCoord3D { get; }
+        public List<uint> VoxelId { get; }
         public List<float> MaterialAmount { get; }
+        public List<int> MaterialId { get; }
 
-        private readonly int _materialCount;
-
-        public VoxelMesh(int materialCount)
+        public VoxelMesh()
         {
             DefaultMesh = new DefaultMesh();
             TexCoord3D = new List<Vector3>();
             MaterialAmount = new List<float>();
-
-            _materialCount = materialCount;
+            MaterialId = new List<int>();
+            VoxelId = new List<uint>();
         }
 
         private VoxelMesh(VoxelMesh voxelMesh, DefaultMesh defaultMesh)
@@ -26,36 +27,8 @@ namespace VoxelEditor.View
             DefaultMesh = defaultMesh;
             TexCoord3D = voxelMesh.TexCoord3D;
             MaterialAmount = voxelMesh.MaterialAmount;
-        }
-
-        public void Add(DefaultMesh defaultMesh)
-        {
-            DefaultMesh.Add(defaultMesh);
-            if (defaultMesh.TexCoord.Count > 0)
-            {
-                foreach (var texCoord in defaultMesh.TexCoord)
-                {
-                    TexCoord3D.Add(new Vector3(texCoord.X, texCoord.Y, texCoord.Y));
-
-                    for (int i = 0; i < _materialCount; i++)
-                    {
-                        MaterialAmount.Add(i == 0 ? 1 : 0);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var position in defaultMesh.Position)
-                {
-                    TexCoord3D.Add(new Vector3(position.X, position.Y, position.Z));
-
-                    for (int i = 0; i < _materialCount; i++)
-                    {
-                        MaterialAmount.Add(i == 0 ? 1 : 0);
-                    }
-                }
-            }
-
+            MaterialId = voxelMesh.MaterialId;
+            VoxelId = voxelMesh.VoxelId;
         }
 
         public void Add(VoxelMesh voxelMesh)
@@ -63,6 +36,16 @@ namespace VoxelEditor.View
             DefaultMesh.Add(voxelMesh.DefaultMesh);
             TexCoord3D.AddRange(voxelMesh.TexCoord3D);
             MaterialAmount.AddRange(voxelMesh.MaterialAmount);
+            MaterialId.AddRange(voxelMesh.MaterialId);
+            uint max = 0;
+            if (VoxelId.Count > 0)
+            {
+                max = (uint)(VoxelId.Last() + 1);
+            }
+            foreach (var voxelId in voxelMesh.VoxelId)
+            {
+                VoxelId.Add(voxelId + max);
+            }
         }
 
         public VoxelMesh Transform(Matrix4x4 transform)
