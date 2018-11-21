@@ -252,6 +252,14 @@ namespace VoxelEditor.Model
                 }
                 _world.TakeMaterial(_materialID, takeAmount, _raytraceVoxelPosition);
             }
+            if (keyActions.Contains(KeyAction.Save))
+            {
+                _world.SaveWorld();
+            }
+            if (keyActions.Contains(KeyAction.Load))
+            {
+                _world.LoadWorld();
+            }
         }
 
         private void CalculatePlayerRotation()

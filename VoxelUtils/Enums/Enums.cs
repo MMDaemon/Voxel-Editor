@@ -18,6 +18,8 @@
         PlaceMaterial,
         TakeMaterial,
         ToggleCursorVisible,
-        SelectMaterial
+        SelectMaterial,
+        Save,
+        Load
     }
 }

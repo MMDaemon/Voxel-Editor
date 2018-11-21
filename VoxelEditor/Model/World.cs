@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Linq;
 using VoxelUtils;
 using VoxelUtils.Shared;
 
@@ -36,7 +36,6 @@ namespace VoxelEditor.Model
             _updatedChunkCoordinates = new List<Vector3I>();
             _voxelMarcher = new VoxelMarcher(worldSize);
             InitializeChunks();
-
         }
 
         public Voxel GetVoxel(Vector3I globalPosition)
@@ -104,6 +103,7 @@ namespace VoxelEditor.Model
 
                 if (!existsBefore && _chunks[chunkPosition][voxelPosition].Exists)
                 {
+                    _chunks[chunkPosition].UsedVoxelAmount++;
                     DecrementNeighborsEmptyNeighborCount(globalPosition);
                 }
 
@@ -157,6 +157,7 @@ namespace VoxelEditor.Model
                     success = true;
                     if (existsBefore && !_chunks[chunkPosition][voxelPosition].Exists)
                     {
+                        _chunks[chunkPosition].UsedVoxelAmount--;
                         IncrementNeighborsEmptyNeighborCount(globalPosition);
                     }
                 }
@@ -318,238 +319,6 @@ namespace VoxelEditor.Model
             return positions;
         }
 
-        /// <summary>
-        /// Get Positive offset between including 0.0 and excluding 1.0
-        /// </summary>
-        /// <param name="rayPosition"></param>
-        /// <returns></returns>
-        private Vector3 CalculateRayOffset(Vector3 rayPosition)
-        {
-            Vector3 rayOffset = rayPosition - (Vector3I)rayPosition;
-            if (rayOffset.X < 0)
-            {
-                rayOffset.X += 1;
-                if (rayOffset.X >= 1.0f)
-                {
-                    rayOffset.X = 0.0f;
-                }
-            }
-            if (rayOffset.Y < 0)
-            {
-                rayOffset.Y += 1;
-                if (rayOffset.Y >= 1.0f)
-                {
-                    rayOffset.Y = 0.0f;
-                }
-            }
-            if (rayOffset.Z < 0)
-            {
-                rayOffset.Z += 1;
-                if (rayOffset.Z >= 1.0f)
-                {
-                    rayOffset.Z = 0.0f;
-                }
-            }
-            return rayOffset;
-        }
-
-        private Vector3 RayStep(Vector3 rayPosition, Vector3 rayDirection)
-        {
-            Vector3 rayOffset = CalculateRayOffset(rayPosition);
-
-            Vector3 stepFactors = new Vector3(1.0f);
-
-            if (rayDirection.X < 0)
-            {
-                stepFactors.X = (rayOffset.X > 0.0f ? rayOffset.X : 1.0f) / Math.Abs(rayDirection.X);
-            }
-            if (rayDirection.X > 0)
-            {
-                stepFactors.X = (1 - rayOffset.X) / Math.Abs(rayDirection.X);
-            }
-
-            if (rayDirection.Y < 0)
-            {
-                stepFactors.Y = (rayOffset.Y > 0.0f ? rayOffset.Y : 1.0f) / Math.Abs(rayDirection.Y);
-            }
-            if (rayDirection.Y > 0)
-            {
-                stepFactors.Y = (1 - rayOffset.Y) / Math.Abs(rayDirection.Y);
-            }
-
-            if (rayDirection.Z < 0)
-            {
-                stepFactors.Z = (rayOffset.Z > 0.0f ? rayOffset.Z : 1.0f) / Math.Abs(rayDirection.Z);
-            }
-            if (rayDirection.Z > 0)
-            {
-                stepFactors.Z = (1 - rayOffset.Z) / Math.Abs(rayDirection.Z);
-            }
-
-            float stepFactor = stepFactors.X < stepFactors.Y ? stepFactors.X : stepFactors.Y;
-            stepFactor = stepFactor < stepFactors.Z ? stepFactor : stepFactors.Z;
-
-            return rayPosition + rayDirection * stepFactor;
-        }
-
-        private Vector3I CalculateCurrentVoxelPosition(Vector3 rayPosition, Vector3 rayDirection)
-        {
-            Vector3I position = new Vector3I();
-            if (rayDirection.X >= 0)
-            {
-                position.X = (int)rayPosition.X;
-            }
-            else
-            {
-                position.X = (int)Math.Ceiling((float)rayPosition.X) - 1;
-            }
-
-            if (rayDirection.Y >= 0)
-            {
-                position.Y = (int)rayPosition.Y;
-            }
-            else
-            {
-                position.Y = (int)Math.Ceiling((float)rayPosition.Y) - 1;
-            }
-
-            if (rayDirection.Z >= 0)
-            {
-                position.Z = (int)rayPosition.Z;
-            }
-            else
-            {
-                position.Z = (int)Math.Ceiling((float)rayPosition.Z) - 1;
-            }
-
-            return position;
-        }
-
-        private bool CalculateRayStartPosition(ref Vector3 rayStartPosition, Vector3 rayDirection)
-        {
-            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
-            negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
-
-            if (PositionIsInsideWorld(rayStartPosition))
-            {
-                return true;
-            }
-
-            if (rayStartPosition.X < negativeWorldSize.X)
-            {
-                Vector3 planePosition = new Vector3(negativeWorldSize.X, 0, 0);
-                Vector3 planeNormal = new Vector3(-1, 0, 0);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-
-            if (rayStartPosition.X > positiveWorldSize.X)
-            {
-                Vector3 planePosition = new Vector3(positiveWorldSize.X, 0, 0);
-                Vector3 planeNormal = new Vector3(1, 0, 0);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-
-            if (rayStartPosition.Y < negativeWorldSize.Y)
-            {
-                Vector3 planePosition = new Vector3(0, negativeWorldSize.Y, 0);
-                Vector3 planeNormal = new Vector3(0, -1, 0);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-
-            if (rayStartPosition.Y > positiveWorldSize.Y)
-            {
-                Vector3 planePosition = new Vector3(0, positiveWorldSize.Y, 0);
-                Vector3 planeNormal = new Vector3(0, 1, 0);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-
-            if (rayStartPosition.Z < negativeWorldSize.Z)
-            {
-                Vector3 planePosition = new Vector3(0, 0, negativeWorldSize.Z);
-                Vector3 planeNormal = new Vector3(0, 0, -1);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-
-            if (rayStartPosition.Z > positiveWorldSize.Z)
-            {
-                Vector3 planePosition = new Vector3(0, 0, positiveWorldSize.Z);
-                Vector3 planeNormal = new Vector3(0, 0, 1);
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-                if (Math.Abs(denominator) > 0.0f)
-                {
-                    float d = Vector3.Dot((planePosition - rayStartPosition), planeNormal) / denominator;
-                    Vector3 collision = rayStartPosition + rayDirection * d;
-                    if (PositionIsInsideWorld(collision))
-                    {
-                        rayStartPosition = collision;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private bool PositionIsInsideWorld(Vector3 position)
-        {
-            Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
-            negativeWorldSize.Y = 0;
-            Vector3I positiveWorldSize = ((WorldSize / 2) * Constant.ChunkSize);
-            positiveWorldSize.Y = WorldSize.Y * Constant.ChunkSizeY;
-            return !(position < negativeWorldSize) && !(position > positiveWorldSize);
-        }
-
         private bool PositionIsInsideWorld(Vector3I globalPosition)
         {
             Vector3I negativeWorldSize = ((-WorldSize / 2) * Constant.ChunkSize);
@@ -600,6 +369,25 @@ namespace VoxelEditor.Model
                 position.Y = initialPosition.Y;
                 position.X++;
             }
+        }
+
+        public void SaveWorld()
+        {
+            XElement world = new XElement("World");
+
+            foreach (var chunk in _chunks.Values)
+            {
+                world.Add(XElement.Parse(chunk.ToString()));
+            }
+
+            XDocument doc = new XDocument(world);
+
+            doc.Save(@"save.xml");
+        }
+
+        public void LoadWorld()
+        {
+
         }
 
         private Vector3I CalculateChunkPosition(Vector3I globalPosition)

@@ -31,6 +31,9 @@ namespace Initialisation
             inputHandler.AddPressKeyAction(Key.Escape, (int)KeyAction.Exit);
             inputHandler.AddPressKeyAction(Key.F11, (int)KeyAction.ToggleFullscreen);
             inputHandler.AddPressKeyAction(Key.E, (int)KeyAction.SelectMaterial);
+            inputHandler.AddPressKeyAction(Key.F1, (int)KeyAction.Save);
+            inputHandler.AddPressKeyAction(Key.F2, (int)KeyAction.Load);
+
             inputHandler.AddHoldKeyAction(Key.W, (int)KeyAction.MoveForwards);
             inputHandler.AddHoldKeyAction(Key.Up, (int)KeyAction.MoveForwards);
             inputHandler.AddHoldKeyAction(Key.S, (int)KeyAction.MoveBackwards);
@@ -42,6 +45,7 @@ namespace Initialisation
             inputHandler.AddHoldKeyAction(Key.Space, (int)KeyAction.MoveUp);
             inputHandler.AddHoldKeyAction(Key.ShiftLeft, (int)KeyAction.MoveDown);
             inputHandler.AddHoldKeyAction(Key.Q, (int)KeyAction.RayTraceEmpty);
+
             inputHandler.AddPressKeyAction(MouseButton.Left, (int)KeyAction.PlaceMaterial);
             inputHandler.AddPressKeyAction(MouseButton.Right, (int)KeyAction.TakeMaterial);
             return inputHandler;
