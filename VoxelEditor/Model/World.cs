@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Xml.Linq;
@@ -12,6 +13,8 @@ namespace VoxelEditor.Model
         private readonly Dictionary<Vector3I, Chunk> _chunks;
         private readonly List<Vector3I> _updatedChunkCoordinates;
         private readonly VoxelMarcher _voxelMarcher;
+
+        private readonly SaveManager _saveManager;
 
         public Vector3I WorldSize { get; private set; }
         public IEnumerable<Chunk> Chunks => _chunks.Values.ToList();
@@ -35,6 +38,7 @@ namespace VoxelEditor.Model
             _chunks = new Dictionary<Vector3I, Chunk>();
             _updatedChunkCoordinates = new List<Vector3I>();
             _voxelMarcher = new VoxelMarcher(worldSize);
+            _saveManager = new SaveManager();
             InitializeChunks();
         }
 
@@ -373,21 +377,27 @@ namespace VoxelEditor.Model
 
         public void SaveWorld()
         {
-            XElement world = new XElement("World");
-
-            foreach (var chunk in _chunks.Values)
-            {
-                world.Add(XElement.Parse(chunk.ToString()));
-            }
-
-            XDocument doc = new XDocument(world);
-
-            doc.Save(@"save.xml");
+            _saveManager.SaveWorldToFile(_chunks.Values, @"save.xml");
         }
 
         public void LoadWorld()
         {
+            List<Vector3I> positions;
+            if (_saveManager.InitializeLoadFromFile(@"save.xml", out positions))
+            {
+                _chunks.Clear();
+                foreach (Vector3I position in positions)
+                {
+                    _chunks.Add(position, new Chunk(position));
+                }
 
+                Dictionary<Vector3I, Voxel> loadedVoxels = _saveManager.LoadWorldVoxelsFromFile();
+
+                foreach (var pair in loadedVoxels)
+                {
+                    AddMaterial(pair.Value.MaterialId, pair.Value.Amount, pair.Key);
+                }
+            }
         }
 
         private Vector3I CalculateChunkPosition(Vector3I globalPosition)

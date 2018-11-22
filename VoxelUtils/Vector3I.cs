@@ -20,6 +20,28 @@ namespace VoxelUtils
 
         public override string ToString() => $"({X},{Y},{Z})";
 
+        public static bool TryParse(string value, out Vector3I output)
+        {
+            output = new Vector3I(0);
+            string[] valueStrings = value?.Replace("(", string.Empty).Replace(")", string.Empty).Split(',');
+            bool sucess = valueStrings != null;
+            if (sucess)
+            {
+                int[] values = new int[3];
+                for (int i = 0; i < 3 && sucess == true; i++)
+                {
+                    if (valueStrings != null) sucess = int.TryParse(valueStrings[i], out values[i]);
+                }
+
+                if (sucess)
+                {
+
+                    output = new Vector3I(values[0], values[1], values[2]);
+                }
+            }
+            return sucess;
+        }
+
         public int this[int index]
         {
             get

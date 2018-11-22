@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\SaveManager.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="Model\VoxelMarcher.cs" />
     <Compile Include="Model\World.cs" />

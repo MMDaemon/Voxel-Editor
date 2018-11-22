@@ -60,8 +60,6 @@ namespace VoxelEditor.View
         private Vector3 _raytraceVoxelPosition;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkMeshes;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkPartMeshes;
-        private readonly Dictionary<Vector3I, VAO> _chunkGeometry;
-        private readonly Dictionary<Vector3I, VAO> _chunkPartGeometry;
 
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);

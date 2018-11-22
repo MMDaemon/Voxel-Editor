@@ -1,7 +1,4 @@
-﻿using System.Net.Mime;
-using System.Xml.Linq;
-
-namespace VoxelUtils.Shared
+﻿namespace VoxelUtils.Shared
 {
     public class Chunk
     {
@@ -61,75 +58,6 @@ namespace VoxelUtils.Shared
                     }
                 }
             }
-        }
-
-        public override string ToString()
-        {
-            string position = $"{Position.X},{Position.Y},{Position.Z}";
-            string types = "";
-            string amounts = "";
-
-            if (Empty)
-            {
-                types += $"{Constant.MaxVoxelsPerChunk}:{Constant.MaterialAir},";
-                amounts += $"{Constant.ChunkSizeX * Constant.ChunkSizeY * Constant.ChunkSizeZ}:{0},";
-            }
-
-            else
-            {
-                int typeCount = 0;
-                int currentType = Constant.MaterialAir;
-                int amountCount = 0;
-                int currentAmount = 0;
-
-                for (int z = 0; z < Constant.ChunkSizeX; z++)
-                {
-                    for (int y = 0; y < Constant.ChunkSizeY; y++)
-                    {
-                        for (int x = 0; x < Constant.ChunkSizeZ; x++)
-                        {
-                            if (_voxels[x, y, z].MaterialId == currentType)
-                            {
-                                typeCount++;
-                            }
-                            else
-                            {
-                                if (typeCount > 0)
-                                {
-                                    types += $"{typeCount}:{currentType},";
-                                }
-                                currentType = _voxels[x, y, z].MaterialId;
-                                typeCount = 1;
-                            }
-
-                            if (_voxels[x, y, z].Amount == currentAmount)
-                            {
-                                amountCount++;
-                            }
-                            else
-                            {
-                                if (amountCount > 0)
-                                {
-                                    amounts += $"{amountCount}:{currentAmount},";
-                                }
-                                currentAmount = _voxels[x, y, z].Amount;
-                                amountCount = 1;
-                            }
-                        }
-                    }
-                }
-
-                types += $"{typeCount}:{currentType},";
-                amounts += $"{amountCount}:{currentAmount},";
-            }
-
-            XElement chunk =
-                new XElement("Chunk",
-                    new XElement("Position", position),
-                    new XElement("Types", types),
-                    new XElement("Amounts", amounts));
-
-            return chunk.ToString();
         }
     }
 }
