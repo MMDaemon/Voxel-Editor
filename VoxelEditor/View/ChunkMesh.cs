@@ -273,7 +273,7 @@ namespace VoxelEditor.View
         public ChunkMesh(Chunk chunk, int sizeX = Constant.ChunkSizeX, int sizeY = Constant.ChunkSizeY, int sizeZ = Constant.ChunkSizeZ)
         {
             //sqrtHalf = (float)Math.Sqrt(0.5);
-            sqrtHalf = (float)Math.Sqrt((Math.Pow((Math.Pow(3/Math.Sqrt(2),1.0/3.0)),2))/2);
+            sqrtHalf = (float)(Math.Pow(3 / Math.Sqrt(2), 1.0 / 3.0) / Math.Sqrt(2));
 
             for (int x = 0; x < sizeX; x++)
             {
@@ -494,7 +494,7 @@ namespace VoxelEditor.View
                 }
                 else
                 {
-                    materialIds.Add(voxel.MaterialId-1);
+                    materialIds.Add(voxel.MaterialId - 1);
                 }
             }
 
