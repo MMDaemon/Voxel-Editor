@@ -375,28 +375,27 @@ namespace VoxelEditor.Model
             }
         }
 
-        public void SaveWorld()
+        public void SaveWorld(bool overrideCurrent)
         {
-            _saveManager.SaveWorldToFile(_chunks.Values, @"save.xml");
+            _saveManager.SaveWorldToFile(_chunks.Values, overrideCurrent);
         }
 
         public void LoadWorld()
         {
-            List<Vector3I> positions;
-            if (_saveManager.InitializeLoadFromFile(@"save.xml", out positions))
+            if (!_saveManager.InitializeLoadFromFile(out var positions)) return;
+
+            _chunks.Clear();
+            foreach (Vector3I position in positions)
             {
-                _chunks.Clear();
-                foreach (Vector3I position in positions)
-                {
-                    _chunks.Add(position, new Chunk(position));
-                }
+                _chunks.Add(position, new Chunk(position));
+                _updatedChunkCoordinates.Add(position);
+            }
 
-                Dictionary<Vector3I, Voxel> loadedVoxels = _saveManager.LoadWorldVoxelsFromFile();
+            Dictionary<Vector3I, Voxel> loadedVoxels = _saveManager.LoadWorldVoxelsFromFile();
 
-                foreach (var pair in loadedVoxels)
-                {
-                    AddMaterial(pair.Value.MaterialId, pair.Value.Amount, pair.Key);
-                }
+            foreach (var pair in loadedVoxels)
+            {
+                AddMaterial(pair.Value.MaterialId, pair.Value.Amount, pair.Key);
             }
         }
 

@@ -1,8 +1,11 @@
-﻿namespace Initialisation
+﻿using System;
+
+namespace Initialisation
 {
 	internal class Program
 	{
-		private static void Main(string[] args)
+	    [STAThread]
+        private static void Main(string[] args)
 		{
 			InitializationHandler initializationHandler = new InitializationHandler();
 		}

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using VoxelUtils;
 using VoxelUtils.Shared;
@@ -12,32 +14,37 @@ namespace VoxelEditor.Model
     {
         private XElement[] _chunkElements;
 
+        private string _currentPath;
+
         public SaveManager()
         {
 
         }
 
-        public void SaveWorldToFile(IEnumerable<Chunk> chunks, string filePath)
+        public void SaveWorldToFile(IEnumerable<Chunk> chunks, bool overrideCurrent)
         {
-            XElement world = new XElement("World");
-
-            foreach (var chunk in chunks)
+            if (string.IsNullOrEmpty(_currentPath) || !overrideCurrent)
             {
-                world.Add(CreateChunkXml(chunk));
+                if (!SetSavePath()) return;
+            }
+            else
+            {
+                if (MessageBox.Show($"Do you relly want to override {_currentPath}", $"Override existing save",
+                                MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             }
 
-            XDocument doc = new XDocument(world);
-
-            doc.Save(filePath);
+            SaveWorld(chunks);
         }
 
-        public bool InitializeLoadFromFile(string filePath, out List<Vector3I> positions)
+        public bool InitializeLoadFromFile(out List<Vector3I> positions)
         {
             const string pattern = @"(\d+:\d+,)+";
 
             positions = new List<Vector3I>();
 
-            XElement world = XElement.Load(filePath);
+            if (!GetLoadPath(out string loadPath)) return false;
+
+            XElement world = XElement.Load(loadPath);
 
             XElement[] chunkElements = world.Elements() as XElement[] ?? world.Elements().ToArray();
 
@@ -52,7 +59,10 @@ namespace VoxelEditor.Model
             }
 
             _chunkElements = chunkElements;
+
+            _currentPath = loadPath;
             return true;
+
         }
 
         public Dictionary<Vector3I, Voxel> LoadWorldVoxelsFromFile()
@@ -71,6 +81,61 @@ namespace VoxelEditor.Model
             }
 
             return loadedVoxels;
+        }
+
+        private bool SetSavePath()
+        {
+            Assembly asm = Assembly.GetExecutingAssembly();
+            string path = System.IO.Path.GetDirectoryName(asm.Location);
+
+            SaveFileDialog saveFileDialogue = new SaveFileDialog();
+            saveFileDialogue.Filter = "Voxel Editor Save|*.ves";
+            saveFileDialogue.Title = "Save world";
+            saveFileDialogue.RestoreDirectory = true;
+            saveFileDialogue.InitialDirectory = path;
+
+            if (saveFileDialogue.ShowDialog() == DialogResult.OK)
+            {
+                _currentPath = saveFileDialogue.FileName;
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool GetLoadPath(out string loadPath)
+        {
+            Assembly asm = Assembly.GetExecutingAssembly();
+            string path = System.IO.Path.GetDirectoryName(asm.Location);
+
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Voxel Editor Save|*.ves";
+            openFileDialog.Title = "Load world";
+            openFileDialog.RestoreDirectory = true;
+            openFileDialog.InitialDirectory = path;
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                loadPath = openFileDialog.FileName;
+                return true;
+            }
+
+            loadPath = "";
+            return false;
+        }
+
+        private void SaveWorld(IEnumerable<Chunk> chunks)
+        {
+            XElement world = new XElement("World");
+
+            foreach (var chunk in chunks)
+            {
+                world.Add(CreateChunkXml(chunk));
+            }
+
+            XDocument doc = new XDocument(world);
+
+            doc.Save(_currentPath);
         }
 
         private XElement CreateChunkXml(Chunk chunk)

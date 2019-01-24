@@ -254,7 +254,11 @@ namespace VoxelEditor.Model
             }
             if (keyActions.Contains(KeyAction.Save))
             {
-                _world.SaveWorld();
+                _world.SaveWorld(true);
+            }
+            if (keyActions.Contains(KeyAction.SaveAs))
+            {
+                _world.SaveWorld(false);
             }
             if (keyActions.Contains(KeyAction.Load))
             {

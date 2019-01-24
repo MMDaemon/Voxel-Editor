@@ -20,6 +20,7 @@
         ToggleCursorVisible,
         SelectMaterial,
         Save,
+        SaveAs,
         Load
     }
 }
