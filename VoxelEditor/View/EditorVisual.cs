@@ -61,6 +61,11 @@ namespace VoxelEditor.View
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkMeshes;
         private readonly Dictionary<Vector3I, VoxelMesh> _chunkPartMeshes;
 
+        private readonly Dictionary<Vector3I, VAO> _chunkGeometrys;
+        private readonly Dictionary<Vector3I, VAO> _chunkDepthGeometrys;
+        private readonly Dictionary<Vector3I, BufferObject> _amountBuffers;
+        private readonly Dictionary<Vector3I, BufferObject> _idBuffers;
+
         public string VoxelShaderName => nameof(_voxelShader);
         public string RaytraceShaderName => nameof(_raytraceShader);
         public string AddShaderName => nameof(_addShader);
@@ -78,9 +83,16 @@ namespace VoxelEditor.View
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.Texture2D);
 
+            _raytraceVoxelPosition = Vector3.Zero;
+
             _chunkMeshes = new Dictionary<Vector3I, VoxelMesh>();
             _chunkPartMeshes = new Dictionary<Vector3I, VoxelMesh>();
-            _raytraceVoxelPosition = Vector3.Zero;
+
+            _chunkGeometrys = new Dictionary<Vector3I, VAO>();
+            _chunkDepthGeometrys = new Dictionary<Vector3I, VAO>();
+            _amountBuffers = new Dictionary<Vector3I, BufferObject>();
+            _idBuffers = new Dictionary<Vector3I, BufferObject>();
+
             _renderToTexture = new FBO[5];
             _renderToTextureWithDepth = new FBO[2];
 
@@ -99,10 +111,6 @@ namespace VoxelEditor.View
             {
                 case nameof(_voxelShader):
                     _voxelShader = shader;
-                    if (!ReferenceEquals(shader, null))
-                    {
-                        UpdateVoxelMesh(CalculateVoxelMesh());
-                    }
                     break;
                 case nameof(_raytraceShader):
                     _raytraceShader = shader;
@@ -116,10 +124,6 @@ namespace VoxelEditor.View
                     break;
                 case nameof(_depthShader):
                     _depthShader = shader;
-                    if (!ReferenceEquals(shader, null))
-                    {
-                        UpdateDepthMesh(CalculateVoxelMesh().DefaultMesh);
-                    }
                     break;
                 case nameof(_ssaoShader):
                     _ssaoShader = shader;
@@ -217,10 +221,6 @@ namespace VoxelEditor.View
         {
             ITexture raytraceTexture = RenderOnTexture(delegate { RenderRaytrace(cam, raytraceCollided); }, 0);
 
-            VoxelMesh mesh = CalculateVoxelMesh();
-
-            UpdateVoxelMesh(mesh);
-
             CreateWorldGround();
 
             ITexture voxelTexture = RenderOnTextureWithDepth(delegate
@@ -229,7 +229,6 @@ namespace VoxelEditor.View
                 RenderGround(cameraPosition, cam);
             }, 0);
 
-            UpdateDepthMesh(mesh.DefaultMesh);
             ITexture depthTexture = RenderOnTextureWithDepth(delegate { RenderDepth(cameraPosition, cam); }, 1);
 
             ITexture ssaoTexture = RenderOnTexture(delegate { RenderSsao(depthTexture); }, 3);
@@ -352,14 +351,17 @@ namespace VoxelEditor.View
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "ambientLightColor"), new OpenTK.Vector3(0.1f, 0.1f, 0.1f));
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightDirection"), new OpenTK.Vector3(1f, 1.5f, -2f).Normalized());
             GL.Uniform3(_voxelShader.GetResourceLocation(ShaderResourceType.Uniform, "lightColor"), new OpenTK.Vector3(1f, 1f, 1f));
-            _amountBuffer.ActivateBind(3);
-            _idBuffer.ActivateBind(4);
-            if (_voxelGeometry.IDLength > 0)
+            foreach (var valuePair in _chunkGeometrys)
             {
-                _voxelGeometry.Draw();
+                _amountBuffers[valuePair.Key].ActivateBind(3);
+                _idBuffers[valuePair.Key].ActivateBind(4);
+                if (valuePair.Value.IDLength > 0)
+                {
+                    valuePair.Value.Draw();
+                }
+                _idBuffers[valuePair.Key].Deactivate();
+                _amountBuffers[valuePair.Key].Deactivate();
             }
-            _idBuffer.Deactivate();
-            _amountBuffer.Deactivate();
             _materialTextureArray.Deactivate();
             _voxelShader.Deactivate();
         }
@@ -371,9 +373,13 @@ namespace VoxelEditor.View
             GL.Clear(ClearBufferMask.ColorBufferBit);
             _depthShader.Activate();
             GL.UniformMatrix4(_depthShader.GetResourceLocation(ShaderResourceType.Uniform, "camera"), 1, false, cam);
-            if (_depthGeometry.IDLength > 0)
+            foreach (var geometry in _chunkDepthGeometrys.Values)
             {
-                _depthGeometry.Draw();
+                if (geometry.IDLength > 0)
+                {
+
+                    geometry.Draw();
+                }
             }
             _depthShader.Deactivate();
             GL.ClearColor(Color.Transparent);
@@ -403,43 +409,6 @@ namespace VoxelEditor.View
                 _raytraceGeometry.Draw();
                 _raytraceShader.Deactivate();
             }
-        }
-
-        private VoxelMesh CalculateVoxelMesh()
-        {
-            VoxelMesh mesh = new VoxelMesh();
-
-            foreach (KeyValuePair<Vector3I, VoxelMesh> chunkMesh in _chunkMeshes)
-            {
-                mesh.Add(chunkMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)(chunkMesh.Key * Constant.ChunkSize))).Transform(Matrix4x4.CreateScale(_voxelSize)));
-            }
-
-            foreach (KeyValuePair<Vector3I, VoxelMesh> chunkPartMesh in _chunkPartMeshes)
-            {
-                mesh.Add(chunkPartMesh.Value.Transform(Matrix4x4.CreateTranslation((Vector3)chunkPartMesh.Key)).Transform(Matrix4x4.CreateScale(_voxelSize)));
-            }
-
-            return mesh;
-        }
-
-        private void UpdateVoxelMesh(VoxelMesh mesh)
-        {
-            _voxelGeometry = VAOLoader.FromMesh(mesh.DefaultMesh, _voxelShader);
-            var loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "uv3d");
-            _voxelGeometry.SetAttribute(loc, mesh.TexCoord3D.ToArray(), OpenGl4.VertexAttribPointerType.Float, 3);
-            loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "voxelId");
-            _voxelGeometry.SetAttribute(loc, mesh.VoxelId.ToArray(), OpenGl4.VertexAttribPointerType.Float, 1);
-
-            _amountBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
-            _amountBuffer.Set(mesh.MaterialAmount.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
-            _idBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
-            _idBuffer.Set(mesh.MaterialId.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
-
-        }
-
-        private void UpdateDepthMesh(DefaultMesh mesh)
-        {
-            _depthGeometry = VAOLoader.FromMesh(mesh, _depthShader);
         }
 
         private void UpdateRaytraceMesh()
@@ -498,6 +467,12 @@ namespace VoxelEditor.View
                 {
                     _chunkMeshes.Add(chunk.Position, new ChunkMesh(chunk));
                 }
+
+                VoxelMesh mesh = new ChunkMesh(chunk)
+                    .Transform(Matrix4x4.CreateTranslation((Vector3)(chunk.Position * Constant.ChunkSize)))
+                    .Transform(Matrix4x4.CreateScale(_voxelSize));
+                UpdateChunkGeometry(chunk.Position, mesh);
+                UpdateChunkDepthGeomatry(chunk.Position, mesh);
 
                 CalculateChunkPartMeshes(chunk);
             }
@@ -569,28 +544,67 @@ namespace VoxelEditor.View
             {
                 _chunkPartMeshes.Add(partChunk.Position, new ChunkMesh(partChunk, partChunkSize));
             }
+
+            VoxelMesh mesh = new ChunkMesh(partChunk, partChunkSize)
+                .Transform(Matrix4x4.CreateTranslation((Vector3)partChunk.Position))
+                .Transform(Matrix4x4.CreateScale(_voxelSize));
+            UpdateChunkGeometry(partChunk.Position, mesh);
+            UpdateChunkDepthGeomatry(partChunk.Position, mesh);
         }
 
-        private List<Vector3> CalculateVoxelPositions(IEnumerable<Chunk> chunks)
+        private void UpdateChunkGeometry(Vector3I position, VoxelMesh mesh)
         {
-            List<Vector3> voxelPositions = new List<Vector3>();
-            foreach (Chunk chunk in chunks)
+            VAO geometry = VAOLoader.FromMesh(mesh.DefaultMesh, _voxelShader);
+            var loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "uv3d");
+            geometry.SetAttribute(loc, mesh.TexCoord3D.ToArray(), OpenGl4.VertexAttribPointerType.Float, 3);
+            loc = _voxelShader.GetResourceLocation(ShaderResourceType.Attribute, "voxelId");
+            geometry.SetAttribute(loc, mesh.VoxelId.ToArray(), OpenGl4.VertexAttribPointerType.Float, 1);
+
+            BufferObject amountBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
+            amountBuffer.Set(mesh.MaterialAmount.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
+            BufferObject idBuffer = new BufferObject(OpenGl4.BufferTarget.ShaderStorageBuffer);
+            idBuffer.Set(mesh.MaterialId.ToArray(), OpenGl4.BufferUsageHint.StaticCopy);
+
+            if (_chunkGeometrys.ContainsKey(position))
             {
-                for (int x = 0; x < Constant.ChunkSizeX; x++)
-                {
-                    for (int y = 0; y < Constant.ChunkSizeY; y++)
-                    {
-                        for (int z = 0; z < Constant.ChunkSizeZ; z++)
-                        {
-                            if (chunk[x, y, z] != null && chunk[x, y, z].Exists)
-                            {
-                                voxelPositions.Add(_voxelSize * (Vector3)(chunk.Position * Constant.ChunkSize + new Vector3I(x, y, z)));
-                            }
-                        }
-                    }
-                }
+                _chunkGeometrys[position] = geometry;
             }
-            return voxelPositions;
+            else
+            {
+                _chunkGeometrys.Add(position, geometry);
+            }
+
+            if (_amountBuffers.ContainsKey(position))
+            {
+                _amountBuffers[position] = amountBuffer;
+            }
+            else
+            {
+                _amountBuffers.Add(position, amountBuffer);
+            }
+
+            if (_idBuffers.ContainsKey(position))
+            {
+                _idBuffers[position] = idBuffer;
+            }
+            else
+            {
+                _idBuffers.Add(position, idBuffer);
+            }
+        }
+
+        private void UpdateChunkDepthGeomatry(Vector3I position, VoxelMesh mesh)
+        {
+            VAO depthGeometry = VAOLoader.FromMesh(mesh.DefaultMesh, _depthShader);
+
+            if (_chunkDepthGeometrys.ContainsKey(position))
+            {
+                _chunkDepthGeometrys[position] = depthGeometry;
+            }
+            else
+            {
+                _chunkDepthGeometrys.Add(position, depthGeometry);
+            }
         }
 
         private void InitializeMaterialTextures()

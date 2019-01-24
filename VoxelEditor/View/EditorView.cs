@@ -9,7 +9,6 @@ using VoxelUtils.Registry.View;
 using Zenseless.Application;
 using Zenseless.Base;
 using Zenseless.HLGL;
-using Zenseless.OpenGL;
 
 namespace VoxelEditor.View
 {
@@ -115,7 +114,7 @@ namespace VoxelEditor.View
 
         private void ToggleFullscreen()
         {
-            GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Fullscreen == gameWindow.WindowState ? WindowState.Normal : WindowState.Fullscreen);
+            GameWindowEvent?.Invoke(gameWindow => gameWindow.WindowState = WindowState.Maximized == gameWindow.WindowState ? WindowState.Normal : WindowState.Maximized);
         }
 
         private void SetCursorVisible()
