@@ -41,12 +41,8 @@ namespace VoxelEditor.View
         private readonly TextureFont _font;
 
         private VAO _groundGeometry;
-        private VAO _voxelGeometry;
+        private VAO _groundDepthGeometry;
         private VAO _raytraceGeometry;
-        private VAO _depthGeometry;
-
-        private BufferObject _amountBuffer;
-        private BufferObject _idBuffer;
 
         private readonly FBO[] _renderToTexture;
         private readonly FBO[] _renderToTextureWithDepth;
@@ -381,6 +377,7 @@ namespace VoxelEditor.View
                     geometry.Draw();
                 }
             }
+            _groundDepthGeometry.Draw();
             _depthShader.Deactivate();
             GL.ClearColor(Color.Transparent);
         }
@@ -453,6 +450,7 @@ namespace VoxelEditor.View
             mesh = mesh.Transform(Matrix4x4.CreateScale(_voxelSize));
 
             _groundGeometry = VAOLoader.FromMesh(mesh, _geometryShader);
+            _groundDepthGeometry = VAOLoader.FromMesh(mesh, _depthShader);
         }
 
         private void CalculateChunkMeshes(IEnumerable<Chunk> viewModelChunks)
